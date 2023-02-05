@@ -10,21 +10,25 @@ import {
   WebGLRenderer,
 } from 'three';
 import { getTrackData, PlotabbleFeature } from './data';
-import { extent, scaleLinear } from 'd3';
+import { extent, scaleLinear, select } from 'd3';
+import { setupZoom } from './camera-zoom-pan-utils';
 
 const scene = new Scene();
-const camera = new PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+const vizWidth = window.innerWidth;
+const vizHeight = window.innerHeight;
+
+const fov = 40;
+const aspectRatio = vizWidth / vizHeight;
+const near = 1;
+const far = 101;
+const camera = new PerspectiveCamera(fov, aspectRatio, near, far);
+
 const renderer = new WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(vizWidth, vizHeight);
 document.body.appendChild(renderer.domElement);
 
 const main = async () => {
-  camera.position.z = 5; // Move camera out a bit so that we can see elements in the scene
+  camera.position.z = 1; // Move camera out a bit so that we can see elements in the scene
 
   const scatterPlot = new Object3D();
   scene.add(scatterPlot);
@@ -33,30 +37,27 @@ const main = async () => {
 
   const xFeature: PlotabbleFeature = 'acousticness';
   const yFeature: PlotabbleFeature = 'danceability';
-  const zFeature: PlotabbleFeature = 'energy';
 
   const xExtent = extent(data, d => d[xFeature]) as [number, number];
   const yExtent = extent(data, d => d[yFeature]) as [number, number];
-  const zExtent = extent(data, d => d[zFeature]) as [number, number];
 
   function createScale(extent: [number, number]) {
-    return scaleLinear().domain(extent).range([-50, 50]);
+    return scaleLinear().domain(extent).range([-0.5, 0.5]);
   }
   const xScale = createScale(xExtent);
   const yScale = createScale(yExtent);
-  const zScale = createScale(zExtent);
+
   const spotifyGreen = 0x1db954;
   const pointMaterial = new PointsMaterial({
     color: spotifyGreen,
-    size: 0.05,
+    size: 0.01,
   });
 
   const pointVertexCoords = data.flatMap(track => [
     xScale(track[xFeature]),
     yScale(track[yFeature]),
-    zScale(track[zFeature]),
+    0,
   ]);
-  console.log(pointVertexCoords);
   const pointsGeo = new BufferGeometry();
   pointsGeo.setAttribute(
     'position',
@@ -69,7 +70,17 @@ const main = async () => {
     requestAnimationFrame(animate); // called every frame (usually 60fps)
     renderer.render(scene, camera);
   }
-  animate(); // starts the animation, which calls animate() every frame resulting in the cube rotating
+  animate(); // starts rendering
+
+  setupZoom({
+    view: select(renderer.domElement),
+    camera,
+    far,
+    near,
+    width: vizWidth,
+    height: vizHeight,
+    fov,
+  });
 };
 
 main();
