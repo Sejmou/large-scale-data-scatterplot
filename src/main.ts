@@ -74,7 +74,7 @@ const main = async () => {
     'circle_texture_antialiased.png'
   );
   const pointMaterial = new PointsMaterial({
-    size: 5,
+    size: 8,
     vertexColors: true,
     map: circleTextureAA,
     alphaTest: 0.5,
