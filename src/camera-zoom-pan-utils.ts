@@ -15,6 +15,7 @@ export function setupZoom(params: {
     far,
     near,
     camera,
+    width,
     height,
     fov,
   });
@@ -31,20 +32,20 @@ function createZoomHandler(params: {
   far: number;
   near: number;
   camera: PerspectiveCamera;
+  width: number;
   height: number;
   fov: number;
 }) {
-  const { far, near, camera, height, fov } = params;
+  const { far, near, camera, width, height, fov } = params;
   const d3Zoom = zoom()
     .scaleExtent([getScale(far, fov, height), getScale(near, fov, height)])
     .on('zoom', (event: { transform: { x: number; y: number; k: number } }) => {
-      console.log(event);
+      console.log(event.transform.x, event.transform.y, event.transform.k);
       const scale = event.transform.k;
-      // const x = (event.transform.x - width / 2) / scale;
-      // const y = (event.transform.y - height / 2) / scale;
+      const x = -(event.transform.x - width / 2) / scale;
+      const y = (event.transform.y - height / 2) / scale;
       const z = getCameraZ(scale, fov, height);
-      camera.position.z = z;
-      // camera.position.set(x, y, z);
+      camera.position.set(x, y, z);
     });
   return d3Zoom;
 }
@@ -64,7 +65,6 @@ function toRadians(angle: number) {
 function getCameraZ(scale: number, fov: number, height: number) {
   const halfFov = fov / 2;
   const halfFovRadians = toRadians(halfFov);
-  const scale_height = height / scale;
-  const camera_z_position = scale_height / (2 * Math.tan(halfFovRadians));
-  return camera_z_position;
+  const scaleHeight = height / scale;
+  return scaleHeight / (2 * Math.tan(halfFovRadians));
 }

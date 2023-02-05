@@ -34,8 +34,6 @@ renderer.setSize(vizWidth, vizHeight);
 document.body.appendChild(renderer.domElement);
 
 const main = async () => {
-  camera.position.z = 1; // Move camera out a bit so that we can see elements in the scene
-
   const scatterPlot = new Object3D();
   scene.add(scatterPlot);
 
@@ -47,11 +45,12 @@ const main = async () => {
   const xExtent = extent(data, d => d[xFeature]) as [number, number];
   const yExtent = extent(data, d => d[yFeature]) as [number, number];
 
-  function createScale(extent: [number, number]) {
-    return scaleLinear().domain(extent).range([-0.5, 0.5]);
-  }
-  const xScale = createScale(xExtent);
-  const yScale = createScale(yExtent);
+  const xScale = scaleLinear()
+    .domain(xExtent)
+    .range([-vizWidth / 2, vizWidth / 2]);
+  const yScale = scaleLinear()
+    .domain(yExtent)
+    .range([-vizHeight / 2, vizHeight / 2]);
 
   const categoryVariable: CategoricalFeatureName = 'key';
 
