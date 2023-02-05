@@ -2,7 +2,6 @@ import './style.css';
 import {
   BufferAttribute,
   BufferGeometry,
-  Object3D,
   PerspectiveCamera,
   Points,
   PointsMaterial,
@@ -16,8 +15,9 @@ import {
   PlotabbleFeatureName,
 } from './data';
 import { extent, scaleLinear, select } from 'd3';
-import { setup } from './camera-zoom-pan-utils';
+import setupZoomPan from './zoom-pan';
 import { getColor } from './color';
+import { computeScatterplotPlaneDimensions } from './scatterplot';
 
 const scene = new Scene();
 const vizWidth = window.innerWidth;
@@ -34,10 +34,7 @@ renderer.setSize(vizWidth, vizHeight);
 document.body.appendChild(renderer.domElement);
 
 const main = async () => {
-  const scatterPlot = new Object3D();
-  scene.add(scatterPlot);
-
-  const { scatterPlotPlaneHeight, scatterplotPlaneWidth } = setup({
+  setupZoomPan({
     view: select(renderer.domElement),
     camera,
     far,
@@ -46,6 +43,14 @@ const main = async () => {
     height: vizHeight,
     fov,
   });
+
+  const { scatterPlotPlaneHeight, scatterplotPlaneWidth } =
+    computeScatterplotPlaneDimensions(
+      camera.position.z,
+      fov,
+      vizWidth,
+      vizHeight
+    );
 
   const data = await getTrackData();
 
@@ -85,16 +90,16 @@ const main = async () => {
     return [color.r, color.g, color.b];
   });
 
-  const pointsGeo = new BufferGeometry();
-  pointsGeo.setAttribute(
+  const scatterPointsGeo = new BufferGeometry();
+  scatterPointsGeo.setAttribute(
     'position',
     new BufferAttribute(new Float32Array(pointVertexCoords), 3)
   );
-  pointsGeo.setAttribute(
+  scatterPointsGeo.setAttribute(
     'color',
     new BufferAttribute(new Float32Array(pointVertexColors), 3)
   );
-  const pointsMesh = new Points(pointsGeo, pointMaterial);
+  const pointsMesh = new Points(scatterPointsGeo, pointMaterial);
   scene.add(pointsMesh);
 
   function animate() {
