@@ -7,11 +7,17 @@ import {
   Points,
   PointsMaterial,
   Scene,
+  TextureLoader,
   WebGLRenderer,
 } from 'three';
-import { getTrackData, PlotabbleFeatureName } from './data';
+import {
+  CategoricalFeatureName,
+  getTrackData,
+  PlotabbleFeatureName,
+} from './data';
 import { extent, scaleLinear, select } from 'd3';
 import { setupZoom } from './camera-zoom-pan-utils';
+import { getColor } from './color';
 
 const scene = new Scene();
 const vizWidth = window.innerWidth;
@@ -47,11 +53,17 @@ const main = async () => {
   const xScale = createScale(xExtent);
   const yScale = createScale(yExtent);
 
-  const spotifyGreen = 0x1db954;
+  const categoryVariable: CategoricalFeatureName = 'key';
+
+  const circleTextureAA = new TextureLoader().load(
+    'circle_texture_antialiased.png'
+  );
+  console.log(circleTextureAA);
   const pointMaterial = new PointsMaterial({
-    color: spotifyGreen,
     size: 0.01,
-    // vertexColors: true,
+    vertexColors: true,
+    map: circleTextureAA,
+    alphaTest: 0.5,
   });
 
   const pointVertexCoords = data.flatMap(track => [
@@ -59,10 +71,19 @@ const main = async () => {
     yScale(track[yFeature]),
     0,
   ]);
+  const pointVertexColors = data.flatMap(track => {
+    const color = getColor(track[categoryVariable]);
+    return [color.r, color.g, color.b];
+  });
+
   const pointsGeo = new BufferGeometry();
   pointsGeo.setAttribute(
     'position',
     new BufferAttribute(new Float32Array(pointVertexCoords), 3)
+  );
+  pointsGeo.setAttribute(
+    'color',
+    new BufferAttribute(new Float32Array(pointVertexColors), 3)
   );
   const pointsMesh = new Points(pointsGeo, pointMaterial);
   scene.add(pointsMesh);
