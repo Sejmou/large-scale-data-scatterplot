@@ -16,7 +16,7 @@ import {
   PlotabbleFeatureName,
 } from './data';
 import { extent, scaleLinear, select } from 'd3';
-import { setupZoom } from './camera-zoom-pan-utils';
+import { setup } from './camera-zoom-pan-utils';
 import { getColor } from './color';
 
 const scene = new Scene();
@@ -29,13 +29,23 @@ const near = 1;
 const far = 101;
 const camera = new PerspectiveCamera(fov, aspectRatio, near, far);
 
-const renderer = new WebGLRenderer();
+const renderer = new WebGLRenderer({ alpha: true });
 renderer.setSize(vizWidth, vizHeight);
 document.body.appendChild(renderer.domElement);
 
 const main = async () => {
   const scatterPlot = new Object3D();
   scene.add(scatterPlot);
+
+  const { scatterPlotPlaneHeight, scatterplotPlaneWidth } = setup({
+    view: select(renderer.domElement),
+    camera,
+    far,
+    near,
+    width: vizWidth,
+    height: vizHeight,
+    fov,
+  });
 
   const data = await getTrackData();
 
@@ -47,17 +57,16 @@ const main = async () => {
 
   const xScale = scaleLinear()
     .domain(xExtent)
-    .range([-vizWidth / 2, vizWidth / 2]);
+    .range([-scatterplotPlaneWidth / 2, scatterplotPlaneWidth / 2]);
   const yScale = scaleLinear()
     .domain(yExtent)
-    .range([-vizHeight / 2, vizHeight / 2]);
+    .range([-scatterPlotPlaneHeight / 2, scatterPlotPlaneHeight / 2]);
 
   const categoryVariable: CategoricalFeatureName = 'key';
 
   const circleTextureAA = new TextureLoader().load(
     'circle_texture_antialiased.png'
   );
-  console.log(circleTextureAA);
   const pointMaterial = new PointsMaterial({
     size: 5,
     vertexColors: true,
@@ -93,16 +102,6 @@ const main = async () => {
     renderer.render(scene, camera);
   }
   animate(); // starts rendering
-
-  setupZoom({
-    view: select(renderer.domElement),
-    camera,
-    far,
-    near,
-    width: vizWidth,
-    height: vizHeight,
-    fov,
-  });
 };
 
 main();
