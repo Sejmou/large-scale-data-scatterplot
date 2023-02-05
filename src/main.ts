@@ -16,6 +16,7 @@ import {
 } from './data';
 import { extent, scaleLinear, select } from 'd3';
 import setupZoomPan from './zoom-pan';
+import setupTooltip from './tooltip';
 import { getColor } from './color';
 import { computeScatterplotPlaneDimensions } from './scatterplot';
 
@@ -101,6 +102,13 @@ const main = async () => {
   );
   const pointsMesh = new Points(scatterPointsGeo, pointMaterial);
   scene.add(pointsMesh);
+
+  setupTooltip({
+    view: select(renderer.domElement),
+    camera,
+    data,
+    scatterPoints: pointsMesh,
+  });
 
   function animate() {
     requestAnimationFrame(animate); // called every frame (usually 60fps)
