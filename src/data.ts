@@ -1,6 +1,4 @@
-export type TrackData = {
-  id: string;
-  name: string;
+export type PlottableFeatures = {
   acousticness: number;
   danceability: number;
   durationMs: number;
@@ -11,12 +9,30 @@ export type TrackData = {
   speechiness: number;
   tempo: number;
   valence: number;
+  isrcYear: number;
 };
 
-export type PlotabbleFeature = keyof Omit<TrackData, 'id' | 'name'>;
+export type CategoricalFeatures = {
+  key: number;
+  mode: number;
+  timeSignature: number;
+  isrcAgency: string;
+  isrcTerritory: string;
+  explicit: boolean;
+};
+
+export type TrackData = PlottableFeatures &
+  CategoricalFeatures & {
+    id: string;
+    previewUrl: string;
+    isrc: string;
+  };
+
+export type PlotabbleFeatureName = keyof PlottableFeatures;
+export type CategoricalFeatureName = keyof CategoricalFeatures;
 
 export async function getTrackData(): Promise<TrackData[]> {
-  const response = await fetch('tracks_numeric.json');
+  const response = await fetch('tracks.json');
   const data = await response.json();
   return data;
 }

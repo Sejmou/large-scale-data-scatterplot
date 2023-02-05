@@ -9,7 +9,7 @@ import {
   Scene,
   WebGLRenderer,
 } from 'three';
-import { getTrackData, PlotabbleFeature } from './data';
+import { getTrackData, PlotabbleFeatureName } from './data';
 import { extent, scaleLinear, select } from 'd3';
 import { setupZoom } from './camera-zoom-pan-utils';
 
@@ -35,8 +35,8 @@ const main = async () => {
 
   const data = await getTrackData();
 
-  const xFeature: PlotabbleFeature = 'acousticness';
-  const yFeature: PlotabbleFeature = 'danceability';
+  const xFeature: PlotabbleFeatureName = 'acousticness';
+  const yFeature: PlotabbleFeatureName = 'danceability';
 
   const xExtent = extent(data, d => d[xFeature]) as [number, number];
   const yExtent = extent(data, d => d[yFeature]) as [number, number];
@@ -51,6 +51,7 @@ const main = async () => {
   const pointMaterial = new PointsMaterial({
     color: spotifyGreen,
     size: 0.01,
+    // vertexColors: true,
   });
 
   const pointVertexCoords = data.flatMap(track => [
