@@ -60,10 +60,11 @@ const main = async () => {
   );
   console.log(circleTextureAA);
   const pointMaterial = new PointsMaterial({
-    size: 0.01,
+    size: 5,
     vertexColors: true,
     map: circleTextureAA,
     alphaTest: 0.5,
+    sizeAttenuation: false, // in visualizations, we want the points to be the same size regardless of zoom level (which in our case is the distance from the camera in 3D space)
   });
 
   const pointVertexCoords = data.flatMap(track => [
