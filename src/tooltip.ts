@@ -1,34 +1,31 @@
-import { PerspectiveCamera, Points, Raycaster } from 'three';
-import { TrackData } from './data';
+import { Object3D, PerspectiveCamera, Points, Raycaster, Scene } from 'three';
+import { createPoints, PointRenderConfig } from './render';
 
 export default function setup(params: {
   camera: PerspectiveCamera;
   scatterPoints: Points;
   view: any;
-  data: TrackData[];
+  scene: Scene;
+  renderConfigs: PointRenderConfig[];
 }) {
-  const { camera, scatterPoints, view, data } = params;
+  const { camera, scatterPoints, view, scene, renderConfigs } = params;
+  const hoverContainer = new Object3D();
+  scene.add(hoverContainer);
+
+  const raycaster = new Raycaster();
+
   view.on('mousemove', (event: { pageX: number; pageY: number }) => {
     const { pageX, pageY } = event;
-    const raycaster = getRayCaster();
-    checkIntersects({
+    checkForAndHandleIntersects({
       raycaster,
       camera,
       scatterPoints,
       mouseX: pageX,
       mouseY: pageY,
-      data,
+      hoverContainer,
+      renderConfigs,
     });
   });
-}
-
-let rayCaster: Raycaster;
-
-function getRayCaster() {
-  if (!rayCaster) {
-    rayCaster = new Raycaster();
-  }
-  return rayCaster;
 }
 
 function mouseToThree(mouseX: number, mouseY: number) {
@@ -37,30 +34,48 @@ function mouseToThree(mouseX: number, mouseY: number) {
   return { x, y };
 }
 
-function checkIntersects(params: {
+function checkForAndHandleIntersects(params: {
   raycaster: Raycaster;
   camera: PerspectiveCamera;
   scatterPoints: Points;
   mouseX: number;
   mouseY: number;
-  data: TrackData[];
+  hoverContainer: Object3D;
+  renderConfigs: PointRenderConfig[];
 }) {
-  const { raycaster, camera, scatterPoints, mouseX, mouseY, data } = params;
-  const mouse_vector = mouseToThree(mouseX, mouseY);
-  raycaster.setFromCamera(mouse_vector, camera);
+  const {
+    raycaster,
+    camera,
+    scatterPoints,
+    mouseX,
+    mouseY,
+    hoverContainer,
+    renderConfigs,
+  } = params;
+  const mouseVector = mouseToThree(mouseX, mouseY);
+  raycaster.setFromCamera(mouseVector, camera);
   const intersects = raycaster.intersectObject(scatterPoints);
-  if (intersects[0]) {
-    const sorted_intersects = [...intersects].sort(
+  if (intersects.length > 0) {
+    const sortedIntersects = [...intersects].sort(
       (a, b) => a.distanceToRay! - b.distanceToRay!
     );
-    const intersect = sorted_intersects[0];
-    const index = intersect.index;
-    const datum = index ? data[index] : null;
-    console.log(datum);
-    // highlightPoint(datum);
-    // showTooltip(mouse_position, datum);
+    const pointConfig = renderConfigs[sortedIntersects[0].index!];
+    // console.log('hovering point', pointConfig);
+    highlightPoint(pointConfig, hoverContainer);
   } else {
-    // removeHighlights();
-    // hideTooltip();
+    removeHighlights(hoverContainer);
   }
+}
+
+function highlightPoint(
+  pointConfig: PointRenderConfig,
+  hoverContainer: Object3D
+) {
+  removeHighlights(hoverContainer); // if we don't remove previous highlights, we'll end up with a bunch of points rendered on top of each other
+  const highlightedPoint = createPoints([pointConfig], 24);
+  hoverContainer.add(highlightedPoint);
+}
+
+function removeHighlights(hoverContainer: Object3D) {
+  hoverContainer.remove(...hoverContainer.children);
 }
