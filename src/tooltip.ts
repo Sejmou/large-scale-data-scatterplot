@@ -7,23 +7,33 @@ export default function setup(params: {
   view: any;
   scene: Scene;
   renderConfigs: PointRenderConfig[];
+  width: number;
+  height: number;
 }) {
-  const { camera, scatterPoints, view, scene, renderConfigs } = params;
+  const { camera, scatterPoints, view, scene, renderConfigs, width, height } =
+    params;
   const hoverContainer = new Object3D();
   scene.add(hoverContainer);
 
   const raycaster = new Raycaster();
 
-  view.on('mousemove', (event: { pageX: number; pageY: number }) => {
-    const { pageX, pageY } = event;
+  view.on('mousemove', (event: MouseEvent) => {
+    const canvasRect = (
+      event.target as HTMLCanvasElement
+    ).getBoundingClientRect();
+    const x = event.clientX - canvasRect.left; //x position within the element.
+    const y = event.clientY - canvasRect.top; //y position within the element.
+    console.log(x, y);
     checkForAndHandleIntersects({
       raycaster,
       camera,
       scatterPoints,
-      mouseX: pageX,
-      mouseY: pageY,
+      mouseX: x,
+      mouseY: y,
       hoverContainer,
       renderConfigs,
+      width,
+      height,
     });
   });
 
@@ -32,9 +42,14 @@ export default function setup(params: {
   });
 }
 
-function mouseToThree(mouseX: number, mouseY: number) {
-  const x = (mouseX / window.innerWidth) * 2 - 1;
-  const y = -(mouseY / window.innerHeight) * 2 + 1;
+function mouseToThree(
+  mouseX: number,
+  mouseY: number,
+  width: number,
+  height: number
+) {
+  const x = (mouseX / width) * 2 - 1;
+  const y = -(mouseY / height) * 2 + 1;
   return { x, y };
 }
 
@@ -46,6 +61,8 @@ function checkForAndHandleIntersects(params: {
   mouseY: number;
   hoverContainer: Object3D;
   renderConfigs: PointRenderConfig[];
+  width: number;
+  height: number;
 }) {
   const {
     raycaster,
@@ -55,8 +72,10 @@ function checkForAndHandleIntersects(params: {
     mouseY,
     hoverContainer,
     renderConfigs,
+    width,
+    height,
   } = params;
-  const mouseVector = mouseToThree(mouseX, mouseY);
+  const mouseVector = mouseToThree(mouseX, mouseY, width, height);
   raycaster.setFromCamera(mouseVector, camera);
   const intersects = raycaster.intersectObject(scatterPoints);
   if (intersects.length > 0) {

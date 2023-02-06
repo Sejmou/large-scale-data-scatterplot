@@ -1,3 +1,33 @@
 body {
   margin: 0;
 }
+
+.chart {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.chart canvas {
+  position: relative;
+}
+
+.chart svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.x-axis,
+.y-axis {
+  position: relative;
+  z-index: 1;
+}
+
+.chart-wrapper {
+  width: 100vw;
+  height: 100vh;
+}
