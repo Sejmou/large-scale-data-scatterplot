@@ -26,6 +26,10 @@ export default function setup(params: {
       renderConfigs,
     });
   });
+
+  view.on('mouseleave', () => {
+    removeHighlights(hoverContainer);
+  });
 }
 
 function mouseToThree(mouseX: number, mouseY: number) {

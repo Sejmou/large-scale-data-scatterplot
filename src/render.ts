@@ -4,6 +4,7 @@ import {
   Color,
   Points,
   PointsMaterial,
+  Texture,
   TextureLoader,
 } from 'three';
 
@@ -13,14 +14,13 @@ export type PointRenderConfig = {
   color: Color;
 };
 
+let circleTexture: Texture;
+
 export function getPointMaterial(pointSize: number) {
-  const circleTextureAA = new TextureLoader().load(
-    'circle_texture_antialiased.png'
-  );
   const pointMaterial = new PointsMaterial({
     size: pointSize,
     vertexColors: true,
-    map: circleTextureAA,
+    map: getTexture(),
     alphaTest: 0.5,
     sizeAttenuation: false, // in visualizations, we want the points to be the same size regardless of zoom level (which in our case is the distance from the camera in 3D space)
     transparent: true,
@@ -50,4 +50,11 @@ export function createPoints(pointConfigs: PointRenderConfig[], size = 12) {
   );
   const pointsMesh = new Points(scatterPointsGeo, pointMaterial);
   return pointsMesh;
+}
+
+function getTexture() {
+  if (!circleTexture) {
+    circleTexture = new TextureLoader().load('circle_texture_antialiased.png');
+  }
+  return circleTexture;
 }
