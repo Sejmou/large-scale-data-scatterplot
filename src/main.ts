@@ -18,7 +18,7 @@ import { extent, scaleLinear, select } from 'd3';
 import setupZoomPan from './zoom-pan';
 import setupTooltip from './tooltip';
 import { getColor } from './color';
-import { computeScatterplotPlaneDimensions } from './scatterplot';
+import { computeViewportFillingPlaneDimensions } from './utils';
 
 const scene = new Scene();
 const vizWidth = window.innerWidth;
@@ -45,13 +45,13 @@ const main = async () => {
     fov,
   });
 
-  const { scatterPlotPlaneHeight, scatterplotPlaneWidth } =
-    computeScatterplotPlaneDimensions(
-      camera.position.z,
+  const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
+    computeViewportFillingPlaneDimensions({
+      distanceFromCamera: camera.position.z,
       fov,
-      vizWidth,
-      vizHeight
-    );
+      aspectRatio: vizWidth / vizHeight,
+    });
+  console.log({ scatterplotPlaneWidth, scatterPlotPlaneHeight });
 
   const data = await getTrackData();
 
@@ -86,6 +86,7 @@ const main = async () => {
     yScale(track[yFeature]),
     0,
   ]);
+
   const pointVertexColors = data.flatMap(track => {
     const color = getColor(track[categoryVariable]);
     return [color.r, color.g, color.b];
