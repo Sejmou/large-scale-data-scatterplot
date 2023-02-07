@@ -4,7 +4,7 @@ import {
   CategoricalFeatureName,
   getTrackData,
   PlotabbleFeatureName,
-} from './data';
+} from '../utils/data';
 import { axisBottom, axisLeft, scaleLinear, select } from 'd3';
 import setupZoomPan from './zoom-pan';
 import setupTooltip from './tooltip';

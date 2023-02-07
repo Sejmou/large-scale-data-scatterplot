@@ -1,16 +1,15 @@
-type PlottableFeatures<T extends string> = {
+type ScatterplotData<T extends string> = {
   [key in T]: number;
 };
 
-const testFeatures: PlottableFeatures<'bla' | 'blub'> = {
-  bla: 1,
-  blub: 2,
-};
-
 type Props<T extends string> = {
-  data: PlottableFeatures<T>[];
+  data: ScatterplotData<T>[];
   xFeature: T;
   yFeature: T;
+  categoricalFeatures?: {
+    featureName: string;
+    colorEncodings: { value: string; color: string }[];
+  }[];
 };
 
 const Scatterplot = <T extends string>({

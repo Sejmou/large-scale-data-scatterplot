@@ -8,7 +8,7 @@ body {
   display: flex;
 }
 
-.chart canvas {
+.chart {
   position: relative;
 }
 
