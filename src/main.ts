@@ -1,5 +1,10 @@
 import './style.css';
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
+import {
+  BufferAttribute,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
+} from 'three';
 import {
   CategoricalFeatureName,
   getTrackData,
@@ -33,6 +38,8 @@ const far = 101;
 const camera = new PerspectiveCamera(fov, aspectRatio, near, far);
 
 const alpha = 0.4;
+
+const animationTime = 100000;
 
 const renderer = new WebGLRenderer({ alpha: true, canvas: renderCanvas });
 renderer.setSize(vizWidth, vizHeight);
@@ -110,10 +117,11 @@ const main = async () => {
 
   const pointsX = data.map(d => xScaleWorldCoordinates(d[xFeature]));
   const pointsY = data.map(d => yScaleWorldCoordinates(d[yFeature]));
+  const pointPositions = data.map((_, i) => ({ x: pointsX[i], y: pointsY[i] }));
   const pointColors = data.map(d => getColor(d[categoryVariable]));
   const pointRenderConfigs = data.map((_, i) => ({
-    x: pointsX[i],
-    y: pointsY[i],
+    x: 0,
+    y: 0,
     color: pointColors[i],
   }));
 
@@ -133,9 +141,32 @@ const main = async () => {
     near,
   });
 
-  function animate() {
+  const timeScale = scaleLinear().domain([0, animationTime]).range([0, 1]);
+  let timePassed = 0;
+  let animationInProgress = true;
+
+  function animate(timestamp?: DOMHighResTimeStamp) {
     requestAnimationFrame(animate); // called every frame (usually 60fps)
     renderer.render(scene, camera);
+    points.geometry.setAttribute(
+      'position',
+      new BufferAttribute(
+        new Float32Array(
+          pointPositions.flatMap(p => {
+            const t = timeScale(timePassed);
+            return [t * p.x, t * p.y, 0];
+          })
+        ),
+        3
+      )
+    );
+    if (timestamp && animationInProgress) {
+      timePassed += timestamp;
+      if (timePassed > animationTime) {
+        timePassed = animationTime;
+        animationInProgress = false;
+      }
+    }
   }
   animate(); // starts rendering
 };
