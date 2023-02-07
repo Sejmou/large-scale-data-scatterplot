@@ -1,3 +1,5 @@
+import { extent } from 'd3';
+
 export function getScale(cameraZ: number, fov: number, height: number) {
   const halfFov = fov / 2;
   const halfFovRadians = toRadians(halfFov);
@@ -40,4 +42,22 @@ export function computeViewportFillingPlaneDimensions(params: {
     width: planeWidthIn3DSpace,
     height: planeHeightIn3DSpace,
   };
+}
+
+/**
+ * Adding a small padding to the extent of the data so that the scatter plot points are not exactly on the edges of the axes
+ *
+ * This should fix occasionally disappearing axes labels and points right on the edge of the value range that are not hoverable
+ *
+ * @param data
+ * @param padding
+ * @returns
+ */
+export function extentWithPadding<T>(
+  data: Iterable<T>,
+  accessor: (datum: T) => number,
+  padding = 0.000001
+) {
+  const [min, max] = extent(data, accessor) as [number, number];
+  return [min - padding, max + padding];
 }

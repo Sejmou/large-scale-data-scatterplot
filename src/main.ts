@@ -5,11 +5,14 @@ import {
   getTrackData,
   PlotabbleFeatureName,
 } from './data';
-import { axisBottom, axisLeft, extent, scaleLinear, select } from 'd3';
+import { axisBottom, axisLeft, scaleLinear, select } from 'd3';
 import setupZoomPan from './zoom-pan';
 import setupTooltip from './tooltip';
 import { getColor } from './color';
-import { computeViewportFillingPlaneDimensions } from './utils';
+import {
+  computeViewportFillingPlaneDimensions,
+  extentWithPadding,
+} from './utils';
 import { createPoints } from './render';
 
 const scene = new Scene();
@@ -44,8 +47,8 @@ const main = async () => {
 
   const data = await getTrackData();
 
-  const xExtent = extent(data, d => d[xFeature]) as [number, number];
-  const yExtent = extent(data, d => d[yFeature]) as [number, number];
+  const xExtent = extentWithPadding(data, d => d[xFeature]) as [number, number];
+  const yExtent = extentWithPadding(data, d => d[yFeature]) as [number, number];
 
   const xScaleDOMPixelCoordinates = scaleLinear()
     .domain(xExtent)
