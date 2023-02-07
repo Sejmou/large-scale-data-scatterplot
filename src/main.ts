@@ -32,6 +32,8 @@ const near = 1;
 const far = 101;
 const camera = new PerspectiveCamera(fov, aspectRatio, near, far);
 
+const alpha = 0.4;
+
 const renderer = new WebGLRenderer({ alpha: true, canvas: renderCanvas });
 renderer.setSize(vizWidth, vizHeight);
 vizContainer.appendChild(renderer.domElement);
@@ -115,7 +117,7 @@ const main = async () => {
     color: pointColors[i],
   }));
 
-  const points = createPoints(pointRenderConfigs);
+  const points = createPoints({ pointConfigs: pointRenderConfigs, alpha });
   scene.add(points);
 
   setupTooltip({

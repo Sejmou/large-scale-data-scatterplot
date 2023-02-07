@@ -122,7 +122,10 @@ function highlightPoint(
   hoverContainer: Object3D
 ) {
   removeHighlights(hoverContainer); // if we don't remove previous highlights, we'll end up with a bunch of points rendered on top of each other
-  const highlightedPoint = createPoints([pointConfig], 24);
+  const highlightedPoint = createPoints({
+    pointConfigs: [pointConfig],
+    size: 24,
+  });
   hoverContainer.add(highlightedPoint);
 }
 

@@ -16,20 +16,25 @@ export type PointRenderConfig = {
 
 let circleTexture: Texture;
 
-export function getPointMaterial(pointSize: number) {
+export function getPointMaterial(pointSize: number, alpha: number) {
   const pointMaterial = new PointsMaterial({
     size: pointSize,
     vertexColors: true,
     map: getTexture(),
-    alphaTest: 0.5,
     sizeAttenuation: false, // in visualizations, we want the points to be the same size regardless of zoom level (which in our case is the distance from the camera in 3D space)
     transparent: true,
+    opacity: alpha,
   });
   return pointMaterial;
 }
 
-export function createPoints(pointConfigs: PointRenderConfig[], size = 12) {
-  const pointMaterial = getPointMaterial(size);
+export function createPoints(params: {
+  pointConfigs: PointRenderConfig[];
+  size?: number;
+  alpha?: number;
+}) {
+  const { pointConfigs, size = 12, alpha = 1 } = params;
+  const pointMaterial = getPointMaterial(size, alpha);
 
   const pointVertexCoords: [number, number, number][] = [];
   const pointVertexColors: [number, number, number][] = [];
