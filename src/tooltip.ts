@@ -16,14 +16,14 @@ export default function setup(params: {
   scene.add(hoverContainer);
 
   const raycaster = new Raycaster();
+  raycaster.params!.Points!.threshold = 1; // setting this to a higher value (default 1) makes it easier to hover over points - issue: when scaled in, this triggers even when point is far from being hovered
 
   view.on('mousemove', (event: MouseEvent) => {
     const canvasRect = (
       event.target as HTMLCanvasElement
     ).getBoundingClientRect();
-    const x = event.clientX - canvasRect.left; //x position within the element.
-    const y = event.clientY - canvasRect.top; //y position within the element.
-    console.log(x, y);
+    const x = event.clientX - canvasRect.left;
+    const y = event.clientY - canvasRect.top;
     checkForAndHandleIntersects({
       raycaster,
       camera,
@@ -83,7 +83,6 @@ function checkForAndHandleIntersects(params: {
       (a, b) => a.distanceToRay! - b.distanceToRay!
     );
     const pointConfig = renderConfigs[sortedIntersects[0].index!];
-    // console.log('hovering point', pointConfig);
     highlightPoint(pointConfig, hoverContainer);
   } else {
     removeHighlights(hoverContainer);

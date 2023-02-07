@@ -35,47 +35,27 @@ vizContainer.appendChild(renderer.domElement);
 renderer.domElement.classList.add('chart');
 const chart = select(renderer.domElement);
 
-const main = async () => {
-  setupZoomPan({
-    view: chart,
-    camera,
-    far,
-    near,
-    width: vizWidth,
-    height: vizHeight,
-    fov,
-  });
+const xFeature: PlotabbleFeatureName = 'acousticness';
+const yFeature: PlotabbleFeatureName = 'danceability';
+const categoryVariable: CategoricalFeatureName = 'key';
 
-  const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
-    computeViewportFillingPlaneDimensions({
-      distanceFromCamera: camera.position.z,
-      fov,
-      aspectRatio: vizWidth / vizHeight,
-    });
+const main = async () => {
+  camera.position.set(0, 0, far); // IMPORTANT: do this before computing xScaleWorldCoordinates and yScaleWorldCoordinates
 
   const data = await getTrackData();
-
-  const xFeature: PlotabbleFeatureName = 'acousticness';
-  const yFeature: PlotabbleFeatureName = 'danceability';
 
   const xExtent = extent(data, d => d[xFeature]) as [number, number];
   const yExtent = extent(data, d => d[yFeature]) as [number, number];
 
-  const xScaleWorldCoordinates = scaleLinear()
-    .domain(xExtent)
-    .range([-scatterplotPlaneWidth / 2, scatterplotPlaneWidth / 2]);
-  const xScalePixelCoordinates = scaleLinear()
+  const xScaleDOMPixelCoordinates = scaleLinear()
     .domain(xExtent)
     .range([0, vizWidth]);
-  const yScaleWorldCoordinates = scaleLinear()
-    .domain(yExtent)
-    .range([-scatterPlotPlaneHeight / 2, scatterPlotPlaneHeight / 2]);
-  const yScalePixelCoordinates = scaleLinear()
+  const yScaleDOMPixelCoordinates = scaleLinear()
     .domain(yExtent)
     .range([vizHeight, 0]);
 
-  const xAxis = axisBottom(xScalePixelCoordinates).ticks(10);
-  const yAxis = axisLeft(yScalePixelCoordinates).ticks(10);
+  const xAxis = axisBottom(xScaleDOMPixelCoordinates).ticks(10);
+  const yAxis = axisLeft(yScaleDOMPixelCoordinates).ticks(10);
   const axesSvg = select('.chart')
     .append('svg')
     .attr('width', vizWidth)
@@ -92,7 +72,36 @@ const main = async () => {
     .attr('transform', `translate(${margin.left}, ${margin.top})`)
     .call(yAxis);
 
-  const categoryVariable: CategoricalFeatureName = 'key';
+  setupZoomPan({
+    view: chart,
+    camera,
+    far,
+    near,
+    width: vizWidth,
+    height: vizHeight,
+    fov,
+    axesGroupsAndScales: {
+      xAxis,
+      yAxis,
+      xAxisGroup,
+      yAxisGroup,
+      xScale: xScaleDOMPixelCoordinates,
+      yScale: yScaleDOMPixelCoordinates,
+    },
+  });
+
+  const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
+    computeViewportFillingPlaneDimensions({
+      distanceFromCamera: camera.position.z,
+      fov,
+      aspectRatio: vizWidth / vizHeight,
+    });
+  const xScaleWorldCoordinates = scaleLinear()
+    .domain(xExtent)
+    .range([-scatterplotPlaneWidth / 2, scatterplotPlaneWidth / 2]);
+  const yScaleWorldCoordinates = scaleLinear()
+    .domain(yExtent)
+    .range([-scatterPlotPlaneHeight / 2, scatterPlotPlaneHeight / 2]);
 
   const pointsX = data.map(d => xScaleWorldCoordinates(d[xFeature]));
   const pointsY = data.map(d => yScaleWorldCoordinates(d[yFeature]));
