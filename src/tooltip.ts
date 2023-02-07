@@ -1,5 +1,7 @@
+import { scaleLog, ZoomBehavior } from 'd3';
 import { Object3D, PerspectiveCamera, Points, Raycaster, Scene } from 'three';
 import { createPoints, PointRenderConfig } from './render';
+import { getScale } from './utils';
 
 export default function setup(params: {
   camera: PerspectiveCamera;
@@ -9,14 +11,40 @@ export default function setup(params: {
   renderConfigs: PointRenderConfig[];
   width: number;
   height: number;
+  zoom: ZoomBehavior<Element, unknown>;
+  far: number;
+  near: number;
 }) {
-  const { camera, scatterPoints, view, scene, renderConfigs, width, height } =
-    params;
+  const {
+    camera,
+    scatterPoints,
+    view,
+    scene,
+    renderConfigs,
+    width,
+    height,
+    zoom,
+    far,
+    near,
+  } = params;
   const hoverContainer = new Object3D();
   scene.add(hoverContainer);
 
+  const zoomedInScale = getScale(near, camera.fov, height);
+  const zoomedOutScale = getScale(far, camera.fov, height);
+  const raycasterPointsThresholdScale = scaleLog()
+    .domain([zoomedOutScale, zoomedInScale])
+    .range([1, 0.05]);
+
   const raycaster = new Raycaster();
-  raycaster.params!.Points!.threshold = 1; // setting this to a higher value (default 1) makes it easier to hover over points - issue: when scaled in, this triggers even when point is far from being hovered
+  zoom.on('zoom.tooltip', () => {
+    // zoom.tooltip is syntax for namespacing events: https://stackoverflow.com/a/14753683/13727176
+    const scale = getScale(camera.position.z, camera.fov, height);
+    // I am making the threshold for the raycaster points depending on the zoom scale
+    // as per default with a larger zoom level points are highlighted even if the distance between the mouse and the point (in pixel coordinates) is large
+    // to understand the issue it is best to comment out the following line, zoom in and out and observe when a particular point is highlighted
+    raycaster.params!.Points!.threshold = raycasterPointsThresholdScale(scale);
+  });
 
   view.on('mousemove', (event: MouseEvent) => {
     const canvasRect = (

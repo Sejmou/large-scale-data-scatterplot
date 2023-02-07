@@ -75,7 +75,7 @@ const main = async () => {
     .attr('transform', `translate(${margin.left}, ${margin.top})`)
     .call(yAxis);
 
-  setupZoomPan({
+  const zoom = setupZoomPan({
     view: chart,
     camera,
     far,
@@ -126,6 +126,9 @@ const main = async () => {
     renderConfigs: pointRenderConfigs,
     width: vizWidth,
     height: vizHeight,
+    zoom,
+    far,
+    near,
   });
 
   function animate() {

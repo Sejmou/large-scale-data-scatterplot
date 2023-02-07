@@ -47,6 +47,8 @@ export default function setup(params: {
     .scale(initialScale);
   d3Zoom.transform(view, initialTransform);
   camera.position.set(0, 0, far);
+
+  return d3Zoom;
 }
 
 function createZoomHandler(params: {
