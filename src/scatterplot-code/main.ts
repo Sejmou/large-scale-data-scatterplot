@@ -3,7 +3,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import {
   CategoricalFeatureName,
   getTrackData,
-  PlotabbleFeatureName,
+  PlotableFeatureName,
 } from '../utils/data';
 import { axisBottom, axisLeft, scaleLinear, select } from 'd3';
 import setupZoomPan from './zoom-pan';
@@ -40,8 +40,8 @@ vizContainer.appendChild(renderer.domElement);
 renderer.domElement.classList.add('chart');
 const chart = select(renderer.domElement);
 
-const xFeature: PlotabbleFeatureName = 'acousticness';
-const yFeature: PlotabbleFeatureName = 'danceability';
+const xFeature: PlotableFeatureName = 'acousticness';
+const yFeature: PlotableFeatureName = 'danceability';
 const categoryVariable: CategoricalFeatureName = 'key';
 
 const main = async () => {

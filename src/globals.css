@@ -11,3 +11,12 @@
 .gap {
   gap: 1rem;
 }
+
+.bg-blue-300 {
+  background-color: #90cdf4;
+}
+
+.flex-center {
+  align-items: center;
+  justify-content: center;
+}

@@ -1,4 +1,4 @@
-export type PlottableFeatures = {
+export type PlotableFeatures = {
   acousticness: number;
   danceability: number;
   durationMs: number;
@@ -21,19 +21,19 @@ export type CategoricalFeatures = {
   explicit: boolean;
 };
 
-export type TrackData = PlottableFeatures &
+export type TrackData = PlotableFeatures &
   CategoricalFeatures & {
     id: string;
     previewUrl: string;
     isrc: string;
   };
 
-export type PlotabbleFeatureName = keyof PlottableFeatures;
+export type PlotableFeatureName = keyof PlotableFeatures;
 export type CategoricalFeatureName = keyof CategoricalFeatures;
 
 export type Encodings = {
-  x: PlotabbleFeatureName;
-  y: PlotabbleFeatureName;
+  x: PlotableFeatureName;
+  y: PlotableFeatureName;
   color: CategoricalFeatureName;
 };
 
