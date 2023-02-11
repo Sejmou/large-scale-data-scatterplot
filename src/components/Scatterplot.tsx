@@ -38,12 +38,11 @@ const Scatterplot = <CategoricalFeatureValue extends string = string>({
   );
 
   return (
-    <div>
+    <div className="overflow-hidden">
       <p>This will soon be the scatterplot</p>
-      <p>
-        Its input data for the x and y axes is:{' '}
-        {JSON.stringify({ xData, yData })}
-      </p>
+      <p>Its input data for the x and y axes is:</p>
+      <p className="text-ellipsis">{JSON.stringify(xData)}</p>
+      <p className="text-ellipsis">{JSON.stringify(yData)}</p>
       <p>
         {xFeature} will be plotted on the x-axis, while {yFeature} will be
         displayed on the y-axis.

@@ -17,14 +17,14 @@ import { createPoints } from './render';
 
 const scene = new Scene();
 const vizContainer = document.querySelector('.chart')!;
-const renderCanvas = document.createElement('canvas');
-vizContainer.appendChild(renderCanvas);
-
-const margin = { top: 20, right: 20, bottom: 100, left: 100 };
-renderCanvas.style.margin = `${margin.top}px ${margin.right}px ${margin.bottom}px ${margin.left}px`;
+const margin = { top: 20, right: 20, bottom: 50, left: 60 };
 const vizWidth = vizContainer.clientWidth - margin.left - margin.right;
 const vizHeight = vizContainer.clientHeight - margin.top - margin.bottom;
 console.log(vizWidth, vizHeight);
+
+const renderCanvas = document.createElement('canvas');
+vizContainer.appendChild(renderCanvas);
+renderCanvas.style.margin = `${margin.top}px ${margin.right}px ${margin.bottom}px ${margin.left}px`;
 
 const fov = 40;
 const aspectRatio = vizWidth / vizHeight;
@@ -36,8 +36,6 @@ const alpha = 0.4;
 
 const renderer = new WebGLRenderer({ alpha: true, canvas: renderCanvas });
 renderer.setSize(vizWidth, vizHeight);
-vizContainer.appendChild(renderer.domElement);
-renderer.domElement.classList.add('chart');
 const chart = select(renderer.domElement);
 
 const xFeature: PlotableFeatureName = 'acousticness';
@@ -76,6 +74,32 @@ const main = async () => {
     .attr('class', 'y-axis')
     .attr('transform', `translate(${margin.left}, ${margin.top})`)
     .call(yAxis);
+
+  const xAxisLabel = axesSvg
+    .append('text')
+    .attr('class', 'x-label')
+    .attr('text-anchor', 'middle')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr(
+      'transform',
+      `translate(${margin.left + vizWidth / 2}, ${vizHeight + margin.top + 40})`
+    )
+    .text(xFeature);
+
+  const yAxisLabel = axesSvg
+    .append('text')
+    .attr('class', 'y-label')
+    .attr('text-anchor', 'middle')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr(
+      'transform',
+      `translate(${margin.left - 40}, ${
+        margin.top + vizHeight / 2
+      }) rotate(-90)`
+    )
+    .text(yFeature);
 
   const zoom = setupZoomPan({
     view: chart,
