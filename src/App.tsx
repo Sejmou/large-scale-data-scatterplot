@@ -1,5 +1,5 @@
 import './globals.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Scatterplot from './components/Scatterplot';
 import {
   CategoricalFeatureName,
@@ -19,9 +19,12 @@ function App() {
   const [data, setData] = useState<PlotableFeatures[]>([]);
   useEffect(() => {
     getTrackData().then(data => setData(data));
-  });
+  }, []);
   const [xFeature, setXFeature] = useState<PlotableFeatureName>('danceability');
   const [yFeature, setYFeature] = useState<PlotableFeatureName>('energy');
+
+  const xValues = useMemo(() => data.map(d => d[xFeature]), [data, xFeature]);
+  const yValues = useMemo(() => data.map(d => d[yFeature]), [data, yFeature]);
 
   const colorOptions: ColorOption[] = [
     'use default',
@@ -30,7 +33,7 @@ function App() {
   ];
   const [colorOption, setColorOption] = useState<ColorOption>('use default');
   const [categoricalFeature, setCategoricalFeature] =
-    useState<CategoricalFeatureName>('');
+    useState<CategoricalFeatureName>('explicit');
 
   const colorEncodingInput = {
     data: data.slice(0, 3), // passing the same data twice once is ok for now I guess - TODO: figure out how scatterplot component could handle detecting whether the data is categorical (for color encoding) or numerical (for axes)
@@ -97,7 +100,8 @@ function App() {
       </div>
 
       <Scatterplot
-        axes={{ data: data.slice(0, 3), xFeature, yFeature }}
+        xAxis={{ data: xValues, featureName: xFeature }}
+        yAxis={{ data: yValues, featureName: yFeature }}
         color={colorOption == 'use default' ? undefined : 'red'}
       />
     </div>

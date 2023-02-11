@@ -1,48 +1,49 @@
-type ScatterplotXYData<T extends string> = {
-  [key in T]: number;
-};
+import { MapWithDefault } from '../utils/misc';
 
-type ScatterplotCategoricalData<T extends string> = {
-  [key in T]: string;
-};
-
-type Props<XYFeature extends string, CategoricalFeatureName extends string> = {
-  axes: {
-    data: ScatterplotXYData<XYFeature>[];
-    xFeature: XYFeature;
-    yFeature: XYFeature;
+type Props<CategoricalFeatureValue extends string> = {
+  xAxis: {
+    data: number[];
+    featureName: string;
+  };
+  yAxis: {
+    data: number[];
+    featureName: string;
   };
   color?:
     | {
-        data: ScatterplotCategoricalData<CategoricalFeatureName>[];
-        currentFeature: CategoricalFeatureName; // TODO: think about better name
-        encodings: {
-          [key in CategoricalFeatureName]: { [value: string]: number };
-        };
+        featureName: string;
+        data: CategoricalFeatureValue[];
+        encodings: Record<CategoricalFeatureValue, string>;
       }
     | string;
 };
 
-const Scatterplot = <
-  XYFeature extends string,
-  CategoricalFeatureName extends string
->({
-  axes,
-  color,
-}: Props<XYFeature, CategoricalFeatureName>) => {
-  const { data: xyData, xFeature, yFeature } = axes;
+const defaultColor = 'green';
 
-  const fillColor =
-    typeof color === 'string'
-      ? color
-      : !color
-      ? 'green'
-      : color.encodings[color.currentFeature];
+const Scatterplot = <CategoricalFeatureValue extends string = string>({
+  xAxis,
+  yAxis,
+  color,
+}: Props<CategoricalFeatureValue>) => {
+  const { data: xData, featureName: xFeature } = xAxis;
+  const { data: yData, featureName: yFeature } = yAxis;
+
+  const fillColorMap = new MapWithDefault<CategoricalFeatureValue, string>(
+    typeof color == 'string' ? () => color : () => defaultColor,
+    typeof color != 'string' && color?.encodings
+      ? Object.entries(color.encodings).map(([key, value]) => {
+          return [key as CategoricalFeatureValue, value as string];
+        })
+      : undefined
+  );
 
   return (
     <div>
       <p>This will soon be the scatterplot</p>
-      <p>Its input data for the x and y axes is: {JSON.stringify(xyData)}</p>
+      <p>
+        Its input data for the x and y axes is:{' '}
+        {JSON.stringify({ xData, yData })}
+      </p>
       <p>
         {xFeature} will be plotted on the x-axis, while {yFeature} will be
         displayed on the y-axis.
@@ -50,8 +51,8 @@ const Scatterplot = <
       {!color ? (
         <div>
           The default color{' '}
-          <span style={{ color: fillColor }}>{fillColor}</span> will be used for
-          coloring the scatterplot points.
+          <span style={{ color: defaultColor }}>{defaultColor}</span> will be
+          used for coloring the scatterplot points.
         </div>
       ) : typeof color === 'string' ? (
         <div>
@@ -62,21 +63,17 @@ const Scatterplot = <
         <div>
           The following color encodings will be used:
           <ul>
-            {Object.entries(color.encodings).map(
-              ([featureName, colorUnknown], j) => {
-                const color = colorUnknown as string;
-                return (
-                  <li key={j}>
-                    {featureName}: <span style={{ color }}>{color}</span>
-                  </li>
-                );
-              }
-            )}
+            {fillColorMap &&
+              [...fillColorMap.entries()].map(([feature, color]) => (
+                <li key={feature}>
+                  {feature}: <span style={{ color }}>{color}</span>
+                </li>
+              ))}
           </ul>
         </div>
       )}
       {color && typeof color === 'object' && (
-        <div>Currently color-encoding {color.currentFeature}</div>
+        <div>Currently color-encoding {color.featureName}</div>
       )}
     </div>
   );
