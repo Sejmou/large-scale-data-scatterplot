@@ -3,8 +3,13 @@ import { useEffect, useMemo, useState } from 'react';
 import Scatterplot from './components/Scatterplot';
 import {
   CategoricalFeatureName,
+  CategoricalFeatures,
+  explicitValues,
   getTrackData,
+  keys,
+  modes,
   PlotableFeatures,
+  timeSignatures,
 } from './utils/data';
 import { divergingColors } from './utils/color';
 
@@ -16,15 +21,49 @@ type ColorOption =
   | 'use category encodings';
 
 function App() {
-  const [data, setData] = useState<PlotableFeatures[]>([]);
+  const [numericData, setNumericData] = useState<PlotableFeatures[]>([]);
+  const [categoricalData, setCategoricalData] = useState<CategoricalFeatures[]>(
+    []
+  );
+
   useEffect(() => {
-    getTrackData().then(data => setData(data));
+    getTrackData().then(data => {
+      const numericFeatures: PlotableFeatures[] = data.map(d => ({
+        danceability: d.danceability,
+        energy: d.energy,
+        loudness: d.loudness,
+        speechiness: d.speechiness,
+        acousticness: d.acousticness,
+        instrumentalness: d.instrumentalness,
+        liveness: d.liveness,
+        valence: d.valence,
+        tempo: d.tempo,
+        durationMs: d.durationMs,
+        isrcYear: d.isrcYear,
+      }));
+      setNumericData(numericFeatures);
+      const categoricalFeatures: CategoricalFeatures[] = data.map(d => ({
+        explicit: d.explicit,
+        key: d.key,
+        mode: d.mode,
+        timeSignature: d.timeSignature,
+      }));
+      setCategoricalData(categoricalFeatures);
+    });
   }, []);
   const [xFeature, setXFeature] = useState<PlotableFeatureName>('danceability');
   const [yFeature, setYFeature] = useState<PlotableFeatureName>('energy');
+  const [categoricalFeature, setCategoricalFeature] =
+    useState<CategoricalFeatureName>('explicit');
 
-  const xValues = useMemo(() => data.map(d => d[xFeature]), [data, xFeature]);
-  const yValues = useMemo(() => data.map(d => d[yFeature]), [data, yFeature]);
+  const xValues = useMemo(
+    () => numericData.map(d => d[xFeature]),
+    [numericData, xFeature]
+  );
+  const yValues = useMemo(
+    () => numericData.map(d => d[yFeature]),
+    [numericData, yFeature]
+  );
 
   const colorOptions: ColorOption[] = [
     'use default',
@@ -32,18 +71,36 @@ function App() {
     'use category encodings',
   ];
   const [colorOption, setColorOption] = useState<ColorOption>('use default');
-  const [categoricalFeature, setCategoricalFeature] =
-    useState<CategoricalFeatureName>('explicit');
+  const colorEncodings = useMemo(() => {
+    return getColorEncoding(categoricalFeature);
+  }, [categoricalFeature]);
 
-  const colorEncodingInput = {
-    data: data.slice(0, 3), // passing the same data twice once is ok for now I guess - TODO: figure out how scatterplot component could handle detecting whether the data is categorical (for color encoding) or numerical (for axes)
-  };
+  const colorInput = useMemo(() => {
+    switch (colorOption) {
+      case 'use default':
+        return undefined;
+      case 'set color for all':
+        return 'red';
+      case 'use category encodings':
+        return {
+          featureName: categoricalFeature,
+          data: categoricalData.map(d => d[categoricalFeature]),
+          encodings: colorEncodings,
+        };
+    }
+  }, [colorOption, categoricalFeature, colorEncodings, numericData]);
 
-  const xyFeatureOptions = data[0]
-    ? (Object.keys(data[0]).filter(
-        prop => typeof data[0][prop as PlotableFeatureName] == 'number'
-      ) as PlotableFeatureName[])
-    : []; // really dirty, but it works lol
+  const xyFeatureOptions = numericData[0]
+    ? (Object.keys(numericData[0]) as PlotableFeatureName[])
+    : [];
+
+  const categoricalFeatureOptions = useMemo(
+    () =>
+      categoricalData[0]
+        ? (Object.keys(categoricalData[0]) as CategoricalFeatureName[])
+        : [],
+    [categoricalData]
+  );
 
   return (
     <div className="container">
@@ -96,16 +153,50 @@ function App() {
               ))}
             </select>
           </div>
+          {colorOption == 'use category encodings' && (
+            <div>
+              <label htmlFor="categorical">categorical</label>
+              <select
+                name="categorical"
+                onChange={event =>
+                  setCategoricalFeature(
+                    event.target.value as CategoricalFeatureName
+                  )
+                }
+              >
+                {categoricalFeatureOptions.map((o, i) => (
+                  <option key={i} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
       <Scatterplot
         xAxis={{ data: xValues, featureName: xFeature }}
         yAxis={{ data: yValues, featureName: yFeature }}
-        color={colorOption == 'use default' ? undefined : 'red'}
+        color={colorInput}
       />
     </div>
   );
 }
 
 export default App;
+
+function getColorEncoding(
+  categoricalFeature: CategoricalFeatureName
+): [string, string][] {
+  switch (categoricalFeature) {
+    case 'explicit':
+      return explicitValues.map((v, i) => [v, divergingColors[i]]);
+    case 'key':
+      return keys.map((v, i) => [v, divergingColors[i]]);
+    case 'mode':
+      return modes.map((v, i) => [v, divergingColors[i]]);
+    case 'timeSignature':
+      return timeSignatures.map((v, i) => [v, divergingColors[i]]);
+  }
+}

@@ -40,7 +40,7 @@ const chart = select(renderer.domElement);
 
 const xFeature: PlotableFeatureName = 'acousticness';
 const yFeature: PlotableFeatureName = 'danceability';
-const categoryVariable: CategoricalFeatureName = 'key';
+// const categoryVariable: CategoricalFeatureName = 'key';// TODO
 
 const main = async () => {
   camera.position.set(0, 0, far); // IMPORTANT: do this before computing xScaleWorldCoordinates and yScaleWorldCoordinates
@@ -134,7 +134,7 @@ const main = async () => {
 
   const pointsX = data.map(d => xScaleWorldCoordinates(d[xFeature]));
   const pointsY = data.map(d => yScaleWorldCoordinates(d[yFeature]));
-  const pointColors = data.map(d => getColor(d[categoryVariable]));
+  const pointColors = data.map(d => getColor(0)); //getColor(d[categoryVariable])); TODO
   const pointRenderConfigs = data.map((_, i) => ({
     x: pointsX[i],
     y: pointsY[i],

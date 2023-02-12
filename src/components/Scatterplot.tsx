@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import { MapWithDefault } from '../utils/misc';
 
-type Props<CategoricalFeatureValue extends string> = {
+type Props<CategoryFeatureValue extends string> = {
   xAxis: {
     data: number[];
     featureName: string;
@@ -12,29 +13,32 @@ type Props<CategoricalFeatureValue extends string> = {
   color?:
     | {
         featureName: string;
-        data: CategoricalFeatureValue[];
-        encodings: Record<CategoricalFeatureValue, string>;
+        data: CategoryFeatureValue[];
+        encodings: [CategoryFeatureValue, string][];
       }
     | string;
 };
 
 const defaultColor = 'green';
 
-const Scatterplot = <CategoricalFeatureValue extends string = string>({
+const Scatterplot = <CategoryFeatureValue extends string>({
   xAxis,
   yAxis,
   color,
-}: Props<CategoricalFeatureValue>) => {
+}: Props<CategoryFeatureValue>) => {
+  console.log({ xAxis, yAxis, color });
   const { data: xData, featureName: xFeature } = xAxis;
   const { data: yData, featureName: yFeature } = yAxis;
 
-  const fillColorMap = new MapWithDefault<CategoricalFeatureValue, string>(
-    typeof color == 'string' ? () => color : () => defaultColor,
-    typeof color != 'string' && color?.encodings
-      ? Object.entries(color.encodings).map(([key, value]) => {
-          return [key as CategoricalFeatureValue, value as string];
-        })
-      : undefined
+  const fillColorMap = useMemo(
+    () =>
+      new MapWithDefault<CategoryFeatureValue, string>(
+        typeof color == 'string' ? () => color : () => defaultColor,
+        typeof color != 'string' && color?.encodings
+          ? color.encodings
+          : undefined
+      ),
+    [color]
   );
 
   return (
