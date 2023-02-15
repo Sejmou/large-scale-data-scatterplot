@@ -1,8 +1,10 @@
 import { Canvas, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Color } from 'three';
 import { MapWithDefault } from '../../utils/misc';
-import Box from './Box';
 import Camera from './Camera';
+import Points from './Points';
+import { useScatterplotStore } from './store';
 
 type Props<CategoryFeatureValue extends string> = {
   xAxis: {
@@ -22,8 +24,7 @@ type Props<CategoryFeatureValue extends string> = {
     | string;
   className?: string;
 };
-
-const defaultColor = 'green';
+const defaultColor = '#1DB954';
 
 const Scatterplot = <CategoryFeatureValue extends string>({
   xAxis,
@@ -34,10 +35,19 @@ const Scatterplot = <CategoryFeatureValue extends string>({
   console.log({ xAxis, yAxis, color });
   const { data: xData, featureName: xFeature } = xAxis;
   const { data: yData, featureName: yFeature } = yAxis;
+  const setPointRenderConfigs = useScatterplotStore(
+    state => state.setPointRenderConfigs
+  );
+  const pointRenderConfigs = useScatterplotStore(
+    state => state.pointRenderConfigs
+  );
+  const fov = useScatterplotStore(state => state.fov);
+  const near = useScatterplotStore(state => state.near);
+  const far = useScatterplotStore(state => state.far);
 
   const fillColorMap = useMemo(
     () =>
-      new MapWithDefault<CategoryFeatureValue, string>(
+      new MapWithDefault<string, string>(
         typeof color == 'string' ? () => color : () => defaultColor,
         typeof color != 'string' && color?.encodings
           ? color.encodings
@@ -46,11 +56,29 @@ const Scatterplot = <CategoryFeatureValue extends string>({
     [color]
   );
 
+  useEffect(() => {
+    const renderConfigs = xData.map((x, i) => ({
+      x,
+      y: yData[i],
+      color: new Color(
+        Number(
+          fillColorMap
+            .get(typeof color == 'object' ? color.data[i] : 'blub')
+            .replace('#', '0x')
+        )
+      ),
+    }));
+    setPointRenderConfigs(renderConfigs);
+  }, [xData, yData]);
+
+  console.log(pointRenderConfigs);
+
   return (
     <div className={className}>
-      <Canvas key={Date.now()}>
+      <Canvas key={Date.now()} camera={{ fov, near, far }}>
         <Camera />
-        <Box position={[-1.2, 0, 0]} />
+        <Points pointSize={12} alpha={0.5} />
+        {/* <Box position={[-1.2, 0, 0]} /> */}
       </Canvas>
     </div>
     // <div className="overflow-hidden">

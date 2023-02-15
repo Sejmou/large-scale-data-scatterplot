@@ -24,9 +24,6 @@ const Camera = (props: Props) => {
       const height = canvas.clientHeight;
       const perspectiveCamera = camera as PerspectiveCamera;
       const zoomHandler = initializeCameraAndCreateZoomHandler({
-        fov,
-        far,
-        near,
         camera: perspectiveCamera,
         width,
         height,

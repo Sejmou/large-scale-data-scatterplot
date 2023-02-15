@@ -61,3 +61,11 @@ export function extentWithPadding<T>(
   const [min, max] = extent(data, accessor) as [number, number];
   return [min - padding, max + padding];
 }
+
+export function extentWithPaddingRawNumbers(
+  data: Iterable<number>,
+  padding = 0.000001
+) {
+  const [min, max] = extent(data) as [number, number];
+  return [min - padding, max + padding];
+}
