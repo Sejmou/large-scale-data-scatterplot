@@ -1,6 +1,6 @@
 import { ThreeElements, useLoader, useThree } from '@react-three/fiber';
 import { scaleLinear } from 'd3';
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Color, TextureLoader } from 'three';
 import { useScatterplotStore } from './store';
 import {
@@ -29,6 +29,7 @@ const Points = (props: ThreeElements['mesh'] & Props) => {
   const pointRenderConfigs = useScatterplotStore(
     state => state.pointRenderConfigs
   );
+  const [lastGeometryUpdate, setLastGeometryUpdate] = useState(Date.now());
 
   const { pointPositions, pointColors } = useMemo(() => {
     const pointConfigs = pointRenderConfigs;
@@ -64,6 +65,7 @@ const Points = (props: ThreeElements['mesh'] & Props) => {
         const { r, g, b } = pc.color;
         pointVertexColors.push([r, g, b]);
       });
+      setLastGeometryUpdate(Date.now());
       return {
         pointPositions: new Float32Array(pointVertexCoords.flat()),
         pointColors: new Float32Array(pointVertexColors.flat()),
@@ -76,8 +78,6 @@ const Points = (props: ThreeElements['mesh'] & Props) => {
     }
   }, [pointRenderConfigs, canvas]);
 
-  console.log({ pointPositions, pointColors });
-
   return (
     <points>
       <pointsMaterial
@@ -88,7 +88,8 @@ const Points = (props: ThreeElements['mesh'] & Props) => {
         sizeAttenuation={false}
         transparent={true}
       />
-      <bufferGeometry attach="geometry">
+      {/* buffer geometries apparently have to be recreated if we want to change buffer attributes: https://github.com/pmndrs/react-three-fiber/discussions/545 - so my approach is just using the timestamp of the last udpate as the key prop, setting it to a new value every time the inputs change */}
+      <bufferGeometry key={lastGeometryUpdate}>
         <bufferAttribute
           attach="attributes-position"
           array={pointPositions}

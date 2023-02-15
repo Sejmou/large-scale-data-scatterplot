@@ -38,3 +38,13 @@ body {
   align-items: center;
   justify-content: center;
 }
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.text-ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

@@ -43,13 +43,3 @@ body {
 .x-label {
   z-index: 2;
 }
-
-.overflow-hidden {
-  overflow: hidden;
-}
-
-.text-ellipsis {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}

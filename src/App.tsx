@@ -80,7 +80,7 @@ function App() {
       case 'use default':
         return undefined;
       case 'set color for all':
-        return 'red';
+        return '#ff6961';
       case 'use category encodings':
         return {
           featureName: categoricalFeature,
@@ -115,6 +115,7 @@ function App() {
               onChange={event =>
                 setXFeature(event.target.value as PlotableFeatureName)
               }
+              value={xFeature}
             >
               {xyFeatureOptions.map((o, i) => (
                 <option key={i} value={o}>
@@ -130,6 +131,7 @@ function App() {
               onChange={event =>
                 setYFeature(event.target.value as PlotableFeatureName)
               }
+              value={yFeature}
             >
               {xyFeatureOptions.map((o, i) => (
                 <option key={i} value={o}>
@@ -145,6 +147,7 @@ function App() {
               onChange={event =>
                 setColorOption(event.target.value as ColorOption)
               }
+              value={colorOption}
             >
               {colorOptions.map((o, i) => (
                 <option key={i} value={o}>

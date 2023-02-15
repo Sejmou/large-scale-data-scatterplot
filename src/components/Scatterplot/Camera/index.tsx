@@ -17,7 +17,6 @@ const Camera = (props: Props) => {
   const camera = useThree(state => state.camera);
   const canvas = useThree(state => state.gl.domElement);
 
-  console.log({ camera });
   useEffect(() => {
     if (canvas && camera && camera instanceof PerspectiveCamera) {
       const width = canvas.clientWidth;

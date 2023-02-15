@@ -6,6 +6,8 @@ import Camera from './Camera';
 import Points from './Points';
 import { useScatterplotStore } from './store';
 
+const debug = true;
+
 type Props<CategoryFeatureValue extends string> = {
   xAxis: {
     data: number[];
@@ -32,7 +34,6 @@ const Scatterplot = <CategoryFeatureValue extends string>({
   color,
   className,
 }: Props<CategoryFeatureValue>) => {
-  console.log({ xAxis, yAxis, color });
   const { data: xData, featureName: xFeature } = xAxis;
   const { data: yData, featureName: yFeature } = yAxis;
   const setPointRenderConfigs = useScatterplotStore(
@@ -68,56 +69,61 @@ const Scatterplot = <CategoryFeatureValue extends string>({
         )
       ),
     }));
+    const test = xData.map((x, i) =>
+      typeof color == 'object' ? color.data[i] : 'blub'
+    );
     setPointRenderConfigs(renderConfigs);
-  }, [xData, yData]);
-
-  console.log(pointRenderConfigs);
+  }, [xData, yData, fillColorMap]);
 
   return (
-    <div className={className}>
-      <Canvas key={Date.now()} camera={{ fov, near, far }}>
-        <Camera />
-        <Points pointSize={12} alpha={0.5} />
-        {/* <Box position={[-1.2, 0, 0]} /> */}
-      </Canvas>
-    </div>
-    // <div className="overflow-hidden">
-    //   <p>This will soon be the scatterplot</p>
-    //   <p>Its input data for the x and y axes is:</p>
-    //   <p className="text-ellipsis">{JSON.stringify(xData)}</p>
-    //   <p className="text-ellipsis">{JSON.stringify(yData)}</p>
-    //   <p>
-    //     {xFeature} will be plotted on the x-axis, while {yFeature} will be
-    //     displayed on the y-axis.
-    //   </p>
-    //   {!color ? (
-    //     <div>
-    //       The default color{' '}
-    //       <span style={{ color: defaultColor }}>{defaultColor}</span> will be
-    //       used for coloring the scatterplot points.
-    //     </div>
-    //   ) : typeof color === 'string' ? (
-    //     <div>
-    //       <span style={{ color }}>{color}</span> will be used as the fill color
-    //       for the dots on the plot.
-    //     </div>
-    //   ) : (
-    //     <div>
-    //       The following color encodings will be used:
-    //       <ul>
-    //         {fillColorMap &&
-    //           [...fillColorMap.entries()].map(([feature, color]) => (
-    //             <li key={feature}>
-    //               {feature}: <span style={{ color }}>{color}</span>
-    //             </li>
-    //           ))}
-    //       </ul>
-    //     </div>
-    //   )}
-    //   {color && typeof color === 'object' && (
-    //     <div>Currently color-encoding {color.featureName}</div>
-    //   )}
-    // </div>
+    <>
+      {debug && (
+        <div className="overflow-hidden">
+          <p>This is a scatterplot</p>
+          <p>Its input data for the x and y axes is:</p>
+          <p className="text-ellipsis">{JSON.stringify(xData)}</p>
+          <p className="text-ellipsis">{JSON.stringify(yData)}</p>
+          <p>
+            {xFeature} will be plotted on the x-axis, while {yFeature} will be
+            displayed on the y-axis.
+          </p>
+          {!color ? (
+            <div>
+              The default color{' '}
+              <span style={{ color: defaultColor }}>{defaultColor}</span> will
+              be used for coloring the scatterplot points.
+            </div>
+          ) : typeof color === 'string' ? (
+            <div>
+              <span style={{ color }}>{color}</span> will be used as the fill
+              color for the dots on the plot.
+            </div>
+          ) : (
+            <div>
+              The following color encodings will be used:
+              <ul>
+                {fillColorMap &&
+                  [...fillColorMap.entries()].map(([feature, color]) => (
+                    <li key={feature}>
+                      {feature}: <span style={{ color }}>{color}</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+          {color && typeof color === 'object' && (
+            <div>Currently color-encoding {color.featureName}</div>
+          )}
+        </div>
+      )}
+      <div className={className}>
+        <Canvas camera={{ fov, near, far }}>
+          <Camera />
+          <Points pointSize={12} alpha={0.5} />
+          {/* <Box position={[-1.2, 0, 0]} /> */}
+        </Canvas>
+      </div>
+    </>
   );
 };
 export default Scatterplot;
