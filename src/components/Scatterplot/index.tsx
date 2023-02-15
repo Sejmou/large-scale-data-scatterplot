@@ -57,8 +57,6 @@ const Scatterplot = <CategoryFeatureValue extends string>({
     [color]
   );
 
-  console.log(fillColorMap);
-
   useEffect(() => {
     const renderConfigs = xData.map((x, i) => ({
       x,
@@ -121,7 +119,14 @@ const Scatterplot = <CategoryFeatureValue extends string>({
       <div className={className}>
         <Canvas camera={{ fov, near, far }}>
           <Camera />
-          <Points pointSize={12} alpha={0.5} />
+          <Points
+            pointSize={12}
+            alpha={0.5}
+            onPointClick={idx => {
+              const point = pointRenderConfigs[idx];
+              console.log('clicked', point);
+            }}
+          />
           {/* <Box position={[-1.2, 0, 0]} /> */}
         </Canvas>
       </div>

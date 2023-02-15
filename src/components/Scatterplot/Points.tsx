@@ -17,6 +17,9 @@ export type PointRenderConfig = {
 type Props = {
   pointSize: number;
   alpha: number;
+  onPointClick?: (pointIndex: number) => void;
+  onPointHoverStart?: (pointIndex: number) => void;
+  onPointHoverEnd?: () => void;
 };
 const Points = (props: ThreeElements['mesh'] & Props) => {
   const circleTexture = useLoader(
@@ -31,7 +34,12 @@ const Points = (props: ThreeElements['mesh'] & Props) => {
   );
   const [lastGeometryUpdate, setLastGeometryUpdate] = useState(Date.now());
 
-  const { pointPositions, pointColors } = useMemo(() => {
+  const {
+    pointPositions,
+    pointColors,
+    xScaleWorldCoordinates,
+    yScaleWorldCoordinates,
+  } = useMemo(() => {
     const pointConfigs = pointRenderConfigs;
     if (pointConfigs && canvas) {
       const pointVertexCoords: [number, number, number][] = [];
@@ -69,6 +77,8 @@ const Points = (props: ThreeElements['mesh'] & Props) => {
       return {
         pointPositions: new Float32Array(pointVertexCoords.flat()),
         pointColors: new Float32Array(pointVertexColors.flat()),
+        xScaleWorldCoordinates,
+        yScaleWorldCoordinates,
       };
     } else {
       return {
@@ -78,32 +88,100 @@ const Points = (props: ThreeElements['mesh'] & Props) => {
     }
   }, [pointRenderConfigs, canvas]);
 
+  const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(
+    null
+  );
+
+  const hoveredPointData = useMemo(() => {
+    if (hoveredPointIndex !== null) {
+      const config = pointRenderConfigs[hoveredPointIndex];
+      return { x: config.x, y: config.y, color: config.color };
+    } else {
+      return null;
+    }
+  }, [hoveredPointIndex, pointRenderConfigs]);
+
+  console.log({ hoveredPointData });
+
   return (
-    <points>
-      <pointsMaterial
-        size={props.pointSize}
-        opacity={props.alpha}
-        map={circleTexture}
-        vertexColors={true}
-        sizeAttenuation={false}
-        transparent={true}
-      />
-      {/* buffer geometries apparently have to be recreated if we want to change buffer attributes: https://github.com/pmndrs/react-three-fiber/discussions/545 - so my approach is just using the timestamp of the last udpate as the key prop, setting it to a new value every time the inputs change */}
-      <bufferGeometry key={lastGeometryUpdate}>
-        <bufferAttribute
-          attach="attributes-position"
-          array={pointPositions}
-          itemSize={3}
-          count={pointPositions.length / 3}
+    <>
+      <points
+        onClick={e => {
+          props.onPointClick &&
+            e.index !== undefined &&
+            props.onPointClick(e.index);
+        }}
+        onPointerEnter={e => {
+          console.log(e);
+          const index = e.index;
+          if (index !== undefined) {
+            setHoveredPointIndex(index);
+            props.onPointHoverStart && props.onPointHoverStart(index);
+          }
+        }}
+        onPointerLeave={e => {
+          props.onPointHoverEnd && props.onPointHoverEnd();
+          setHoveredPointIndex(null);
+        }}
+      >
+        <pointsMaterial
+          size={props.pointSize}
+          opacity={props.alpha}
+          map={circleTexture}
+          vertexColors={true}
+          sizeAttenuation={false}
+          transparent={true}
         />
-        <bufferAttribute
-          attach="attributes-color"
-          array={pointColors}
-          itemSize={3}
-          count={pointColors.length / 3}
-        />
-      </bufferGeometry>
-    </points>
+        {/* buffer geometries apparently have to be recreated if we want to change buffer attributes: https://github.com/pmndrs/react-three-fiber/discussions/545 - so my approach is just using the timestamp of the last udpate as the key prop, setting it to a new value every time the inputs change */}
+        <bufferGeometry key={lastGeometryUpdate}>
+          <bufferAttribute
+            attach="attributes-position"
+            array={pointPositions}
+            itemSize={3}
+            count={pointPositions.length / 3}
+          />
+          <bufferAttribute
+            attach="attributes-color"
+            array={pointColors}
+            itemSize={3}
+            count={pointColors.length / 3}
+          />
+        </bufferGeometry>
+      </points>
+      {hoveredPointData !== null && (
+        <points>
+          <pointsMaterial
+            size={props.pointSize * 1.25}
+            opacity={Math.min(props.alpha * 1.5, 1)}
+            map={circleTexture}
+            vertexColors={true}
+            sizeAttenuation={false}
+            transparent={true}
+          />
+          {/* buffer geometries apparently have to be recreated if we want to change buffer attributes: https://github.com/pmndrs/react-three-fiber/discussions/545 - so my approach is just using the timestamp of the last udpate as the key prop, setting it to a new value every time the inputs change */}
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              array={
+                new Float32Array([
+                  xScaleWorldCoordinates!(hoveredPointData.x),
+                  yScaleWorldCoordinates!(hoveredPointData.y),
+                  0,
+                ])
+              }
+              itemSize={3}
+              count={1}
+            />
+            <bufferAttribute
+              attach="attributes-color"
+              array={new Float32Array([1, 0, 0])}
+              itemSize={3}
+              count={1}
+            />
+          </bufferGeometry>
+        </points>
+      )}
+    </>
   );
 };
 export default Points;
