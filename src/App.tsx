@@ -20,6 +20,8 @@ type ColorOption =
   | 'set color for all'
   | 'use category encodings';
 
+const debug = true;
+
 function App() {
   const [numericData, setNumericData] = useState<PlotableFeatures[]>([]);
   const [categoricalData, setCategoricalData] = useState<CategoricalFeatures[]>(
@@ -179,6 +181,7 @@ function App() {
       </div>
 
       <Scatterplot
+        key={debug ? Date.now() : ''} // simple hack for forcing re-render on every rerun of the App component function, causing canvas to be recreated and resized
         className="flex-1"
         xAxis={{ data: xValues, featureName: xFeature }}
         yAxis={{ data: yValues, featureName: yFeature }}

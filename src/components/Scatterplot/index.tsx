@@ -57,6 +57,8 @@ const Scatterplot = <CategoryFeatureValue extends string>({
     [color]
   );
 
+  console.log(fillColorMap);
+
   useEffect(() => {
     const renderConfigs = xData.map((x, i) => ({
       x,
