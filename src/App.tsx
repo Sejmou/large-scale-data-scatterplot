@@ -103,8 +103,8 @@ function App() {
   );
 
   return (
-    <div className="container">
-      <h1>Hello from React</h1>
+    <>
+      <h1>Large-scale data scatterplot in React</h1>
       <div className="bg-blue-300">
         <h2>Component input config</h2>
         <div className="flex gap">
@@ -176,11 +176,12 @@ function App() {
       </div>
 
       <Scatterplot
+        className="flex-1"
         xAxis={{ data: xValues, featureName: xFeature }}
         yAxis={{ data: yValues, featureName: yFeature }}
         color={colorInput}
       />
-    </div>
+    </>
   );
 }
 

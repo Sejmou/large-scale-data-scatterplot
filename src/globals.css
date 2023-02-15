@@ -1,11 +1,29 @@
-.container {
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0 1rem;
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .flex {
   display: flex;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.w-full {
+  width: 100%;
 }
 
 .gap {
