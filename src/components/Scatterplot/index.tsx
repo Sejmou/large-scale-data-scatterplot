@@ -1,7 +1,8 @@
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapWithDefault } from '../../utils/misc';
 import Box from './Box';
+import Camera from './Camera';
 
 type Props<CategoryFeatureValue extends string> = {
   xAxis: {
@@ -47,9 +48,8 @@ const Scatterplot = <CategoryFeatureValue extends string>({
 
   return (
     <div className={className}>
-      <Canvas>
-        <ambientLight />
-        <pointLight position={[10, 10, 10]} />
+      <Canvas key={Date.now()}>
+        <Camera />
         <Box position={[-1.2, 0, 0]} />
       </Canvas>
     </div>
