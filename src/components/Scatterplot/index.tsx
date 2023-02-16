@@ -1,10 +1,11 @@
-import { Canvas, useThree } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { useEffect, useMemo } from 'react';
 import { Color } from 'three';
 import { MapWithDefault } from '../../utils/misc';
 import Camera from './Camera';
 import Points from './Points';
 import { useScatterplotStore } from './store';
+import Tooltip from './Tooltip';
 
 const debug = true;
 
@@ -25,6 +26,8 @@ type Props<CategoryFeatureValue extends string> = {
       }
     | string;
   className?: string;
+  alpha?: number;
+  pointSize?: number;
 };
 const defaultColor = '#1DB954';
 
@@ -33,18 +36,27 @@ const Scatterplot = <CategoryFeatureValue extends string>({
   yAxis,
   color,
   className,
+  pointSize,
+  alpha,
 }: Props<CategoryFeatureValue>) => {
   const { data: xData, featureName: xFeature } = xAxis;
   const { data: yData, featureName: yFeature } = yAxis;
   const setPointRenderConfigs = useScatterplotStore(
     state => state.setPointRenderConfigs
   );
-  const pointRenderConfigs = useScatterplotStore(
-    state => state.pointRenderConfigs
-  );
   const fov = useScatterplotStore(state => state.fov);
   const near = useScatterplotStore(state => state.near);
   const far = useScatterplotStore(state => state.far);
+  const setPointSize = useScatterplotStore(state => state.setPointSize);
+  const setAlpha = useScatterplotStore(state => state.setAlpha);
+
+  useEffect(() => {
+    setPointSize(pointSize ?? 12);
+  }, [pointSize, setPointSize]);
+
+  useEffect(() => {
+    setAlpha(alpha ?? 0.4);
+  }, [alpha, setAlpha]);
 
   const fillColorMap = useMemo(
     () =>
@@ -69,16 +81,14 @@ const Scatterplot = <CategoryFeatureValue extends string>({
         )
       ),
     }));
-    const test = xData.map((x, i) =>
-      typeof color == 'object' ? color.data[i] : 'blub'
-    );
+
     setPointRenderConfigs(renderConfigs);
   }, [xData, yData, fillColorMap]);
 
   return (
     <>
       {debug && (
-        <div className="overflow-hidden">
+        <div className="overflow-hidden p-2">
           <p>This is a scatterplot</p>
           <p>Its input data for the x and y axes is:</p>
           <p className="text-ellipsis">{JSON.stringify(xData)}</p>
@@ -119,15 +129,8 @@ const Scatterplot = <CategoryFeatureValue extends string>({
       <div className={className}>
         <Canvas camera={{ fov, near, far }}>
           <Camera />
-          <Points
-            pointSize={12}
-            alpha={0.5}
-            onPointClick={idx => {
-              const point = pointRenderConfigs[idx];
-              console.log('clicked', point);
-            }}
-          />
-          {/* <Box position={[-1.2, 0, 0]} /> */}
+          <Tooltip />
+          <Points />
         </Canvas>
       </div>
     </>
