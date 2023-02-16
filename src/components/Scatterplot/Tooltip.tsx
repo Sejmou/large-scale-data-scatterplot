@@ -20,6 +20,10 @@ const Tooltip = ({
     TextureLoader,
     'circle_texture_antialiased.png'
   );
+  const circleBorderTexture = useLoader(
+    TextureLoader,
+    'circle_border_texture.png'
+  );
 
   const raycaster = useThree(state => state.raycaster);
   const mouse = useThree(state => state.mouse);
@@ -91,38 +95,72 @@ const Tooltip = ({
   return (
     <>
       {hoveredPointData !== null && (
-        <points key={hoveredPointIndex ?? ''}>
-          {/* without the key prop, the rendered "highlighted" point would not update if another point is hovered */}
-          <pointsMaterial
-            size={pointSize * 1.4}
-            opacity={1}
-            map={circleTexture}
-            vertexColors={true}
-            sizeAttenuation={false}
-            transparent={true}
-          />
-          {/* buffer geometries apparently have to be recreated if we want to change buffer attributes: https://github.com/pmndrs/react-three-fiber/discussions/545 - so my approach is just using the timestamp of the last udpate as the key prop, setting it to a new value every time the inputs change */}
-          <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              array={
-                new Float32Array([
-                  xScaleWorldCoordinates!(hoveredPointData.x),
-                  yScaleWorldCoordinates!(hoveredPointData.y),
-                  0,
-                ])
-              }
-              itemSize={3}
-              count={1}
+        <>
+          <points key={hoveredPointIndex ?? ''}>
+            {/* without the key prop, the rendered "highlighted" point would not update if another point is hovered */}
+            <pointsMaterial
+              size={pointSize * 1.25}
+              opacity={1}
+              map={circleTexture}
+              vertexColors={true}
+              sizeAttenuation={false}
+              transparent={true}
             />
-            <bufferAttribute
-              attach="attributes-color"
-              array={new Float32Array(hoveredPointData.color)}
-              itemSize={3}
-              count={1}
+            {/* buffer geometries apparently have to be recreated if we want to change buffer attributes: https://github.com/pmndrs/react-three-fiber/discussions/545 - so my approach is just using the timestamp of the last udpate as the key prop, setting it to a new value every time the inputs change */}
+            <bufferGeometry>
+              <bufferAttribute
+                attach="attributes-position"
+                array={
+                  new Float32Array([
+                    xScaleWorldCoordinates!(hoveredPointData.x),
+                    yScaleWorldCoordinates!(hoveredPointData.y),
+                    0,
+                  ])
+                }
+                itemSize={3}
+                count={1}
+              />
+              <bufferAttribute
+                attach="attributes-color"
+                array={new Float32Array(hoveredPointData.color)}
+                itemSize={3}
+                count={1}
+              />
+            </bufferGeometry>
+          </points>
+          <points key={hoveredPointIndex + 'a' ?? 'a'}>
+            {/* without the key prop, the rendered "highlighted" point would not update if another point is hovered */}
+            <pointsMaterial
+              size={pointSize * 1.25}
+              opacity={1}
+              map={circleBorderTexture}
+              vertexColors={true}
+              sizeAttenuation={false}
+              transparent={true}
             />
-          </bufferGeometry>
-        </points>
+            {/* buffer geometries apparently have to be recreated if we want to change buffer attributes: https://github.com/pmndrs/react-three-fiber/discussions/545 - so my approach is just using the timestamp of the last udpate as the key prop, setting it to a new value every time the inputs change */}
+            <bufferGeometry>
+              <bufferAttribute
+                attach="attributes-position"
+                array={
+                  new Float32Array([
+                    xScaleWorldCoordinates!(hoveredPointData.x),
+                    yScaleWorldCoordinates!(hoveredPointData.y),
+                    0,
+                  ])
+                }
+                itemSize={3}
+                count={1}
+              />
+              <bufferAttribute
+                attach="attributes-color"
+                array={new Float32Array([0, 0, 0])}
+                itemSize={3}
+                count={1}
+              />
+            </bufferGeometry>
+          </points>
+        </>
       )}
     </>
   );
