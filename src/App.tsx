@@ -105,11 +105,11 @@ function App() {
   );
 
   return (
-    <>
-      <h1>Large-scale data scatterplot in React</h1>
+    <div className="px-4 py-2 h-full w-full flex flex-col">
+      <h1 className="text-3xl">Large-scale data scatterplot in React</h1>
       <div className="bg-blue-300">
         <h2>Component input config</h2>
-        <div className="flex gap">
+        <div className="flex gap-4">
           <div>
             <label htmlFor="x-value">x-axis</label>
             <select
@@ -181,13 +181,13 @@ function App() {
       </div>
 
       <Scatterplot
-        key={debug ? Date.now() : ''} // simple hack for forcing re-render on every rerun of the App component function, causing canvas to be recreated and resized
         className="flex-1"
+        key={debug ? Date.now() : ''} // simple hack for forcing re-render on every rerun of the App component function, causing canvas to be recreated and resized
         xAxis={{ data: xValues, featureName: xFeature }}
         yAxis={{ data: yValues, featureName: yFeature }}
         color={colorInput}
       />
-    </>
+    </div>
   );
 }
 

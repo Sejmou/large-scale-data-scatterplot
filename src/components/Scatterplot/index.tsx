@@ -1,13 +1,16 @@
 import { Canvas } from '@react-three/fiber';
-import { useEffect, useMemo } from 'react';
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { Color } from 'three';
 import { MapWithDefault } from '../../utils/misc';
 import Camera from './Camera';
 import Points from './Points';
 import { useScatterplotStore } from './store';
 import Tooltip from './Tooltip';
+import classNames from 'classnames';
+import YAxis from './YAxis';
+import XAxis from './XAxis';
 
-const debug = true;
+const debug = false;
 
 type Props<CategoryFeatureValue extends string> = {
   xAxis: {
@@ -126,12 +129,22 @@ const Scatterplot = <CategoryFeatureValue extends string>({
           )}
         </div>
       )}
-      <div className={className}>
-        <Canvas camera={{ fov, near, far }}>
+      <div
+        className={className}
+        style={{
+          display: 'grid',
+          gridTemplateAreas: "'y-axis canvas' '. x-axis'",
+          gridTemplateColumns: '48px 1fr',
+          gridTemplateRows: '1fr 48px',
+        }}
+      >
+        <Canvas camera={{ fov, near, far }} style={{ gridArea: 'canvas' }}>
           <Camera />
           <Tooltip />
           <Points />
         </Canvas>
+        <XAxis featureName={xFeature} gridArea="x-axis" />
+        <YAxis featureName={yFeature} gridArea="y-axis" />
       </div>
     </>
   );
