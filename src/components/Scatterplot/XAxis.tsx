@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { useRefDimensions } from '../../hooks/use-ref-dimensions';
+import { useScatterplotStore } from './store';
 
 type Props = {
   featureName: string;
@@ -8,6 +9,7 @@ type Props = {
 const XAxis = ({ featureName, gridArea }: Props) => {
   const divRef = useRef<HTMLDivElement>(null);
   const { width, height } = useRefDimensions(divRef);
+  const camera = useScatterplotStore(state => state.camera); // will need this in here soon
 
   return (
     <div ref={divRef} className="relative" style={{ gridArea }}>

@@ -22,7 +22,7 @@ const Points = (props: ThreeElements['mesh']) => {
   const pointSize = useScatterplotStore(state => state.pointSize);
   const alpha = useScatterplotStore(state => state.alpha);
   const canvas = useThree(state => state.gl.domElement);
-  const camPos = useScatterplotStore(state => state.camPos);
+  const far = useThree(state => state.camera.far);
   const fov = useScatterplotStore(state => state.fov);
   const pointRenderConfigs = useScatterplotStore(
     state => state.pointRenderConfigs
@@ -33,6 +33,12 @@ const Points = (props: ThreeElements['mesh']) => {
   );
   const setYScaleWorldCoordinates = useScatterplotStore(
     state => state.setYScaleWorldCoordinates
+  );
+  const setXScaleDOMPixels = useScatterplotStore(
+    state => state.setXScaleDOMPixels
+  );
+  const setYScaleDOMPixels = useScatterplotStore(
+    state => state.setYScaleDOMPixels
   );
 
   const { pointPositions, pointColors } = useMemo(() => {
@@ -49,7 +55,7 @@ const Points = (props: ThreeElements['mesh']) => {
       const yExtent = extentWithPaddingRawNumbers(yValues) as [number, number];
       const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
         computeViewportFillingPlaneDimensions({
-          distanceFromCamera: camPos[2],
+          distanceFromCamera: far,
           fov,
           aspectRatio: vizWidth / vizHeight,
         });
@@ -72,6 +78,15 @@ const Points = (props: ThreeElements['mesh']) => {
 
       setXScaleWorldCoordinates(xScaleWorldCoordinates);
       setYScaleWorldCoordinates(yScaleWorldCoordinates);
+
+      const xScaleDOMPixelCoordinates = scaleLinear()
+        .domain(xExtent)
+        .range([0, vizWidth]);
+      const yScaleDOMPixelCoordinates = scaleLinear()
+        .domain(yExtent)
+        .range([vizHeight, 0]);
+      setXScaleDOMPixels(xScaleDOMPixelCoordinates);
+      setYScaleDOMPixels(yScaleDOMPixelCoordinates);
 
       setLastGeometryUpdate(Date.now());
       return {

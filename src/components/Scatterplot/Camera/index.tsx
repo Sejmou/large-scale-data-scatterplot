@@ -4,24 +4,22 @@ import { useScatterplotStore } from '../store';
 import { initializeCameraAndCreateZoomHandler } from './zoom';
 import { PerspectiveCamera } from 'three';
 import { select, zoomIdentity } from 'd3';
-import { getCameraZ, getScale } from '../utils';
+import { getScale } from '../utils';
 
-type Props = {};
-const Camera = (props: Props) => {
-  const camPos = useScatterplotStore(state => state.camPos);
-  const setCamPos = useScatterplotStore(state => state.setCamPos);
+const Camera = () => {
   const far = useScatterplotStore(state => state.far);
-  const near = useScatterplotStore(state => state.near);
   const fov = useScatterplotStore(state => state.fov);
 
   const camera = useThree(state => state.camera);
   const canvas = useThree(state => state.gl.domElement);
+  const setCamera = useScatterplotStore(state => state.setCamera);
 
   useEffect(() => {
     if (canvas && camera && camera instanceof PerspectiveCamera) {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
       const perspectiveCamera = camera as PerspectiveCamera;
+      setCamera(perspectiveCamera);
       const zoomHandler = initializeCameraAndCreateZoomHandler({
         camera: perspectiveCamera,
         width,
