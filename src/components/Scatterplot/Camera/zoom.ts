@@ -10,9 +10,10 @@ export function initializeCameraAndCreateZoomHandler(params: {
   camera: PerspectiveCamera;
   width: number;
   height: number;
+  setCamPos: (newCamPos: [number, number, number]) => void;
   // axesGroupsAndScales: AxesGroupsAndScales;
 }) {
-  const { camera, width, height } = params;
+  const { camera, width, height, setCamPos } = params;
   // in this project, zooming is implemented by moving a camera that always looks in the same direction (z = -1)
   // and changing ONLY its position (x, y) and distance from the origin (z)
   const zoomedOutScale = getScale(camera.far, camera.fov, height);
@@ -58,6 +59,7 @@ export function initializeCameraAndCreateZoomHandler(params: {
       const camY = yTransformed / scale;
       const camZ = getCameraZ(scale, camera.fov, height);
       camera.position.set(camX, camY, camZ);
+      setCamPos([camX, camY, camZ]);
 
       // convert coordinates of currently panned area (3D space!) to data range
       const pannedAreaWidth = width / scale;

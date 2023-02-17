@@ -12,18 +12,23 @@ const Camera = () => {
 
   const camera = useThree(state => state.camera);
   const canvas = useThree(state => state.gl.domElement);
-  const setCamera = useScatterplotStore(state => state.setCamera);
+  const setCamPos = useScatterplotStore(state => state.setCamPos);
 
   useEffect(() => {
     if (canvas && camera && camera instanceof PerspectiveCamera) {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
       const perspectiveCamera = camera as PerspectiveCamera;
-      setCamera(perspectiveCamera);
+      setCamPos([
+        perspectiveCamera.position.x,
+        perspectiveCamera.position.y,
+        perspectiveCamera.position.z,
+      ]);
       const zoomHandler = initializeCameraAndCreateZoomHandler({
         camera: perspectiveCamera,
         width,
         height,
+        setCamPos,
       });
       const chart = select(canvas) as any; // don't know how to type this
       chart.call(zoomHandler);

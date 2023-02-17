@@ -14,7 +14,11 @@ const YAxis = ({ featureName, gridArea }: Props) => {
 
   return (
     <div ref={divRef} className="relative" style={{ gridArea }}>
-      <svg className="absolute" viewBox={`0 0 ${width} ${height + 10}`}>
+      <svg
+        className="absolute"
+        viewBox={`0 0 ${width} ${height + 10}`}
+        transform={`translate(1, 0)`}
+      >
         <text
           textAnchor="middle"
           x="0"

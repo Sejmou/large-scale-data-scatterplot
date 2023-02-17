@@ -14,7 +14,7 @@ type State = {
   yScaleWorldCoordinates?: ScaleLinear<number, number, never>;
   xScaleDOMPixels?: ScaleLinear<number, number, never>;
   yScaleDOMPixels?: ScaleLinear<number, number, never>;
-  camera?: PerspectiveCamera;
+  camPos: [number, number, number];
   pointRenderConfigs: PointRenderConfig[];
   setPointRenderConfigs: (newConfigs: PointRenderConfig[]) => void;
   setCurrentPoints: (newPoints: Points) => void;
@@ -28,12 +28,13 @@ type State = {
   ) => void;
   setXScaleDOMPixels: (newScale: ScaleLinear<number, number, never>) => void;
   setYScaleDOMPixels: (newScale: ScaleLinear<number, number, never>) => void;
-  setCamera: (newCamera: PerspectiveCamera) => void;
+  setCamPos: (newCamPos: [number, number, number]) => void;
 };
 
 const fov = 40;
 const near = 1;
 const far = 101;
+const initialCamPos: [number, number, number] = [0, 0, far];
 
 export const useScatterplotStore = create<State>(set => ({
   fov,
@@ -42,6 +43,7 @@ export const useScatterplotStore = create<State>(set => ({
   pointRenderConfigs: [],
   pointSize: 12,
   alpha: 0.5,
+  camPos: initialCamPos,
   setPointRenderConfigs: newConfigs => set({ pointRenderConfigs: newConfigs }),
   setCurrentPoints: newPoints => set({ currentPoints: newPoints }),
   setPointSize: newSize => set({ pointSize: newSize }),
@@ -52,5 +54,5 @@ export const useScatterplotStore = create<State>(set => ({
     set({ yScaleWorldCoordinates: newScale }),
   setXScaleDOMPixels: newScale => set({ xScaleDOMPixels: newScale }),
   setYScaleDOMPixels: newScale => set({ yScaleDOMPixels: newScale }),
-  setCamera: newCamera => set({ camera: newCamera }),
+  setCamPos: newCamPos => set({ camPos: newCamPos }),
 }));
