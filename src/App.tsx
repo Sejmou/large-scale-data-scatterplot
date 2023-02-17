@@ -122,7 +122,6 @@ function App() {
   const [activeDatapoint, setActiveDatapoint] = useState<TrackData>();
   const activeDatapointTooltip = useMemo(() => {
     if (!activeDatapoint) return <div></div>;
-    console.log(activeDatapoint);
     return (
       <div>
         <div>Track: {activeDatapoint.name}</div>
@@ -132,7 +131,6 @@ function App() {
 
   const handlePointHoverStart = useCallback(
     (idx: number) => {
-      console.log('metadata', metadata[idx]);
       setActiveDatapoint({
         ...metadata[idx],
         ...numericData[idx],
