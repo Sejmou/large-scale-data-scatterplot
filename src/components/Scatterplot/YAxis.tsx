@@ -1,6 +1,6 @@
 import { Axis, Orient } from 'd3-axis-for-react';
 import { useResizeDetector } from 'react-resize-detector';
-import { useScatterplotStore } from './store';
+import useAxisScales from './use-axis-scales';
 
 type Props = {
   featureName: string;
@@ -8,7 +8,7 @@ type Props = {
 };
 const YAxis = ({ featureName, gridArea }: Props) => {
   const { width: width = 0, height: height = 0, ref } = useResizeDetector();
-  const yScale = useScatterplotStore(state => state.yScaleDOMPixels);
+  const { yScale } = useAxisScales();
 
   return (
     <div ref={ref} className="relative" style={{ gridArea }}>

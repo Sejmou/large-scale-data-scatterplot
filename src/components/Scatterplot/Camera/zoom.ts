@@ -26,22 +26,13 @@ export function initializeCameraAndCreateZoomHandler(params: {
 
   // we need to compute the width and height of the pannable area so that
   // we can set the translateExtent of the d3 zoom handler accordingly, preventing users from moving outside the scatter plot axes
+  // TODO: the result of this are the scatterplot plane dimensions (in world coordinates)! remove this computation and directly use the already computed values instead
   const { width: pannableAreaWidth, height: pannableAreaHeight } =
     computeViewportFillingPlaneDimensions({
       distanceFromCamera: camera.far,
       fov: camera.fov,
       aspectRatio: camera.aspect,
     });
-
-  // const { xAxisGroup, yAxisGroup, xScale, yScale, xAxis, yAxis } =
-  //   params.axesGroupsAndScales;
-
-  // const worldXToDataX = scaleLinear()
-  //   .domain([-pannableAreaWidth / 2, pannableAreaWidth / 2])
-  //   .range(xScale.domain());
-  // const worldYToDataY = scaleLinear()
-  //   .domain([-pannableAreaHeight / 2, pannableAreaHeight / 2])
-  //   .range(yScale.domain());
 
   const d3Zoom = zoom()
     .scaleExtent([zoomedOutScale, zoomedInScale])
@@ -60,26 +51,6 @@ export function initializeCameraAndCreateZoomHandler(params: {
       const camZ = getCameraZ(scale, camera.fov, height);
       camera.position.set(camX, camY, camZ);
       setCamPos([camX, camY, camZ]);
-
-      // convert coordinates of currently panned area (3D space!) to data range
-      const pannedAreaWidth = width / scale;
-      const pannedAreaLeft = camX - pannedAreaWidth / 2;
-      const pannedAreaRight = camX + pannedAreaWidth / 2;
-      const pannedAreaHeight = height / scale;
-      const pannedAreaTop = camY + pannedAreaHeight / 2;
-      const pannedAreaBottom = camY - pannedAreaHeight / 2;
-
-      // create scales for axes
-      // const newScaleX = scaleLinear()
-      //   .domain([worldXToDataX(pannedAreaLeft), worldXToDataX(pannedAreaRight)])
-      //   .range([0, width]);
-      // const newScaleY = scaleLinear()
-      //   .domain([worldYToDataY(pannedAreaBottom), worldYToDataY(pannedAreaTop)])
-      //   .range([height, 0]);
-
-      // // update axes
-      // xAxisGroup.call(xAxis.scale(newScaleX));
-      // yAxisGroup.call(yAxis.scale(newScaleY));
     });
   return d3Zoom;
 }

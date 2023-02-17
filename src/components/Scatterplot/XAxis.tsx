@@ -1,31 +1,14 @@
-import { scaleLinear } from 'd3';
 import { Axis } from 'd3-axis-for-react';
-import { useEffect, useMemo } from 'react';
 import { useResizeDetector } from 'react-resize-detector';
-import { useScatterplotStore } from './store';
+import useAxisScales from './use-axis-scales';
 
 type Props = {
   featureName: string;
   gridArea: string;
 };
 const XAxis = ({ featureName, gridArea }: Props) => {
-  const camPos = useScatterplotStore(state => state.camPos);
-  const xScale = useScatterplotStore(state => state.xScaleDOMPixels);
-  const far = useScatterplotStore(state => state.far);
-  const near = useScatterplotStore(state => state.near);
-  const zoomLevelScale = useMemo(
-    () => scaleLinear().domain([far, near]).range([1, 100]),
-    [near, far]
-  );
-
-  useEffect(() => {
-    console.log(camPos);
-    const zoomLevel = zoomLevelScale(camPos[2]);
-    console.log(zoomLevel);
-  }, [camPos]);
-
+  const { xScale } = useAxisScales();
   const { width: width = 0, height: height = 0, ref } = useResizeDetector();
-  console.log({ width, height });
 
   return (
     <div ref={ref} className="relative" style={{ gridArea }}>

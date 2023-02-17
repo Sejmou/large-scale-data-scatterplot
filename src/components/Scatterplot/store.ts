@@ -14,8 +14,18 @@ type State = {
   yScaleWorldCoordinates?: ScaleLinear<number, number, never>;
   xScaleDOMPixels?: ScaleLinear<number, number, never>;
   yScaleDOMPixels?: ScaleLinear<number, number, never>;
+  xScaleWorldToData?: ScaleLinear<number, number, never>;
+  yScaleWorldToData?: ScaleLinear<number, number, never>;
   camPos: [number, number, number];
   pointRenderConfigs: PointRenderConfig[];
+  plotPlaneDimensionsWorld?: {
+    width: number;
+    height: number;
+  };
+  plotCanvasDimensionsDOM?: {
+    width: number;
+    height: number;
+  };
   setPointRenderConfigs: (newConfigs: PointRenderConfig[]) => void;
   setCurrentPoints: (newPoints: Points) => void;
   setPointSize: (newSize: number) => void;
@@ -28,7 +38,17 @@ type State = {
   ) => void;
   setXScaleDOMPixels: (newScale: ScaleLinear<number, number, never>) => void;
   setYScaleDOMPixels: (newScale: ScaleLinear<number, number, never>) => void;
+  setXScaleWorldToData: (newScale: ScaleLinear<number, number, never>) => void;
+  setYScaleWorldToData: (newScale: ScaleLinear<number, number, never>) => void;
   setCamPos: (newCamPos: [number, number, number]) => void;
+  setPlotPlaneDimensionsWorld: (newDimensions: {
+    width: number;
+    height: number;
+  }) => void;
+  setPlotCanvasDimensionsDOM: (newDimensions: {
+    width: number;
+    height: number;
+  }) => void;
 };
 
 const fov = 40;
@@ -54,5 +74,11 @@ export const useScatterplotStore = create<State>(set => ({
     set({ yScaleWorldCoordinates: newScale }),
   setXScaleDOMPixels: newScale => set({ xScaleDOMPixels: newScale }),
   setYScaleDOMPixels: newScale => set({ yScaleDOMPixels: newScale }),
+  setXScaleWorldToData: newScale => set({ xScaleWorldToData: newScale }),
+  setYScaleWorldToData: newScale => set({ yScaleWorldToData: newScale }),
   setCamPos: newCamPos => set({ camPos: newCamPos }),
+  setPlotPlaneDimensionsWorld: newDimensions =>
+    set({ plotPlaneDimensionsWorld: newDimensions }),
+  setPlotCanvasDimensionsDOM: newDimensions =>
+    set({ plotCanvasDimensionsDOM: newDimensions }),
 }));

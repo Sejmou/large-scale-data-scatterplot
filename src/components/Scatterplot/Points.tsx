@@ -14,15 +14,7 @@ export type PointRenderConfig = {
   color: Color;
 };
 
-type Props = {
-  canvasWidth: number;
-  canvasHeight: number;
-};
-
-const Points = ({
-  canvasWidth,
-  canvasHeight,
-}: ThreeElements['mesh'] & Props) => {
+const Points = (props: ThreeElements['mesh']) => {
   const circleTexture = useLoader(
     TextureLoader,
     'circle_texture_antialiased.png'
@@ -53,18 +45,34 @@ const Points = ({
   const yScaleWorldCoordinates = useScatterplotStore(
     state => state.yScaleWorldCoordinates
   );
+  const setPlotPlaneDimensions = useScatterplotStore(
+    state => state.setPlotPlaneDimensionsWorld
+  );
+  const setXScaleWorldToData = useScatterplotStore(
+    state => state.setXScaleWorldToData
+  );
+  const setYScaleWorldToData = useScatterplotStore(
+    state => state.setYScaleWorldToData
+  );
+  const canvas = useThree(state => state.gl.domElement);
 
   useEffect(() => {
     const xValues = pointRenderConfigs.map(pc => pc.x);
     const yValues = pointRenderConfigs.map(pc => pc.y);
     const xExtent = extentWithPaddingRawNumbers(xValues) as [number, number];
     const yExtent = extentWithPaddingRawNumbers(yValues) as [number, number];
+    const canvasWidth = canvas.clientWidth;
+    const canvasHeight = canvas.clientHeight;
     const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
       computeViewportFillingPlaneDimensions({
         distanceFromCamera: far,
         fov,
         aspectRatio: canvasWidth / canvasHeight,
       });
+    setPlotPlaneDimensions({
+      width: scatterplotPlaneWidth,
+      height: scatterPlotPlaneHeight,
+    });
     const xScaleWorldCoordinates = scaleLinear()
       .domain(xExtent)
       .range([-scatterplotPlaneWidth / 2, scatterplotPlaneWidth / 2]);
@@ -84,8 +92,19 @@ const Points = ({
     setXScaleDOMPixels(xScaleDOMPixelCoordinates);
     setYScaleDOMPixels(yScaleDOMPixelCoordinates);
 
+    setXScaleWorldToData(
+      scaleLinear()
+        .domain([-scatterplotPlaneWidth / 2, scatterplotPlaneWidth / 2])
+        .range(xScaleWorldCoordinates.domain())
+    );
+    setYScaleWorldToData(
+      scaleLinear()
+        .domain([-scatterPlotPlaneHeight / 2, scatterPlotPlaneHeight / 2])
+        .range(yScaleWorldCoordinates.domain())
+    );
+
     setLastGeometryUpdate(Date.now());
-  }, [pointRenderConfigs, canvasWidth, canvasHeight, far, fov]);
+  }, [pointRenderConfigs, canvas, far, fov]);
 
   const { pointPositions, pointColors } = useMemo(() => {
     if (

@@ -53,6 +53,9 @@ const Scatterplot = <CategoryFeatureValue extends string>({
   const far = useScatterplotStore(state => state.far);
   const setPointSize = useScatterplotStore(state => state.setPointSize);
   const setAlpha = useScatterplotStore(state => state.setAlpha);
+  const setCanvasDimensions = useScatterplotStore(
+    state => state.setPlotCanvasDimensionsDOM
+  );
 
   useEffect(() => {
     setPointSize(pointSize ?? 12);
@@ -94,7 +97,9 @@ const Scatterplot = <CategoryFeatureValue extends string>({
     height: canvasHeight = 0,
     ref: canvasRef,
   } = useResizeDetector();
-  console.log('canvas width and height', { canvasWidth, canvasHeight });
+  useEffect(() => {
+    setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
+  }, [canvasWidth, canvasHeight, setCanvasDimensions]);
 
   return (
     <>
@@ -153,7 +158,7 @@ const Scatterplot = <CategoryFeatureValue extends string>({
         >
           <Camera />
           <Tooltip />
-          <Points canvasWidth={canvasWidth} canvasHeight={canvasHeight} />
+          <Points />
         </Canvas>
         <XAxis featureName={xFeature} gridArea="x-axis" />
         <YAxis featureName={yFeature} gridArea="y-axis" />
