@@ -137,14 +137,14 @@ function App() {
         ...categoricalData[idx],
       });
     },
-    [setActiveDatapoint]
+    [setActiveDatapoint, metadata, numericData, categoricalData]
   );
   const handlePointClick = useCallback(
     (idx: number) => {
       alert('clicked ' + idx);
       alert(JSON.stringify(activeDatapoint));
     },
-    [setActiveDatapoint]
+    [activeDatapoint, setActiveDatapoint]
   );
   const handlePointHoverEnd = useCallback(() => {
     setActiveDatapoint(undefined);

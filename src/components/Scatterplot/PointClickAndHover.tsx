@@ -93,7 +93,16 @@ const PointClickAndHover = ({
     };
     canvas.addEventListener('mousemove', hoverListener);
     return () => canvas.removeEventListener('mousemove', hoverListener);
-  }, [canvas, mouse, raycaster, camera, scatterPoints]);
+  }, [
+    canvas,
+    mouse,
+    raycaster,
+    camera,
+    scatterPoints,
+    onPointHoverStart,
+    onPointHoverEnd,
+    onPointClick,
+  ]);
 
   return (
     <>
