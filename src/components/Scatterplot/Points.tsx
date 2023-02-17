@@ -14,14 +14,21 @@ export type PointRenderConfig = {
   color: Color;
 };
 
-const Points = (props: ThreeElements['mesh']) => {
+type Props = {
+  canvasWidth: number;
+  canvasHeight: number;
+};
+
+const Points = ({
+  canvasWidth,
+  canvasHeight,
+}: ThreeElements['mesh'] & Props) => {
   const circleTexture = useLoader(
     TextureLoader,
     'circle_texture_antialiased.png'
   );
   const pointSize = useScatterplotStore(state => state.pointSize);
   const alpha = useScatterplotStore(state => state.alpha);
-  const canvas = useThree(state => state.gl.domElement);
   const far = useThree(state => state.camera.far);
   const fov = useScatterplotStore(state => state.fov);
   const pointRenderConfigs = useScatterplotStore(
@@ -43,12 +50,10 @@ const Points = (props: ThreeElements['mesh']) => {
 
   const { pointPositions, pointColors } = useMemo(() => {
     const pointConfigs = pointRenderConfigs;
-    if (pointConfigs && canvas) {
+    if (pointConfigs) {
       const pointVertexCoords: [number, number, number][] = [];
       const pointVertexColors: [number, number, number][] = [];
 
-      const vizWidth = canvas.clientWidth;
-      const vizHeight = canvas.clientHeight;
       const xValues = pointConfigs.map(pc => pc.x);
       const yValues = pointConfigs.map(pc => pc.y);
       const xExtent = extentWithPaddingRawNumbers(xValues) as [number, number];
@@ -57,7 +62,7 @@ const Points = (props: ThreeElements['mesh']) => {
         computeViewportFillingPlaneDimensions({
           distanceFromCamera: far,
           fov,
-          aspectRatio: vizWidth / vizHeight,
+          aspectRatio: canvasWidth / canvasHeight,
         });
       const xScaleWorldCoordinates = scaleLinear()
         .domain(xExtent)
@@ -81,10 +86,10 @@ const Points = (props: ThreeElements['mesh']) => {
 
       const xScaleDOMPixelCoordinates = scaleLinear()
         .domain(xExtent)
-        .range([0, vizWidth]);
+        .range([0, canvasWidth]);
       const yScaleDOMPixelCoordinates = scaleLinear()
         .domain(yExtent)
-        .range([vizHeight, 0]);
+        .range([canvasHeight, 0]);
       setXScaleDOMPixels(xScaleDOMPixelCoordinates);
       setYScaleDOMPixels(yScaleDOMPixelCoordinates);
 
@@ -99,7 +104,7 @@ const Points = (props: ThreeElements['mesh']) => {
         pointColors: new Float32Array([]),
       };
     }
-  }, [pointRenderConfigs, canvas]);
+  }, [pointRenderConfigs, canvasWidth, canvasHeight, far, fov]);
 
   const pointsRef = useRef<THREE.Points>(null);
   const setCurrentPoints = useScatterplotStore(state => state.setCurrentPoints);

@@ -1,6 +1,5 @@
 import { Axis, Orient } from 'd3-axis-for-react';
-import { useRef } from 'react';
-import { useRefDimensions } from '../../hooks/use-ref-dimensions';
+import { useResizeDetector } from 'react-resize-detector';
 import { useScatterplotStore } from './store';
 
 type Props = {
@@ -8,12 +7,11 @@ type Props = {
   gridArea: string;
 };
 const YAxis = ({ featureName, gridArea }: Props) => {
-  const divRef = useRef<HTMLDivElement>(null);
-  const { width, height } = useRefDimensions(divRef);
+  const { width: width = 0, height: height = 0, ref } = useResizeDetector();
   const yScale = useScatterplotStore(state => state.yScaleDOMPixels);
 
   return (
-    <div ref={divRef} className="relative" style={{ gridArea }}>
+    <div ref={ref} className="relative" style={{ gridArea }}>
       <svg
         className="absolute"
         viewBox={`0 0 ${width} ${height + 10}`}

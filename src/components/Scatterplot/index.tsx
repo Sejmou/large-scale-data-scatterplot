@@ -9,6 +9,7 @@ import Tooltip from './Tooltip';
 import classNames from 'classnames';
 import YAxis from './YAxis';
 import XAxis from './XAxis';
+import { useResizeDetector } from 'react-resize-detector';
 
 const debug = false;
 
@@ -88,6 +89,13 @@ const Scatterplot = <CategoryFeatureValue extends string>({
     setPointRenderConfigs(renderConfigs);
   }, [xData, yData, fillColorMap]);
 
+  const {
+    width: canvasWidth = 0,
+    height: canvasHeight = 0,
+    ref: canvasRef,
+  } = useResizeDetector();
+  console.log('canvas width and height', { canvasWidth, canvasHeight });
+
   return (
     <>
       {debug && (
@@ -138,10 +146,14 @@ const Scatterplot = <CategoryFeatureValue extends string>({
           gridTemplateRows: '1fr 48px',
         }}
       >
-        <Canvas camera={{ fov, near, far }} style={{ gridArea: 'canvas' }}>
+        <Canvas
+          ref={canvasRef}
+          camera={{ fov, near, far }}
+          style={{ gridArea: 'canvas' }}
+        >
           <Camera />
           <Tooltip />
-          <Points />
+          <Points canvasWidth={canvasWidth} canvasHeight={canvasHeight} />
         </Canvas>
         <XAxis featureName={xFeature} gridArea="x-axis" />
         <YAxis featureName={yFeature} gridArea="y-axis" />

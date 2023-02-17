@@ -1,7 +1,7 @@
 import { scaleLinear } from 'd3';
 import { Axis } from 'd3-axis-for-react';
-import { useEffect, useMemo, useRef } from 'react';
-import { useRefDimensions } from '../../hooks/use-ref-dimensions';
+import { useEffect, useMemo } from 'react';
+import { useResizeDetector } from 'react-resize-detector';
 import { useScatterplotStore } from './store';
 
 type Props = {
@@ -9,8 +9,6 @@ type Props = {
   gridArea: string;
 };
 const XAxis = ({ featureName, gridArea }: Props) => {
-  const divRef = useRef<HTMLDivElement>(null);
-  const { width, height } = useRefDimensions(divRef);
   const camPos = useScatterplotStore(state => state.camPos);
   const xScale = useScatterplotStore(state => state.xScaleDOMPixels);
   const far = useScatterplotStore(state => state.far);
@@ -26,8 +24,11 @@ const XAxis = ({ featureName, gridArea }: Props) => {
     console.log(zoomLevel);
   }, [camPos]);
 
+  const { width: width = 0, height: height = 0, ref } = useResizeDetector();
+  console.log({ width, height });
+
   return (
-    <div ref={divRef} className="relative" style={{ gridArea }}>
+    <div ref={ref} className="relative" style={{ gridArea }}>
       <svg className="absolute" viewBox={`0 0 ${width} ${height}`}>
         <text
           textAnchor="middle"
