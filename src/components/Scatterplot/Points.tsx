@@ -47,64 +47,71 @@ const Points = ({
   const setYScaleDOMPixels = useScatterplotStore(
     state => state.setYScaleDOMPixels
   );
+  const xScaleWorldCoordinates = useScatterplotStore(
+    state => state.xScaleWorldCoordinates
+  );
+  const yScaleWorldCoordinates = useScatterplotStore(
+    state => state.yScaleWorldCoordinates
+  );
+
+  useEffect(() => {
+    const xValues = pointRenderConfigs.map(pc => pc.x);
+    const yValues = pointRenderConfigs.map(pc => pc.y);
+    const xExtent = extentWithPaddingRawNumbers(xValues) as [number, number];
+    const yExtent = extentWithPaddingRawNumbers(yValues) as [number, number];
+    const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
+      computeViewportFillingPlaneDimensions({
+        distanceFromCamera: far,
+        fov,
+        aspectRatio: canvasWidth / canvasHeight,
+      });
+    const xScaleWorldCoordinates = scaleLinear()
+      .domain(xExtent)
+      .range([-scatterplotPlaneWidth / 2, scatterplotPlaneWidth / 2]);
+    const yScaleWorldCoordinates = scaleLinear()
+      .domain(yExtent)
+      .range([-scatterPlotPlaneHeight / 2, scatterPlotPlaneHeight / 2]);
+
+    setXScaleWorldCoordinates(xScaleWorldCoordinates);
+    setYScaleWorldCoordinates(yScaleWorldCoordinates);
+
+    const xScaleDOMPixelCoordinates = scaleLinear()
+      .domain(xExtent)
+      .range([0, canvasWidth]);
+    const yScaleDOMPixelCoordinates = scaleLinear()
+      .domain(yExtent)
+      .range([canvasHeight, 0]);
+    setXScaleDOMPixels(xScaleDOMPixelCoordinates);
+    setYScaleDOMPixels(yScaleDOMPixelCoordinates);
+
+    setLastGeometryUpdate(Date.now());
+  }, [pointRenderConfigs, canvasWidth, canvasHeight, far, fov]);
 
   const { pointPositions, pointColors } = useMemo(() => {
-    const pointConfigs = pointRenderConfigs;
-    if (pointConfigs) {
-      const pointVertexCoords: [number, number, number][] = [];
-      const pointVertexColors: [number, number, number][] = [];
-
-      const xValues = pointConfigs.map(pc => pc.x);
-      const yValues = pointConfigs.map(pc => pc.y);
-      const xExtent = extentWithPaddingRawNumbers(xValues) as [number, number];
-      const yExtent = extentWithPaddingRawNumbers(yValues) as [number, number];
-      const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
-        computeViewportFillingPlaneDimensions({
-          distanceFromCamera: far,
-          fov,
-          aspectRatio: canvasWidth / canvasHeight,
-        });
-      const xScaleWorldCoordinates = scaleLinear()
-        .domain(xExtent)
-        .range([-scatterplotPlaneWidth / 2, scatterplotPlaneWidth / 2]);
-      const yScaleWorldCoordinates = scaleLinear()
-        .domain(yExtent)
-        .range([-scatterPlotPlaneHeight / 2, scatterPlotPlaneHeight / 2]);
-
-      pointConfigs.forEach(pc => {
-        pointVertexCoords.push([
-          xScaleWorldCoordinates(pc.x),
-          yScaleWorldCoordinates(pc.y),
-          0,
-        ]);
-        const { r, g, b } = pc.color;
-        pointVertexColors.push([r, g, b]);
-      });
-
-      setXScaleWorldCoordinates(xScaleWorldCoordinates);
-      setYScaleWorldCoordinates(yScaleWorldCoordinates);
-
-      const xScaleDOMPixelCoordinates = scaleLinear()
-        .domain(xExtent)
-        .range([0, canvasWidth]);
-      const yScaleDOMPixelCoordinates = scaleLinear()
-        .domain(yExtent)
-        .range([canvasHeight, 0]);
-      setXScaleDOMPixels(xScaleDOMPixelCoordinates);
-      setYScaleDOMPixels(yScaleDOMPixelCoordinates);
-
-      setLastGeometryUpdate(Date.now());
-      return {
-        pointPositions: new Float32Array(pointVertexCoords.flat()),
-        pointColors: new Float32Array(pointVertexColors.flat()),
-      };
-    } else {
+    if (
+      xScaleWorldCoordinates === undefined ||
+      yScaleWorldCoordinates === undefined
+    ) {
       return {
         pointPositions: new Float32Array([]),
         pointColors: new Float32Array([]),
       };
     }
-  }, [pointRenderConfigs, canvasWidth, canvasHeight, far, fov]);
+    const pointVertexCoords: [number, number, number][] = [];
+    const pointVertexColors: [number, number, number][] = [];
+    pointRenderConfigs.forEach(pc => {
+      pointVertexCoords.push([
+        xScaleWorldCoordinates(pc.x),
+        yScaleWorldCoordinates(pc.y),
+        0,
+      ]);
+      const { r, g, b } = pc.color;
+      pointVertexColors.push([r, g, b]);
+    });
+    const pointPositions = new Float32Array(pointVertexCoords.flat());
+    const pointColors = new Float32Array(pointVertexColors.flat());
+    return { pointPositions, pointColors };
+  }, [pointRenderConfigs, xScaleWorldCoordinates, yScaleWorldCoordinates]);
 
   const pointsRef = useRef<THREE.Points>(null);
   const setCurrentPoints = useScatterplotStore(state => state.setCurrentPoints);
