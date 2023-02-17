@@ -117,6 +117,11 @@ const Scatterplot = <CategoryFeatureValue extends string>({
 
   console.log('Scatterplot render');
 
+  const [pointsKey, setPointsKey] = useState(0);
+  useEffect(() => {
+    setPointsKey(k => k + 1);
+  }, [canvasWidth, canvasHeight]);
+
   return (
     <>
       {debug && (
@@ -179,7 +184,8 @@ const Scatterplot = <CategoryFeatureValue extends string>({
             onPointHoverStart={onPointHoverStart}
             onPointHoverEnd={onPointHoverEnd}
           />
-          <Points />
+          {/* Points should rerender on every resize - using the key prop like this is my dirty hack for that lol */}
+          <Points key={pointsKey} />
         </Canvas>
         <XAxis featureName={xFeature} gridArea="x-axis" />
         <YAxis featureName={yFeature} gridArea="y-axis" />
