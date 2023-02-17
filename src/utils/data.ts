@@ -37,14 +37,16 @@ export type CategoricalFeatures = {
   timeSignature: typeof timeSignatures[number];
 };
 
-export type TrackData = PlotableFeatures &
-  CategoricalFeatures & {
-    id: string;
-    previewUrl: string;
-    isrc: string;
-    isrcAgency: string;
-    isrcTerritory: string;
-  };
+export type Metadata = {
+  id: string;
+  name: string;
+  previewUrl: string;
+  isrc: string;
+  isrcAgency: string;
+  isrcTerritory: string;
+};
+
+export type TrackData = PlotableFeatures & CategoricalFeatures & Metadata;
 
 export type PlotableFeatureName = keyof PlotableFeatures;
 export type CategoricalFeatureName = keyof CategoricalFeatures;

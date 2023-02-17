@@ -2,7 +2,6 @@ import { useLoader, useThree } from '@react-three/fiber';
 import { scaleLog } from 'd3';
 import { useEffect, useMemo, useState } from 'react';
 import { PerspectiveCamera, TextureLoader } from 'three';
-import { PointRenderConfig } from './Points';
 import { useScatterplotStore } from './store';
 import { getScale } from './utils';
 
@@ -11,7 +10,7 @@ type Props = {
   onPointHoverStart?: (pointIndex: number) => void;
   onPointHoverEnd?: () => void;
 };
-const Tooltip = ({
+const PointClickAndHover = ({
   onPointClick,
   onPointHoverStart,
   onPointHoverEnd,
@@ -34,7 +33,6 @@ const Tooltip = ({
     state => state.pointRenderConfigs
   );
   const pointSize = useScatterplotStore(state => state.pointSize);
-  const alpha = useScatterplotStore(state => state.alpha);
   const xScaleWorldCoordinates = useScatterplotStore(
     state => state.xScaleWorldCoordinates
   );
@@ -83,9 +81,14 @@ const Tooltip = ({
         const sortedIntersects = [...intersects].sort(
           (a, b) => a.distanceToRay! - b.distanceToRay!
         );
-        setHoveredPointIndex(sortedIntersects[0].index ?? null);
+        const index = sortedIntersects[0].index ?? null;
+        if (index !== null) {
+          setHoveredPointIndex(index);
+          onPointHoverStart?.(index);
+        }
       } else {
         setHoveredPointIndex(null);
+        onPointHoverEnd?.();
       }
     };
     canvas.addEventListener('mousemove', hoverListener);
@@ -96,7 +99,12 @@ const Tooltip = ({
     <>
       {hoveredPointData !== null && (
         <>
-          <points key={hoveredPointIndex ?? ''}>
+          <points
+            key={hoveredPointIndex ?? ''}
+            onClick={() => {
+              if (hoveredPointIndex != null) onPointClick?.(hoveredPointIndex);
+            }}
+          >
             {/* without the key prop, the rendered "highlighted" point would not update if another point is hovered */}
             <pointsMaterial
               size={pointSize * 1.25}
@@ -165,7 +173,7 @@ const Tooltip = ({
     </>
   );
 };
-export default Tooltip;
+export default PointClickAndHover;
 
 function mouseToThree(
   mouseX: number,

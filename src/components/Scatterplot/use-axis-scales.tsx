@@ -17,7 +17,6 @@ export default function useAxisScales() {
   );
 
   const { xScale, yScale } = useMemo(() => {
-    console.log('called');
     if (xScaleWorldToData && yScaleWorldToData) {
       const [camX, camY, camZ] = camPos;
       const canvasWidth = plotCanvasDimensions?.width ?? 0;

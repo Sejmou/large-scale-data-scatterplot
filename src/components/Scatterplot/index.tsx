@@ -1,12 +1,18 @@
 import { Canvas } from '@react-three/fiber';
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ReactElement,
+  RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Color } from 'three';
 import { MapWithDefault } from '../../utils/misc';
 import Camera from './Camera';
 import Points from './Points';
 import { useScatterplotStore } from './store';
-import Tooltip from './Tooltip';
-import classNames from 'classnames';
+import PointClickAndHover from './PointClickAndHover';
 import YAxis from './YAxis';
 import XAxis from './XAxis';
 import { useResizeDetector } from 'react-resize-detector';
@@ -33,6 +39,10 @@ type Props<CategoryFeatureValue extends string> = {
   className?: string;
   alpha?: number;
   pointSize?: number;
+  onPointClick?: (pointIndex: number) => void;
+  onPointHoverStart?: (pointIndex: number) => void;
+  onPointHoverEnd?: () => void;
+  tooltipContent?: ReactElement;
 };
 const defaultColor = '#1DB954';
 
@@ -43,6 +53,9 @@ const Scatterplot = <CategoryFeatureValue extends string>({
   className,
   pointSize,
   alpha,
+  onPointClick,
+  onPointHoverStart,
+  onPointHoverEnd,
 }: Props<CategoryFeatureValue>) => {
   const { data: xData, featureName: xFeature } = xAxis;
   const { data: yData, featureName: yFeature } = yAxis;
@@ -102,6 +115,8 @@ const Scatterplot = <CategoryFeatureValue extends string>({
     setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
   }, [canvasWidth, canvasHeight, setCanvasDimensions]);
 
+  console.log('Scatterplot render');
+
   return (
     <>
       {debug && (
@@ -159,7 +174,11 @@ const Scatterplot = <CategoryFeatureValue extends string>({
           style={{ gridArea: 'canvas' }}
         >
           <Camera />
-          <Tooltip />
+          <PointClickAndHover
+            onPointClick={onPointClick}
+            onPointHoverStart={onPointHoverStart}
+            onPointHoverEnd={onPointHoverEnd}
+          />
           <Points />
         </Canvas>
         <XAxis featureName={xFeature} gridArea="x-axis" />

@@ -1,5 +1,5 @@
 import './globals.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Scatterplot from './components/Scatterplot';
 import {
   CategoricalFeatureName,
@@ -7,13 +7,16 @@ import {
   explicitValues,
   getTrackData,
   keys,
+  Metadata,
   modes,
   PlotableFeatures,
   timeSignatures,
+  TrackData,
 } from './utils/data';
 import { divergingColors } from './utils/color';
 
 import type { PlotableFeatureName } from './utils/data';
+import ReactTooltip from 'react-tooltip';
 
 type ColorOption =
   | 'use default'
@@ -27,6 +30,7 @@ function App() {
   const [categoricalData, setCategoricalData] = useState<CategoricalFeatures[]>(
     []
   );
+  const [metadata, setMetadata] = useState<Metadata[]>([]);
 
   useEffect(() => {
     getTrackData().then(data => {
@@ -51,6 +55,17 @@ function App() {
         timeSignature: d.timeSignature,
       }));
       setCategoricalData(categoricalFeatures);
+      setMetadata(
+        data.map(d => ({
+          id: d.id,
+          name: d.name,
+          isrc: d.isrc,
+          isrcAgency: d.isrcAgency,
+          isrcTerritory: d.isrcTerritory,
+          isrcYear: d.isrcYear,
+          previewUrl: d.previewUrl,
+        }))
+      );
     });
   }, []);
   const [xFeature, setXFeature] = useState<PlotableFeatureName>('danceability');
@@ -104,8 +119,43 @@ function App() {
     [categoricalData]
   );
 
+  const [activeDatapoint, setActiveDatapoint] = useState<TrackData>();
+  const activeDatapointTooltip = useMemo(() => {
+    if (!activeDatapoint) return <div></div>;
+    console.log(activeDatapoint);
+    return (
+      <div>
+        <div>Track: {activeDatapoint.name}</div>
+      </div>
+    );
+  }, [activeDatapoint]);
+
+  const handlePointHoverStart = useCallback(
+    (idx: number) => {
+      console.log('metadata', metadata[idx]);
+      setActiveDatapoint({
+        ...metadata[idx],
+        ...numericData[idx],
+        ...categoricalData[idx],
+      });
+    },
+    [setActiveDatapoint]
+  );
+  const handlePointClick = useCallback(
+    (idx: number) => {
+      alert('clicked ' + idx);
+      alert(JSON.stringify(activeDatapoint));
+    },
+    [setActiveDatapoint]
+  );
+  const handlePointHoverEnd = useCallback(() => {
+    setActiveDatapoint(undefined);
+  }, [setActiveDatapoint]);
+
+  console.log('rendering App');
+
   return (
-    <div className="px-4 py-2 h-full w-full flex flex-col">
+    <div className="px-4 py-2 h-full w-full flex flex-col" data-tip="">
       <h1 className="text-3xl">Large-scale data scatterplot in React</h1>
       <div className="bg-blue-300">
         <h2>Component input config</h2>
@@ -182,11 +232,14 @@ function App() {
 
       <Scatterplot
         className="flex-1"
-        key={debug ? Date.now() : ''} // simple hack for forcing re-render on every rerun of the App component function, causing canvas to be recreated and resized
         xAxis={{ data: xValues, featureName: xFeature }}
         yAxis={{ data: yValues, featureName: yFeature }}
         color={colorInput}
+        onPointClick={handlePointClick}
+        onPointHoverStart={handlePointHoverStart}
+        onPointHoverEnd={handlePointHoverEnd}
       />
+      {activeDatapoint && <ReactTooltip>{activeDatapointTooltip}</ReactTooltip>}
     </div>
   );
 }

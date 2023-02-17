@@ -10,7 +10,9 @@ const Legend = <CategoryFeatureValue extends string>({
       {encodings.map(([value, color], i) => (
         <div className="flex gap-2 items-center justify-center">
           <div className="w-4 h-4" style={{ backgroundColor: color }}></div>
-          <div key={i}>{value}</div>
+          <div className="text-sm" key={i}>
+            {value}
+          </div>
         </div>
       ))}
     </div>
