@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import YAxis from './YAxis';
 import XAxis from './XAxis';
 import { useResizeDetector } from 'react-resize-detector';
+import Legend from './Legend';
 
 const debug = false;
 
@@ -142,6 +143,7 @@ const Scatterplot = <CategoryFeatureValue extends string>({
           )}
         </div>
       )}
+      {typeof color === 'object' && <Legend encodings={color.encodings} />}
       <div
         className={className}
         style={{
