@@ -13,15 +13,15 @@ import Legend from './Legend';
 
 const debug = false;
 
+type AxisConfig = {
+  data: number[];
+  featureName: string;
+  beginAtZero?: boolean;
+};
+
 type Props<CategoryFeatureValue extends string> = {
-  xAxis: {
-    data: number[];
-    featureName: string;
-  };
-  yAxis: {
-    data: number[];
-    featureName: string;
-  };
+  xAxis: AxisConfig;
+  yAxis: AxisConfig;
   color?:
     | {
         featureName: string;

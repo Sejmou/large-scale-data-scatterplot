@@ -5,8 +5,9 @@ import useAxisScales from './use-axis-scales';
 type Props = {
   featureName: string;
   gridArea: string;
+  tickFormat?: (d: number) => string;
 };
-const XAxis = ({ featureName, gridArea }: Props) => {
+const XAxis = ({ featureName, gridArea, tickFormat }: Props) => {
   const { xScale } = useAxisScales();
   const { width: width = 0, height: height = 0, ref } = useResizeDetector();
 
@@ -21,7 +22,7 @@ const XAxis = ({ featureName, gridArea }: Props) => {
         >
           {featureName}
         </text>
-        {xScale && <Axis scale={xScale} />}
+        {xScale && <Axis scale={xScale} tickFormat={tickFormat} />}
       </svg>
     </div>
   );

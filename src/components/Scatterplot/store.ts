@@ -1,7 +1,12 @@
 import { ScaleLinear } from 'd3';
-import { PerspectiveCamera, Points } from 'three';
+import { Color, PerspectiveCamera, Points } from 'three';
 import create from 'zustand';
-import { PointRenderConfig } from './Points';
+
+type PointRenderConfig = {
+  x: number;
+  y: number;
+  color: Color;
+};
 
 type State = {
   fov: number;

@@ -5,8 +5,10 @@ import useAxisScales from './use-axis-scales';
 type Props = {
   featureName: string;
   gridArea: string;
+  tickFormat?: (d: number) => string;
 };
-const YAxis = ({ featureName, gridArea }: Props) => {
+
+const YAxis = ({ featureName, gridArea, tickFormat }: Props) => {
   const { width: width = 0, height: height = 0, ref } = useResizeDetector();
   const { yScale } = useAxisScales();
 
@@ -27,7 +29,7 @@ const YAxis = ({ featureName, gridArea }: Props) => {
         </text>
         {yScale && (
           <g transform={`translate(${width - 1}, 0)`}>
-            <Axis scale={yScale} orient={Orient.left} />
+            <Axis scale={yScale} orient={Orient.left} tickFormat={tickFormat} />
           </g>
         )}
       </svg>

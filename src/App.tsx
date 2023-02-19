@@ -230,8 +230,23 @@ function App() {
 
       <Scatterplot
         className="flex-1"
-        xAxis={{ data: xValues, featureName: xFeature }}
-        yAxis={{ data: yValues, featureName: yFeature }}
+        xAxis={{
+          data:
+            xFeature == 'durationMs'
+              ? xValues.map(d => d / 1000 / 60)
+              : xValues,
+          featureName:
+            xFeature == 'durationMs' ? 'duration (minutes)' : xFeature,
+          beginAtZero: !['tempo', 'durationMs', 'isrcYear'].includes(xFeature),
+        }}
+        yAxis={{
+          data:
+            yFeature == 'durationMs'
+              ? yValues.map(d => d / 1000 / 60)
+              : yValues,
+          featureName: yFeature == 'durationMs' ? 'duration (s)' : yFeature,
+          beginAtZero: !['tempo', 'durationMs', 'isrcYear'].includes(yFeature),
+        }}
         color={colorInput}
         onPointClick={handlePointClick}
         onPointHoverStart={handlePointHoverStart}

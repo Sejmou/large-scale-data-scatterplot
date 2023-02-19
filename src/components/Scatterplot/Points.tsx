@@ -1,20 +1,19 @@
-import { ThreeElements, useLoader, useThree } from '@react-three/fiber';
+import { useLoader, useThree } from '@react-three/fiber';
 import { scaleLinear } from 'd3';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Color, TextureLoader } from 'three';
+import { TextureLoader } from 'three';
 import { useScatterplotStore } from './store';
 import {
   computeViewportFillingPlaneDimensions,
   extentWithPaddingRawNumbers,
 } from './utils';
 
-export type PointRenderConfig = {
-  x: number;
-  y: number;
-  color: Color;
+type Props = {
+  beginAtZeroX?: boolean;
+  beginAtZeroY?: boolean;
 };
 
-const Points = (props: ThreeElements['mesh']) => {
+const Points = ({ beginAtZeroX, beginAtZeroY }: Props) => {
   const circleTexture = useLoader(
     TextureLoader,
     'circle_texture_antialiased.png'
@@ -59,8 +58,12 @@ const Points = (props: ThreeElements['mesh']) => {
   useEffect(() => {
     const xValues = pointRenderConfigs.map(pc => pc.x);
     const yValues = pointRenderConfigs.map(pc => pc.y);
-    const xExtent = extentWithPaddingRawNumbers(xValues) as [number, number];
-    const yExtent = extentWithPaddingRawNumbers(yValues) as [number, number];
+    const xExtent = extentWithPaddingRawNumbers(
+      beginAtZeroX ? [...xValues, 0] : xValues
+    ) as [number, number];
+    const yExtent = extentWithPaddingRawNumbers(
+      beginAtZeroY ? [...yValues, 0] : yValues
+    ) as [number, number];
     const canvasWidth = canvas.clientWidth;
     const canvasHeight = canvas.clientHeight;
     const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
