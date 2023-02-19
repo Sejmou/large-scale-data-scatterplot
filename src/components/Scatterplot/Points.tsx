@@ -141,33 +141,31 @@ const Points = (props: ThreeElements['mesh']) => {
   }, [pointsRef]);
 
   return (
-    <>
-      <points ref={pointsRef}>
-        <pointsMaterial
-          size={pointSize}
-          opacity={alpha}
-          map={circleTexture}
-          vertexColors={true}
-          sizeAttenuation={false}
-          transparent={true}
+    <points ref={pointsRef}>
+      <pointsMaterial
+        size={pointSize}
+        opacity={alpha}
+        map={circleTexture}
+        vertexColors={true}
+        sizeAttenuation={false}
+        transparent={true}
+      />
+      {/* buffer geometries apparently have to be recreated if we want to change buffer attributes: https://github.com/pmndrs/react-three-fiber/discussions/545 - so my approach is just using the timestamp of the last udpate as the key prop, setting it to a new value every time the inputs change */}
+      <bufferGeometry key={lastGeometryUpdate}>
+        <bufferAttribute
+          attach="attributes-position"
+          array={pointPositions}
+          itemSize={3}
+          count={pointPositions.length / 3}
         />
-        {/* buffer geometries apparently have to be recreated if we want to change buffer attributes: https://github.com/pmndrs/react-three-fiber/discussions/545 - so my approach is just using the timestamp of the last udpate as the key prop, setting it to a new value every time the inputs change */}
-        <bufferGeometry key={lastGeometryUpdate}>
-          <bufferAttribute
-            attach="attributes-position"
-            array={pointPositions}
-            itemSize={3}
-            count={pointPositions.length / 3}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            array={pointColors}
-            itemSize={3}
-            count={pointColors.length / 3}
-          />
-        </bufferGeometry>
-      </points>
-    </>
+        <bufferAttribute
+          attach="attributes-color"
+          array={pointColors}
+          itemSize={3}
+          count={pointColors.length / 3}
+        />
+      </bufferGeometry>
+    </points>
   );
 };
 export default Points;

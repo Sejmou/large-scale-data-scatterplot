@@ -113,6 +113,7 @@ const PointClickAndHover = ({
             onClick={() => {
               if (hoveredPointIndex != null) onPointClick?.(hoveredPointIndex);
             }}
+            onPointerLeave={onPointHoverEnd}
           >
             {/* without the key prop, the rendered "highlighted" point would not update if another point is hovered */}
             <pointsMaterial

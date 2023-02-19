@@ -1,12 +1,5 @@
 import { Canvas } from '@react-three/fiber';
-import {
-  ReactElement,
-  RefObject,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { Color } from 'three';
 import { MapWithDefault } from '../../utils/misc';
 import Camera from './Camera';
