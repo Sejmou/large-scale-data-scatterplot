@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.8.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "src"
   ],
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "scripts": {
     "start": "tsdx watch",
@@ -31,6 +31,10 @@
     }
   },
   "name": "react-large-scale-data-scatterplot",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sejmou/large-scale-data-scatterplot.git"
+  },
   "author": "Sejmou",
   "module": "dist/react-large-scale-data-scatterplot.esm.js",
   "size-limit": [
