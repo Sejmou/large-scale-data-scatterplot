@@ -1,6 +1,6 @@
 import './globals.css';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Scatterplot from './components/Scatterplot';
+// import Scatterplot from './components/Scatterplot';// TODO: import component from library once it's published
 import {
   CategoricalFeatureName,
   CategoricalFeatures,

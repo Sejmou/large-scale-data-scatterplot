@@ -4,6 +4,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { PerspectiveCamera, TextureLoader } from 'three';
 import { useScatterplotStore } from './store';
 import { getScale } from './utils';
+import {
+  circleTextureDataURI,
+  circleBorderTextureDataURI,
+} from './texture-data-uris';
 
 type Props = {
   onPointClick?: (pointIndex: number) => void;
@@ -15,13 +19,10 @@ const PointClickAndHover = ({
   onPointHoverStart,
   onPointHoverEnd,
 }: Props) => {
-  const circleTexture = useLoader(
-    TextureLoader,
-    'circle_texture_antialiased.png'
-  );
+  const circleTexture = useLoader(TextureLoader, circleTextureDataURI);
   const circleBorderTexture = useLoader(
     TextureLoader,
-    'circle_border_texture.png'
+    circleBorderTextureDataURI
   );
 
   const raycaster = useThree(state => state.raycaster);
@@ -55,9 +56,7 @@ const PointClickAndHover = ({
     if (!canvas || !mouse || !raycaster || !camera || !scatterPoints) return;
     const cam = camera as PerspectiveCamera;
     const hoverListener = (e: MouseEvent) => {
-      const canvasRect = (
-        e.target as HTMLCanvasElement
-      ).getBoundingClientRect();
+      const canvasRect = (e.target as HTMLCanvasElement).getBoundingClientRect();
       const x = e.clientX - canvasRect.left;
       const y = e.clientY - canvasRect.top;
       const width = canvasRect.width;
@@ -73,8 +72,9 @@ const PointClickAndHover = ({
       // per default, with a larger zoom level points are highlighted even if the distance between the mouse and the point (in pixel coordinates) is large
       // workaround: make the threshold for the raycaster points dependent on the zoom scale
       // to understand the issue it is best to comment out the following line, zoom in and out and observe when a particular point is highlighted
-      raycaster.params!.Points!.threshold =
-        raycasterPointsThresholdScale(scale);
+      raycaster.params!.Points!.threshold = raycasterPointsThresholdScale(
+        scale
+      );
       raycaster.setFromCamera(mouseVector, camera);
       const intersects = raycaster.intersectObject(scatterPoints);
       if (intersects.length > 0) {

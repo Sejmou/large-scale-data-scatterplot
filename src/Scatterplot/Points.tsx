@@ -7,6 +7,7 @@ import {
   computeViewportFillingPlaneDimensions,
   extentWithPaddingRawNumbers,
 } from './utils';
+import { circleTextureDataURI } from './texture-data-uris';
 
 type Props = {
   beginAtZeroX?: boolean;
@@ -14,10 +15,7 @@ type Props = {
 };
 
 const Points = ({ beginAtZeroX, beginAtZeroY }: Props) => {
-  const circleTexture = useLoader(
-    TextureLoader,
-    'circle_texture_antialiased.png'
-  );
+  const circleTexture = useLoader(TextureLoader, circleTextureDataURI);
   const pointSize = useScatterplotStore(state => state.pointSize);
   const alpha = useScatterplotStore(state => state.alpha);
   const far = useThree(state => state.camera.far);
@@ -66,12 +64,14 @@ const Points = ({ beginAtZeroX, beginAtZeroY }: Props) => {
     ) as [number, number];
     const canvasWidth = canvas.clientWidth;
     const canvasHeight = canvas.clientHeight;
-    const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
-      computeViewportFillingPlaneDimensions({
-        distanceFromCamera: far,
-        fov,
-        aspectRatio: canvasWidth / canvasHeight,
-      });
+    const {
+      width: scatterplotPlaneWidth,
+      height: scatterPlotPlaneHeight,
+    } = computeViewportFillingPlaneDimensions({
+      distanceFromCamera: far,
+      fov,
+      aspectRatio: canvasWidth / canvasHeight,
+    });
     setPlotPlaneDimensions({
       width: scatterplotPlaneWidth,
       height: scatterPlotPlaneHeight,
