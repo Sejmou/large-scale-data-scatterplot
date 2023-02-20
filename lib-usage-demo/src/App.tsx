@@ -1,6 +1,6 @@
 import './globals.css';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-// import Scatterplot from './components/Scatterplot';// TODO: import component from library once it's published
+import Scatterplot from 'react-large-scale-data-scatterplot'
 import {
   CategoricalFeatureName,
   CategoricalFeatures,
@@ -253,7 +253,7 @@ function App() {
         onPointHoverEnd={handlePointHoverEnd}
       />
       {activeDatapoint && <ReactTooltip>{activeDatapointTooltip}</ReactTooltip>}
-    </div>
+      </div>
   );
 }
 

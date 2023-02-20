@@ -1,5 +1,5 @@
 # Scatterplot for large-scale data
-This is a React component library for scatterplots using large-scale datasets. The `<Scatterplot/>` component can handle 30k datapoints without any problems or significant lag. This is made possible by using WebGL (Three.js, or rather React Three Fiber) under the hood.
+This is a React component library for scatterplots using large-scale datasets. The `<Scatterplot/>` component can handle 30k datapoints without any problems or significant lag. This is made possible by using WebGL (React Three Fiber) under the hood.
 
 For publishing this component as a library, I made use of TSDX and then made some changes to make things work for my project. Check out [this](https://zach.codes/build-your-own-flexible-component-library-using-tsdx-typescript-tailwind-css-headless-ui/) tutorial for a more structured guide on setting up a React component library yourself.
 
