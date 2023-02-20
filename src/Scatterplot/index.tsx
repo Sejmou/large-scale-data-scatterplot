@@ -13,22 +13,24 @@ import Legend from './Legend';
 
 const debug = false;
 
-type AxisConfig = {
+export type AxisConfig = {
   data: number[];
   featureName: string;
   beginAtZero?: boolean;
 };
 
-type Props<CategoryFeatureValue extends string> = {
+export type ColorEncodingConfig<
+  CategoryFeatureValue extends string = string
+> = {
+  featureName: string;
+  data: CategoryFeatureValue[];
+  encodings: [CategoryFeatureValue, string][];
+};
+
+export type Props<CategoryFeatureValue extends string = string> = {
   xAxis: AxisConfig;
   yAxis: AxisConfig;
-  color?:
-    | {
-        featureName: string;
-        data: CategoryFeatureValue[];
-        encodings: [CategoryFeatureValue, string][];
-      }
-    | string;
+  color?: ColorEncodingConfig<CategoryFeatureValue> | string;
   className?: string;
   alpha?: number;
   pointSize?: number;
