@@ -1,4 +1,4 @@
-import { D3ZoomEvent, scaleLinear, zoom } from 'd3';
+import { D3ZoomEvent, zoom } from 'd3';
 import { PerspectiveCamera } from 'three';
 import {
   computeViewportFillingPlaneDimensions,
@@ -27,12 +27,14 @@ export function initializeCameraAndCreateZoomHandler(params: {
   // we need to compute the width and height of the pannable area so that
   // we can set the translateExtent of the d3 zoom handler accordingly, preventing users from moving outside the scatter plot axes
   // TODO: the result of this are the scatterplot plane dimensions (in world coordinates)! remove this computation and directly use the already computed values instead
-  const { width: pannableAreaWidth, height: pannableAreaHeight } =
-    computeViewportFillingPlaneDimensions({
-      distanceFromCamera: camera.far,
-      fov: camera.fov,
-      aspectRatio: camera.aspect,
-    });
+  const {
+    width: pannableAreaWidth,
+    height: pannableAreaHeight,
+  } = computeViewportFillingPlaneDimensions({
+    distanceFromCamera: camera.far,
+    fov: camera.fov,
+    aspectRatio: camera.aspect,
+  });
 
   const d3Zoom = zoom()
     .scaleExtent([zoomedOutScale, zoomedInScale])

@@ -1,5 +1,5 @@
 import { ScaleLinear } from 'd3';
-import { Color, PerspectiveCamera, Points } from 'three';
+import { Color, Points } from 'three';
 import create from 'zustand';
 
 type PointRenderConfig = {
