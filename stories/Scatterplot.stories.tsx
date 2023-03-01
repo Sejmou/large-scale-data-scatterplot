@@ -71,3 +71,10 @@ const customColorEncodings: VertexColorEncodingConfig = {
 WithColorEncodings.args = {
   color: customColorEncodings,
 };
+
+export const ReactingToPointEvents = Template.bind({});
+ReactingToPointEvents.args = {
+  onPointClick: pointIndex => {
+    alert('Clicked point');
+  },
+};

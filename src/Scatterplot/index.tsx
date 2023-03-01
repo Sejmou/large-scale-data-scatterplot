@@ -4,12 +4,17 @@ import { Color } from 'three';
 import { MapWithDefault } from './utils';
 import Camera from './Camera';
 import Points from './Points';
-import { createScatterplotStore, ScatterplotStoreProvider, useScatterplotStore } from './store';
+import {
+  createScatterplotStore,
+  ScatterplotStoreProvider,
+  useScatterplotStore,
+} from './store';
 import PointClickAndHover from './PointClickAndHover';
 import YAxis from './YAxis';
 import XAxis from './XAxis';
 import { useResizeDetector } from 'react-resize-detector';
 import Legend from './Legend';
+import ReactTooltip from 'react-tooltip';
 
 const debug = false;
 
@@ -27,7 +32,7 @@ export type SingleVertexColorConfig = {
 };
 
 export type VertexColorEncodingConfig<
-CategoryFeatureValue extends string = string
+  CategoryFeatureValue extends string = string
 > = {
   mode: 'color-encodings';
   featureName: string;
@@ -38,7 +43,9 @@ CategoryFeatureValue extends string = string
 export type Props<CategoryFeatureValue extends string = string> = {
   xAxis: AxisConfig;
   yAxis: AxisConfig;
-  color?: VertexColorEncodingConfig<CategoryFeatureValue> | SingleVertexColorConfig;
+  color?:
+    | VertexColorEncodingConfig<CategoryFeatureValue>
+    | SingleVertexColorConfig;
   className?: string;
   alpha?: number;
   pointSize?: number;
@@ -49,9 +56,15 @@ export type Props<CategoryFeatureValue extends string = string> = {
 };
 const defaultColor = '#1DB954';
 
-const Scatterplot = <CategoryFeatureValue extends string>(props: Props<CategoryFeatureValue>) => {
-  return <ScatterplotStoreProvider createStore={createScatterplotStore}><ScatterplotChild {...props}/></ScatterplotStoreProvider>
-}
+const Scatterplot = <CategoryFeatureValue extends string>(
+  props: Props<CategoryFeatureValue>
+) => {
+  return (
+    <ScatterplotStoreProvider createStore={createScatterplotStore}>
+      <ScatterplotChild {...props} />
+    </ScatterplotStoreProvider>
+  );
+};
 
 const ScatterplotChild = <CategoryFeatureValue extends string>({
   xAxis,
@@ -63,6 +76,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
   onPointClick,
   onPointHoverStart,
   onPointHoverEnd,
+  tooltipContent,
 }: Props<CategoryFeatureValue>) => {
   const { data: xData, featureName: xFeature } = xAxis;
   const { data: yData, featureName: yFeature } = yAxis;
@@ -86,23 +100,19 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
     setAlpha(alpha ?? 0.4);
   }, [alpha, setAlpha]);
 
-  const fillColorMap = useMemo(
-    () => {
-      if (color?.mode == 'same-for-all')
-        return new MapWithDefault<string, string>(() => color.value);
-      if (color?.mode === 'color-encodings') {
-        return new MapWithDefault<string, string>(
-          () => defaultColor,
-          color.encodings
-        );
-      }
-      return new MapWithDefault<string, string>(() => defaultColor);
+  const fillColorMap = useMemo(() => {
+    if (color?.mode == 'same-for-all')
+      return new MapWithDefault<string, string>(() => color.value);
+    if (color?.mode === 'color-encodings') {
+      return new MapWithDefault<string, string>(
+        () => defaultColor,
+        color.encodings
+      );
     }
-      ,
-    [color]
-  );
+    return new MapWithDefault<string, string>(() => defaultColor);
+  }, [color]);
 
-  useEffect(() => { 
+  useEffect(() => {
     const renderConfigs = xData.map((x, i) => ({
       x,
       y: yData[i],
@@ -170,12 +180,14 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
               </ul>
             </div>
           )}
-          {color?.mode == "color-encodings" && (
+          {color?.mode == 'color-encodings' && (
             <div>Currently color-encoding {color.featureName}</div>
           )}
         </div>
       )}
-      {color?.mode == "color-encodings" && <Legend encodings={color.encodings} />}
+      {color?.mode == 'color-encodings' && (
+        <Legend encodings={color.encodings} />
+      )}
       <div
         className={className}
         style={{
@@ -184,6 +196,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
           gridTemplateColumns: '48px 1fr',
           gridTemplateRows: '1fr 48px',
         }}
+        data-tip=""
       >
         <Canvas
           ref={canvasRef}
@@ -202,6 +215,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
         <XAxis featureName={xFeature} gridArea="x-axis" />
         <YAxis featureName={yFeature} gridArea="y-axis" />
       </div>
+      <ReactTooltip>{tooltipContent}</ReactTooltip>
     </>
   );
 };
