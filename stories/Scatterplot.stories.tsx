@@ -1,6 +1,11 @@
 import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import ScatterplotChild, { AxisConfig, Props } from '../src';
+import ScatterplotChild, {
+  AxisConfig,
+  Props,
+  VertexColorEncodingConfig,
+  SingleVertexColorConfig,
+} from '../src';
 import '../tailwind.css';
 
 const defaultXAxisConfig: AxisConfig = {
@@ -42,11 +47,27 @@ const Template: Story<Props> = args => (
 export const Default = Template.bind({});
 
 export const WithCustomColor = Template.bind({});
+const customColor: SingleVertexColorConfig = {
+  mode: 'same-for-all',
+  value: '#00ffff',
+};
 WithCustomColor.args = {
-  color: {
-    mode: 'same-for-all',
-    value: '#00ffff',
-  },
+  color: customColor,
 };
 
 Default.args = {};
+
+export const WithColorEncodings = Template.bind({});
+const customColorEncodings: VertexColorEncodingConfig = {
+  mode: 'color-encodings',
+  encodings: [
+    ['A', '#00ffff'],
+    ['B', '#ff00ff'],
+    ['C', '#0000ff'],
+  ],
+  featureName: 'Some categorical feature',
+  data: ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B'],
+};
+WithColorEncodings.args = {
+  color: customColorEncodings,
+};
