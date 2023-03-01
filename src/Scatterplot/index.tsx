@@ -4,7 +4,7 @@ import { Color } from 'three';
 import { MapWithDefault } from './utils';
 import Camera from './Camera';
 import Points from './Points';
-import { useScatterplotStore } from './store';
+import { createScatterplotStore, ScatterplotStoreProvider, useScatterplotStore } from './store';
 import PointClickAndHover from './PointClickAndHover';
 import YAxis from './YAxis';
 import XAxis from './XAxis';
@@ -19,18 +19,26 @@ export type AxisConfig = {
   beginAtZero?: boolean;
 };
 
-export type ColorEncodingConfig<
-  CategoryFeatureValue extends string = string
+type CSSHexColorString = `#${string}`;
+
+export type SingleVertexColorConfig = {
+  mode: 'same-for-all';
+  value: CSSHexColorString;
+};
+
+export type VertexColorEncodingConfig<
+CategoryFeatureValue extends string = string
 > = {
+  mode: 'color-encodings';
   featureName: string;
-  data: CategoryFeatureValue[];
-  encodings: [CategoryFeatureValue, string][];
+  data: string[];
+  encodings: [CategoryFeatureValue, CSSHexColorString][];
 };
 
 export type Props<CategoryFeatureValue extends string = string> = {
   xAxis: AxisConfig;
   yAxis: AxisConfig;
-  color?: ColorEncodingConfig<CategoryFeatureValue> | string;
+  color?: VertexColorEncodingConfig<CategoryFeatureValue> | SingleVertexColorConfig;
   className?: string;
   alpha?: number;
   pointSize?: number;
@@ -41,7 +49,11 @@ export type Props<CategoryFeatureValue extends string = string> = {
 };
 const defaultColor = '#1DB954';
 
-const Scatterplot = <CategoryFeatureValue extends string>({
+const Scatterplot = <CategoryFeatureValue extends string>(props: Props<CategoryFeatureValue>) => {
+  return <ScatterplotStoreProvider createStore={createScatterplotStore}><ScatterplotChild {...props}/></ScatterplotStoreProvider>
+}
+
+const ScatterplotChild = <CategoryFeatureValue extends string>({
   xAxis,
   yAxis,
   color,
@@ -75,24 +87,29 @@ const Scatterplot = <CategoryFeatureValue extends string>({
   }, [alpha, setAlpha]);
 
   const fillColorMap = useMemo(
-    () =>
-      new MapWithDefault<string, string>(
-        typeof color == 'string' ? () => color : () => defaultColor,
-        typeof color != 'string' && color?.encodings
-          ? color.encodings
-          : undefined
-      ),
+    () => {
+      if (color?.mode == 'same-for-all')
+        return new MapWithDefault<string, string>(() => color.value);
+      if (color?.mode === 'color-encodings') {
+        return new MapWithDefault<string, string>(
+          () => defaultColor,
+          color.encodings
+        );
+      }
+      return new MapWithDefault<string, string>(() => defaultColor);
+    }
+      ,
     [color]
   );
 
-  useEffect(() => {
+  useEffect(() => { 
     const renderConfigs = xData.map((x, i) => ({
       x,
       y: yData[i],
       color: new Color(
         Number(
           fillColorMap
-            .get(typeof color == 'object' ? color.data[i] : 'blub')
+            .get(color?.mode === 'color-encodings' ? color.data[i] : '')
             .replace('#', '0x')
         )
       ),
@@ -153,12 +170,12 @@ const Scatterplot = <CategoryFeatureValue extends string>({
               </ul>
             </div>
           )}
-          {color && typeof color === 'object' && (
+          {color?.mode == "color-encodings" && (
             <div>Currently color-encoding {color.featureName}</div>
           )}
         </div>
       )}
-      {typeof color === 'object' && <Legend encodings={color.encodings} />}
+      {color?.mode == "color-encodings" && <Legend encodings={color.encodings} />}
       <div
         className={className}
         style={{

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import Scatterplot, { AxisConfig, Props } from '../src';
+import ScatterplotChild, { AxisConfig, Props } from '../src';
 import '../tailwind.css';
 
 const defaultXAxisConfig: AxisConfig = {
@@ -14,8 +14,8 @@ const defaultYAxisConfig: AxisConfig = {
 };
 
 const meta: Meta = {
-  title: 'Welcome',
-  component: Scatterplot,
+  title: 'Scatterplot',
+  component: ScatterplotChild,
   argTypes: {
     xAxis: {
       defaultValue: defaultXAxisConfig,
@@ -33,12 +33,20 @@ export default meta;
 
 const Template: Story<Props> = args => (
   <div className="w-96 h-128">
-    <Scatterplot {...args} />
+    <ScatterplotChild {...args} />
   </div>
 );
 
 // By passing using the Args format for exported stories, you can control the props for a component for reuse in a test
 // https://storybook.js.org/docs/react/workflows/unit-testing
 export const Default = Template.bind({});
+
+export const WithCustomColor = Template.bind({});
+WithCustomColor.args = {
+  color: {
+    mode: 'same-for-all',
+    value: '#00ffff',
+  },
+};
 
 Default.args = {};

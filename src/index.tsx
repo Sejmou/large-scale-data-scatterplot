@@ -1,5 +1,5 @@
-import Scatterplot from './Scatterplot';
-import { Props, AxisConfig, ColorEncodingConfig } from './Scatterplot';
+import ScatterplotChild from './Scatterplot';
+import { Props, AxisConfig, VertexColorEncodingConfig } from './Scatterplot';
 
-export default Scatterplot;
-export type { Props, AxisConfig, ColorEncodingConfig };
+export default ScatterplotChild;
+export type { Props, AxisConfig, VertexColorEncodingConfig };
