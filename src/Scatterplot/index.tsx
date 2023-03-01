@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Color } from 'three';
 import { MapWithDefault } from './utils';
 import Camera from './Camera';
@@ -40,7 +40,7 @@ export type VertexColorEncodingConfig<
   encodings: [CategoryFeatureValue, CSSHexColorString][];
 };
 
-export type Props<CategoryFeatureValue extends string = string> = {
+export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   xAxis: AxisConfig;
   yAxis: AxisConfig;
   color?:
@@ -52,12 +52,12 @@ export type Props<CategoryFeatureValue extends string = string> = {
   onPointClick?: (pointIndex: number) => void;
   onPointHoverStart?: (pointIndex: number) => void;
   onPointHoverEnd?: () => void;
-  tooltipContent?: ReactElement;
+  tooltipContent?: ReactNode;
 };
 const defaultColor = '#1DB954';
 
 const Scatterplot = <CategoryFeatureValue extends string>(
-  props: Props<CategoryFeatureValue>
+  props: ScatterplotProps<CategoryFeatureValue>
 ) => {
   return (
     <ScatterplotStoreProvider createStore={createScatterplotStore}>
@@ -77,7 +77,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
   onPointHoverStart,
   onPointHoverEnd,
   tooltipContent,
-}: Props<CategoryFeatureValue>) => {
+}: ScatterplotProps<CategoryFeatureValue>) => {
   const { data: xData, featureName: xFeature } = xAxis;
   const { data: yData, featureName: yFeature } = yAxis;
   const setPointRenderConfigs = useScatterplotStore(

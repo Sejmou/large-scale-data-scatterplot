@@ -1,14 +1,14 @@
-import ScatterplotChild from './Scatterplot';
+import Scatterplot from './Scatterplot';
 import {
-  Props,
+  ScatterplotProps,
   AxisConfig,
   VertexColorEncodingConfig,
   SingleVertexColorConfig,
 } from './Scatterplot';
 
-export default ScatterplotChild;
+export default Scatterplot;
 export type {
-  Props,
+  ScatterplotProps,
   AxisConfig,
   VertexColorEncodingConfig,
   SingleVertexColorConfig,

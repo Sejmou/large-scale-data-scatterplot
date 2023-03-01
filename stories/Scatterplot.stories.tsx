@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Meta, Story } from '@storybook/react';
-import ScatterplotChild, {
+import Scatterplot, {
   AxisConfig,
-  Props,
+  ScatterplotProps,
   VertexColorEncodingConfig,
   SingleVertexColorConfig,
 } from '../src';
@@ -20,7 +20,7 @@ const defaultYAxisConfig: AxisConfig = {
 
 const meta: Meta = {
   title: 'Scatterplot',
-  component: ScatterplotChild,
+  component: Scatterplot,
   argTypes: {
     xAxis: {
       defaultValue: defaultXAxisConfig,
@@ -36,9 +36,9 @@ const meta: Meta = {
 
 export default meta;
 
-const Template: Story<Props> = args => (
+const Template: Story<ScatterplotProps> = args => (
   <div className="w-96 h-128">
-    <ScatterplotChild {...args} />
+    <Scatterplot {...args} />
   </div>
 );
 
@@ -72,9 +72,70 @@ WithColorEncodings.args = {
   color: customColorEncodings,
 };
 
-export const ReactingToPointEvents = Template.bind({});
-ReactingToPointEvents.args = {
+const PointerEventsTemplate: Story<ScatterplotProps> = args => {
+  const [tooltipContent, setTooltipContent] = useState<React.ReactNode>(null);
+
+  const handlePointHoverStart = useCallback((pointIndex: number) => {
+    const pointMetadata = {
+      x: defaultXAxisConfig.data[pointIndex],
+      y: defaultYAxisConfig.data[pointIndex],
+      category: customColorEncodings.data[pointIndex],
+    };
+    const xFeatureName = defaultXAxisConfig.featureName;
+    const yFeatureName = defaultYAxisConfig.featureName;
+    const categoryFeatureName = customColorEncodings.featureName;
+    setTooltipContent(
+      <div>
+        <div className="font-bold">Point at index {pointIndex}</div>
+        <div>
+          {xFeatureName}: {pointMetadata.x}
+        </div>
+        <div>
+          {yFeatureName}: {pointMetadata.y}
+        </div>
+        <div>
+          {categoryFeatureName}: {pointMetadata.category}
+        </div>
+      </div>
+    );
+  }, []);
+
+  const handlePointHoverEnd = useCallback(() => {
+    setTooltipContent(null);
+  }, []);
+
+  console.log(tooltipContent);
+
+  return (
+    <div className="w-96 h-128">
+      <Scatterplot
+        {...args}
+        onPointHoverStart={handlePointHoverStart}
+        onPointHoverEnd={handlePointHoverEnd}
+        tooltipContent={tooltipContent ?? undefined}
+      />
+    </div>
+  );
+};
+
+const pointerEventExampleProps: ScatterplotProps = {
+  xAxis: defaultXAxisConfig,
+  yAxis: defaultYAxisConfig,
+  color: customColorEncodings,
   onPointClick: pointIndex => {
-    alert('Clicked point');
+    const pointMetadata = {
+      x: defaultXAxisConfig.data[pointIndex],
+      y: defaultYAxisConfig.data[pointIndex],
+      category: customColorEncodings.data[pointIndex],
+    };
+    const xFeatureName = defaultXAxisConfig.featureName;
+    const yFeatureName = defaultYAxisConfig.featureName;
+    const categoryFeatureName = customColorEncodings.featureName;
+    alert(
+      `Clicked point at index ${pointIndex}\n${xFeatureName}: ${pointMetadata.x}\n${yFeatureName}: ${pointMetadata.y}\n${categoryFeatureName}: ${pointMetadata.category}`
+    );
   },
 };
+
+export const PointerEventsAndTooltip = PointerEventsTemplate.bind({});
+PointerEventsAndTooltip.args = pointerEventExampleProps;
