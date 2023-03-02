@@ -4,11 +4,7 @@ import { Color } from 'three';
 import { MapWithDefault } from './utils';
 import Camera from './Camera';
 import Points from './Points';
-import {
-  createScatterplotStore,
-  ScatterplotStoreProvider,
-  useScatterplotStore,
-} from './store';
+import { ScatterplotStoreProvider, useScatterplotStore } from './store';
 import PointClickAndHover from './PointClickAndHover';
 import YAxis from './YAxis';
 import XAxis from './XAxis';
@@ -60,7 +56,7 @@ const Scatterplot = <CategoryFeatureValue extends string>(
   props: ScatterplotProps<CategoryFeatureValue>
 ) => {
   return (
-    <ScatterplotStoreProvider createStore={createScatterplotStore}>
+    <ScatterplotStoreProvider>
       <ScatterplotChild {...props} />
     </ScatterplotStoreProvider>
   );

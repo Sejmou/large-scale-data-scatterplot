@@ -47,16 +47,19 @@ const PointClickAndHover = ({
   const hoveredPointData = useMemo(() => {
     if (hoveredPointIndex !== null) {
       const config = pointRenderConfigs[hoveredPointIndex];
+      if (!config) return null;
       return { x: config.x, y: config.y, color: config.color };
     } else {
       return null;
     }
-  }, [hoveredPointIndex, scatterPoints]);
+  }, [hoveredPointIndex, scatterPoints, pointRenderConfigs]);
   useEffect(() => {
     if (!canvas || !mouse || !raycaster || !camera || !scatterPoints) return;
     const cam = camera as PerspectiveCamera;
     const hoverListener = (e: MouseEvent) => {
-      const canvasRect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+      const canvasRect = (
+        e.target as HTMLCanvasElement
+      ).getBoundingClientRect();
       const x = e.clientX - canvasRect.left;
       const y = e.clientY - canvasRect.top;
       const width = canvasRect.width;
@@ -72,9 +75,8 @@ const PointClickAndHover = ({
       // per default, with a larger zoom level points are highlighted even if the distance between the mouse and the point (in pixel coordinates) is large
       // workaround: make the threshold for the raycaster points dependent on the zoom scale
       // to understand the issue it is best to comment out the following line, zoom in and out and observe when a particular point is highlighted
-      raycaster.params!.Points!.threshold = raycasterPointsThresholdScale(
-        scale
-      );
+      raycaster.params!.Points!.threshold =
+        raycasterPointsThresholdScale(scale);
       raycaster.setFromCamera(mouseVector, camera);
       const intersects = raycaster.intersectObject(scatterPoints);
       if (intersects.length > 0) {

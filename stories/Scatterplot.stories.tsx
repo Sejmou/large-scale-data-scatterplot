@@ -106,6 +106,8 @@ const PointerEventsTemplate: Story<ScatterplotProps> = args => {
 
   console.log(tooltipContent);
 
+  console.log({ args });
+
   return (
     <div className="w-96 h-128">
       <Scatterplot

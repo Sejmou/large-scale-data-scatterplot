@@ -1,7 +1,7 @@
 import { ScaleLinear } from 'd3';
 import { Color, Points } from 'three';
-import { createStore, StoreApi } from 'zustand';
-import createContext from 'zustand/context';
+import { createStore, useStore } from 'zustand';
+import { ReactNode, createContext, useContext, useMemo } from 'react';
 
 // note: we want to use a separate store for every scatterplot instance
 // so that we can have multiple scatterplots with different configs on the same page
@@ -10,11 +10,6 @@ import createContext from 'zustand/context';
 // too lazy to explain in detail, but the following GitHub discussion talks about a similar problem and the solution:
 // see also: https://github.com/pmndrs/zustand/blob/main/docs/previous-versions/zustand-v3-create-context.md#migration
 // and a live demo of using separate store instances per component (which is exactly what I needed for my scatterplot as well): https://codesandbox.io/s/polished-pond-4jn1e2?file=/src/App.tsx:499-572
-// I could not figure out how to make selectors work with the recommended approach (createContext from zustand/context is actually deprecated, so I use the old approach: https://github.com/pmndrs/zustand/blob/main/docs/previous-versions/zustand-v3-create-context.md#createcontext-usage-in-real-components)
-export const {
-  Provider: ScatterplotStoreProvider,
-  useStore: useScatterplotStore,
-} = createContext<StoreApi<State>>();
 
 type PointRenderConfig = {
   x: number;
@@ -75,8 +70,9 @@ const near = 1;
 const far = 101;
 const initialCamPos: [number, number, number] = [0, 0, far];
 
-export const createScatterplotStore = () =>
-  createStore<State>(set => ({
+export const createScatterplotStore = () => {
+  console.log('creating scatterplot store');
+  return createStore<State>(set => ({
     fov,
     near,
     far,
@@ -103,31 +99,29 @@ export const createScatterplotStore = () =>
     setPlotCanvasDimensionsDOM: newDimensions =>
       set({ plotCanvasDimensionsDOM: newDimensions }),
   }));
+};
 
-// const ScatterplotContext = createContext<ReturnType<
-//   typeof createScatterplotStore
-// > | null>(null);
+const ScatterplotContext = createContext<ReturnType<
+  typeof createScatterplotStore
+> | null>(null);
 
-// export const ScatterplotStoreProvider = ({
-//   children,
-// }: {
-//   children: ReactNode;
-// }) => {
-//   const store = createScatterplotStore();
-//   return (
-//     <ScatterplotContext.Provider value={store}>
-//       {children}
-//     </ScatterplotContext.Provider>
-//   );
-// };
+export const ScatterplotStoreProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const store = useMemo(() => createScatterplotStore(), []); // store should not be recreated on every rerender of this component
+  return (
+    <ScatterplotContext.Provider value={store}>
+      {children}
+    </ScatterplotContext.Provider>
+  );
+};
 
-// export const useScatterplotStore = (
-//   selector: ExtractState<ReturnType<typeof createScatterplotStore>>
-// ) => {
-//   //TODO: type selector properly
-//   const store = useContext(ScatterplotContext);
-//   if (store === null) {
-//     throw new Error('no provider');
-//   }
-//   return useStore(store, selector);
-// };
+export const useScatterplotStore = <T,>(selector: (state: State) => T) => {
+  const store = useContext(ScatterplotContext);
+  if (store === null) {
+    throw new Error('no provider');
+  }
+  return useStore(store, selector);
+};
