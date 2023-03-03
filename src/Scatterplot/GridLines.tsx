@@ -22,7 +22,7 @@ const GridLines = ({ gridArea }: Props) => {
     },
     [xScale, yScale, width, height]
   );
-  console.log({ width, height, xScale, yScale });
+
   return (
     <div
       className="w-full h-full relative -z-10"

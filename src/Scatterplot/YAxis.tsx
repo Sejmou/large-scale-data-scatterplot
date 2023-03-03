@@ -32,6 +32,7 @@ const YAxis = ({ gridArea, tickFormat }: Props) => {
           transform={`translate(${width / 4}, ${
             marginTop + height / 2
           }) rotate(-90)`}
+          fontSize="0.9rem"
         >
           {featureName}
         </text>

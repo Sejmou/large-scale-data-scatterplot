@@ -31,6 +31,7 @@ const XAxis = ({ gridArea, tickFormat }: Props) => {
           transform={`translate(${marginLeft + width / 2}, ${
             7 * (height / 8)
           })`}
+          fontSize="0.9rem"
         >
           {featureName}
         </text>
