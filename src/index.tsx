@@ -1,10 +1,10 @@
 import Scatterplot from './Scatterplot';
-import {
-  ScatterplotProps,
+import type { ScatterplotProps } from './Scatterplot';
+import type {
   AxisConfig,
   VertexColorEncodingConfig,
   SingleVertexColorConfig,
-} from './Scatterplot';
+} from './Scatterplot/store';
 
 export default Scatterplot;
 export type {

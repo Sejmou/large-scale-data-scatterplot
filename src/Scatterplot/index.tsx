@@ -4,7 +4,14 @@ import { Color } from 'three';
 import { MapWithDefault } from './utils';
 import Camera from './Camera';
 import Points from './Points';
-import { ScatterplotStoreProvider, useScatterplotStore } from './store';
+import {
+  AxisConfig,
+  createScatterplotStore,
+  ScatterplotContext,
+  SingleVertexColorConfig,
+  useScatterplotStore,
+  VertexColorEncodingConfig,
+} from './store';
 import PointClickAndHover from './PointClickAndHover';
 import YAxis from './YAxis';
 import XAxis from './XAxis';
@@ -13,28 +20,6 @@ import Legend from './Legend';
 import ReactTooltip from 'react-tooltip';
 
 const debug = false;
-
-export type AxisConfig = {
-  data: number[];
-  featureName: string;
-  beginAtZero?: boolean;
-};
-
-type CSSHexColorString = `#${string}`;
-
-export type SingleVertexColorConfig = {
-  mode: 'same-for-all';
-  value: CSSHexColorString;
-};
-
-export type VertexColorEncodingConfig<
-  CategoryFeatureValue extends string = string
-> = {
-  mode: 'color-encodings';
-  featureName: string;
-  data: string[];
-  encodings: [CategoryFeatureValue, CSSHexColorString][];
-};
 
 export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   xAxis: AxisConfig;
@@ -55,46 +40,80 @@ const defaultColor = '#1DB954';
 const Scatterplot = <CategoryFeatureValue extends string>(
   props: ScatterplotProps<CategoryFeatureValue>
 ) => {
+  const store = useMemo(() => createScatterplotStore(), []); // store should not be recreated on every rerender of this component
+
+  useEffect(() => {
+    store.setState({ xAxisConfig: props.xAxis });
+  }, [props.xAxis, store]);
+  useEffect(() => {
+    store.setState({ yAxisConfig: props.yAxis });
+  }, [props.yAxis, store]);
+  useEffect(() => {
+    const pointSize = props.pointSize;
+    if (pointSize) {
+      store.setState({ pointSize });
+    }
+  }, [props.pointSize, store]);
+  useEffect(() => {
+    const alpha = props.alpha;
+    if (alpha) {
+      store.setState({ alpha });
+    }
+  }, [props.alpha, store]);
+  useEffect(() => {
+    const color = props.color;
+    if (color) {
+      store.setState({ colorConfig: color });
+    } else {
+      store.setState({
+        colorConfig: { mode: 'same-for-all', value: defaultColor },
+      });
+    }
+  }, [props.color, store]);
+  useEffect(() => {
+    const onPointClick = props.onPointClick;
+    if (onPointClick) {
+      store.setState({ onPointClick });
+    }
+  }, [props.onPointClick, store]);
+  useEffect(() => {
+    const onPointHoverStart = props.onPointHoverStart;
+    if (onPointHoverStart) {
+      store.setState({ onPointHoverStart });
+    }
+  }, [props.onPointHoverStart, store]);
+  useEffect(() => {
+    const onPointHoverEnd = props.onPointHoverEnd;
+    if (onPointHoverEnd) {
+      store.setState({ onPointHoverEnd });
+    }
+  }, [props.onPointHoverEnd, store]);
+
   return (
-    <ScatterplotStoreProvider>
+    <ScatterplotContext.Provider value={store}>
       <ScatterplotChild {...props} />
-    </ScatterplotStoreProvider>
+    </ScatterplotContext.Provider>
   );
 };
 
 const ScatterplotChild = <CategoryFeatureValue extends string>({
-  xAxis,
-  yAxis,
   color,
   className,
-  pointSize,
-  alpha,
-  onPointClick,
-  onPointHoverStart,
-  onPointHoverEnd,
   tooltipContent,
 }: ScatterplotProps<CategoryFeatureValue>) => {
-  const { data: xData, featureName: xFeature } = xAxis;
-  const { data: yData, featureName: yFeature } = yAxis;
+  const xAxisConfig = useScatterplotStore(state => state.xAxisConfig);
+  const yAxisConfig = useScatterplotStore(state => state.yAxisConfig);
+  const { data: xData, featureName: xFeature } = xAxisConfig;
+  const { data: yData, featureName: yFeature } = yAxisConfig;
   const setPointRenderConfigs = useScatterplotStore(
     state => state.setPointRenderConfigs
   );
   const fov = useScatterplotStore(state => state.fov);
   const near = useScatterplotStore(state => state.near);
   const far = useScatterplotStore(state => state.far);
-  const setPointSize = useScatterplotStore(state => state.setPointSize);
-  const setAlpha = useScatterplotStore(state => state.setAlpha);
   const setCanvasDimensions = useScatterplotStore(
     state => state.setPlotCanvasDimensionsDOM
   );
-
-  useEffect(() => {
-    setPointSize(pointSize ?? 12);
-  }, [pointSize, setPointSize]);
-
-  useEffect(() => {
-    setAlpha(alpha ?? 0.4);
-  }, [alpha, setAlpha]);
 
   const fillColorMap = useMemo(() => {
     if (color?.mode == 'same-for-all')
@@ -200,16 +219,12 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
           style={{ gridArea: 'canvas' }}
         >
           <Camera />
-          <PointClickAndHover
-            onPointClick={onPointClick}
-            onPointHoverStart={onPointHoverStart}
-            onPointHoverEnd={onPointHoverEnd}
-          />
+          <PointClickAndHover />
           {/* Points should rerender on every resize - using the key prop like this is my dirty hack for that lol */}
           <Points key={pointsKey} />
         </Canvas>
-        <XAxis featureName={xFeature} gridArea="x-axis" />
-        <YAxis featureName={yFeature} gridArea="y-axis" />
+        <XAxis gridArea="x-axis" />
+        <YAxis gridArea="y-axis" />
       </div>
       <ReactTooltip>{tooltipContent}</ReactTooltip>
     </>

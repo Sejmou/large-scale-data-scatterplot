@@ -9,16 +9,13 @@ import {
   circleBorderTextureDataURI,
 } from './texture-data-uris';
 
-type Props = {
-  onPointClick?: (pointIndex: number) => void;
-  onPointHoverStart?: (pointIndex: number) => void;
-  onPointHoverEnd?: () => void;
-};
-const PointClickAndHover = ({
-  onPointClick,
-  onPointHoverStart,
-  onPointHoverEnd,
-}: Props) => {
+const PointClickAndHover = () => {
+  const onPointClick = useScatterplotStore(state => state.onPointClick);
+  const onPointHoverStart = useScatterplotStore(
+    state => state.onPointHoverStart
+  );
+  const onPointHoverEnd = useScatterplotStore(state => state.onPointHoverEnd);
+
   const circleTexture = useLoader(TextureLoader, circleTextureDataURI);
   const circleBorderTexture = useLoader(
     TextureLoader,

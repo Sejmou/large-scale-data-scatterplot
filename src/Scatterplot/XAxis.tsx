@@ -1,13 +1,16 @@
 import { Axis } from 'd3-axis-for-react';
 import { useResizeDetector } from 'react-resize-detector';
+import { useScatterplotStore } from './store';
 import useAxisScales from './use-axis-scales';
 
 type Props = {
-  featureName: string;
   gridArea: string;
   tickFormat?: (d: number) => string;
 };
-const XAxis = ({ featureName, gridArea, tickFormat }: Props) => {
+const XAxis = ({ gridArea, tickFormat }: Props) => {
+  const featureName = useScatterplotStore(
+    state => state.xAxisConfig.featureName
+  );
   const { xScale } = useAxisScales();
   const { width: width = 0, height: height = 0, ref } = useResizeDetector();
 

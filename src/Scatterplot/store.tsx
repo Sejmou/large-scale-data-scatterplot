@@ -1,7 +1,8 @@
 import { ScaleLinear } from 'd3';
 import { Color, Points } from 'three';
 import { createStore, useStore } from 'zustand';
-import { ReactNode, createContext, useContext, useMemo } from 'react';
+import { ReactNode, createContext, useContext } from 'react';
+import { devtools } from 'zustand/middleware';
 
 // note: we want to use a separate store for every scatterplot instance
 // so that we can have multiple scatterplots with different configs on the same page
@@ -17,7 +18,38 @@ type PointRenderConfig = {
   color: Color;
 };
 
-type State = {
+export type AxisConfig = {
+  data: number[];
+  featureName: string;
+  beginAtZero?: boolean;
+};
+
+type CSSHexColorString = `#${string}`;
+
+export type SingleVertexColorConfig = {
+  mode: 'same-for-all';
+  value: CSSHexColorString;
+};
+
+export type VertexColorEncodingConfig<
+  CategoryFeatureValue extends string = string
+> = {
+  mode: 'color-encodings';
+  featureName: string;
+  data: string[];
+  encodings: [CategoryFeatureValue, CSSHexColorString][];
+};
+
+type State<CategoryFeatureValue extends string = string> = {
+  xAxisConfig: AxisConfig;
+  yAxisConfig: AxisConfig;
+  colorConfig?:
+    | VertexColorEncodingConfig<CategoryFeatureValue>
+    | SingleVertexColorConfig;
+  onPointClick?: (pointIndex: number) => void;
+  onPointHoverStart?: (pointIndex: number) => void;
+  onPointHoverEnd?: () => void;
+  tooltipContent?: ReactNode;
   fov: number;
   near: number;
   far: number;
@@ -40,6 +72,21 @@ type State = {
     width: number;
     height: number;
   };
+  setXAxisConfig: (newConfig: AxisConfig) => void;
+  setYAxisConfig: (newConfig: AxisConfig) => void;
+  setColorConfig: (
+    newConfig:
+      | VertexColorEncodingConfig<CategoryFeatureValue>
+      | SingleVertexColorConfig
+      | undefined
+  ) => void;
+  setOnPointClick: (
+    newCallback: ((pointIndex: number) => void) | undefined
+  ) => void;
+  setOnPointHoverStart: (
+    newCallback: ((pointIndex: number) => void) | undefined
+  ) => void;
+  setOnPointHoverEnd: (newCallback: (() => void) | undefined) => void;
   setPointRenderConfigs: (newConfigs: PointRenderConfig[]) => void;
   setCurrentPoints: (newPoints: Points) => void;
   setPointSize: (newSize: number) => void;
@@ -69,54 +116,73 @@ const fov = 40;
 const near = 1;
 const far = 101;
 const initialCamPos: [number, number, number] = [0, 0, far];
-
-export const createScatterplotStore = () => {
-  console.log('creating scatterplot store');
-  return createStore<State>(set => ({
-    fov,
-    near,
-    far,
-    pointRenderConfigs: [],
-    pointSize: 12,
-    alpha: 0.5,
-    camPos: initialCamPos,
-    setPointRenderConfigs: newConfigs =>
-      set({ pointRenderConfigs: newConfigs }),
-    setCurrentPoints: newPoints => set({ currentPoints: newPoints }),
-    setPointSize: newSize => set({ pointSize: newSize }),
-    setAlpha: newAlpha => set({ alpha: newAlpha }),
-    setXScaleWorldCoordinates: newScale =>
-      set({ xScaleWorldCoordinates: newScale }),
-    setYScaleWorldCoordinates: newScale =>
-      set({ yScaleWorldCoordinates: newScale }),
-    setXScaleDOMPixels: newScale => set({ xScaleDOMPixels: newScale }),
-    setYScaleDOMPixels: newScale => set({ yScaleDOMPixels: newScale }),
-    setXScaleWorldToData: newScale => set({ xScaleWorldToData: newScale }),
-    setYScaleWorldToData: newScale => set({ yScaleWorldToData: newScale }),
-    setCamPos: newCamPos => set({ camPos: newCamPos }),
-    setPlotPlaneDimensionsWorld: newDimensions =>
-      set({ plotPlaneDimensionsWorld: newDimensions }),
-    setPlotCanvasDimensionsDOM: newDimensions =>
-      set({ plotCanvasDimensionsDOM: newDimensions }),
-  }));
+const dummyAxisConfig: AxisConfig = {
+  data: [],
+  featureName: 'No feature provided',
+  beginAtZero: true,
 };
 
-const ScatterplotContext = createContext<ReturnType<
-  typeof createScatterplotStore
-> | null>(null);
-
-export const ScatterplotStoreProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
-  const store = useMemo(() => createScatterplotStore(), []); // store should not be recreated on every rerender of this component
-  return (
-    <ScatterplotContext.Provider value={store}>
-      {children}
-    </ScatterplotContext.Provider>
+export const createScatterplotStore = <
+  CategoryFeatureValue extends string
+>() => {
+  console.log('creating new scatterplot store');
+  return createStore<
+    State<CategoryFeatureValue>,
+    [['zustand/devtools', never]]
+  >(
+    devtools(set => ({
+      fov,
+      near,
+      far,
+      pointRenderConfigs: [],
+      pointSize: 12,
+      alpha: 0.5,
+      camPos: initialCamPos,
+      xAxisConfig: dummyAxisConfig,
+      yAxisConfig: dummyAxisConfig,
+      setPointRenderConfigs: newConfigs =>
+        set({ pointRenderConfigs: newConfigs }),
+      setCurrentPoints: newPoints => set({ currentPoints: newPoints }),
+      setPointSize: newSize => set({ pointSize: newSize }),
+      setAlpha: newAlpha => set({ alpha: newAlpha }),
+      setXScaleWorldCoordinates: newScale =>
+        set({ xScaleWorldCoordinates: newScale }),
+      setYScaleWorldCoordinates: newScale =>
+        set({ yScaleWorldCoordinates: newScale }),
+      setXScaleDOMPixels: newScale => set({ xScaleDOMPixels: newScale }),
+      setYScaleDOMPixels: newScale => set({ yScaleDOMPixels: newScale }),
+      setXScaleWorldToData: newScale => set({ xScaleWorldToData: newScale }),
+      setYScaleWorldToData: newScale => set({ yScaleWorldToData: newScale }),
+      setCamPos: newCamPos => set({ camPos: newCamPos }),
+      setPlotPlaneDimensionsWorld: newDimensions =>
+        set({ plotPlaneDimensionsWorld: newDimensions }),
+      setPlotCanvasDimensionsDOM: newDimensions =>
+        set({ plotCanvasDimensionsDOM: newDimensions }),
+      setXAxisConfig: (newConfig: AxisConfig) =>
+        set({ xAxisConfig: newConfig }),
+      setYAxisConfig: (newConfig: AxisConfig) =>
+        set({ yAxisConfig: newConfig }),
+      setColorConfig: (
+        newConfig:
+          | VertexColorEncodingConfig<CategoryFeatureValue>
+          | SingleVertexColorConfig
+          | undefined
+      ) => set({ colorConfig: newConfig }),
+      setOnPointClick: (
+        newCallback: ((pointIndex: number) => void) | undefined
+      ) => set({ onPointClick: newCallback }),
+      setOnPointHoverStart: (
+        newCallback: ((pointIndex: number) => void) | undefined
+      ) => set({ onPointHoverStart: newCallback }),
+      setOnPointHoverEnd: (newCallback: (() => void) | undefined) =>
+        set({ onPointHoverEnd: newCallback }),
+    }))
   );
 };
+
+export const ScatterplotContext = createContext<ReturnType<
+  typeof createScatterplotStore
+> | null>(null);
 
 export const useScatterplotStore = <T,>(selector: (state: State) => T) => {
   const store = useContext(ScatterplotContext);
