@@ -19,6 +19,7 @@ import XAxis from './XAxis';
 import { useResizeDetector } from 'react-resize-detector';
 import Legend from './Legend';
 import ReactTooltip from 'react-tooltip';
+import GridLines from './GridLines';
 
 const debug = false;
 
@@ -266,6 +267,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
           {/* Points should rerender on every resize - using the key prop like this is my dirty hack for that lol */}
           <Points key={pointsKey} />
         </Canvas>
+        <GridLines gridArea="canvas" />
         <XAxis gridArea="x-axis" />
         <YAxis gridArea="y-axis" />
       </div>
