@@ -7,6 +7,7 @@ import Points from './Points';
 import {
   AxisConfig,
   createScatterplotStore,
+  PlotMargins,
   ScatterplotContext,
   SingleVertexColorConfig,
   useScatterplotStore,
@@ -34,6 +35,7 @@ export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   onPointHoverStart?: (pointIndex: number) => void;
   onPointHoverEnd?: () => void;
   tooltipContent?: ReactNode;
+  margins?: Partial<PlotMargins>;
 };
 const defaultColor = '#1DB954';
 
@@ -88,6 +90,38 @@ const Scatterplot = <CategoryFeatureValue extends string>(
       store.setState({ onPointHoverEnd });
     }
   }, [props.onPointHoverEnd, store]);
+  useEffect(() => {
+    const marginLeft = props.margins?.left;
+    if (marginLeft) {
+      store.setState(state => {
+        state.plotMargins.left = marginLeft;
+      });
+    }
+  }, [props.margins?.left, store]);
+  useEffect(() => {
+    const marginRight = props.margins?.right;
+    if (marginRight) {
+      store.setState(state => {
+        state.plotMargins.right = marginRight;
+      });
+    }
+  }, [props.margins?.right, store]);
+  useEffect(() => {
+    const marginTop = props.margins?.top;
+    if (marginTop) {
+      store.setState(state => {
+        state.plotMargins.top = marginTop;
+      });
+    }
+  }, [props.margins?.top, store]);
+  useEffect(() => {
+    const marginBottom = props.margins?.bottom;
+    if (marginBottom) {
+      store.setState(state => {
+        state.plotMargins.bottom = marginBottom;
+      });
+    }
+  }, [props.margins?.bottom, store]);
 
   return (
     <ScatterplotContext.Provider value={store}>
@@ -100,7 +134,10 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
   color,
   className,
   tooltipContent,
-}: ScatterplotProps<CategoryFeatureValue>) => {
+}: Pick<
+  ScatterplotProps<CategoryFeatureValue>,
+  'color' | 'className' | 'tooltipContent'
+>) => {
   const xAxisConfig = useScatterplotStore(state => state.xAxisConfig);
   const yAxisConfig = useScatterplotStore(state => state.yAxisConfig);
   const { data: xData, featureName: xFeature } = xAxisConfig;
@@ -114,6 +151,10 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
   const setCanvasDimensions = useScatterplotStore(
     state => state.setPlotCanvasDimensionsDOM
   );
+  const marginTop = useScatterplotStore(state => state.plotMargins.top);
+  const marginRight = useScatterplotStore(state => state.plotMargins.right);
+  const marginBottom = useScatterplotStore(state => state.plotMargins.bottom);
+  const marginLeft = useScatterplotStore(state => state.plotMargins.left);
 
   const fillColorMap = useMemo(() => {
     if (color?.mode == 'same-for-all')
@@ -208,8 +249,10 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
         style={{
           display: 'grid',
           gridTemplateAreas: "'y-axis canvas' '. x-axis'",
-          gridTemplateColumns: '48px 1fr',
-          gridTemplateRows: '1fr 48px',
+          gridTemplateColumns: `${marginLeft}px 1fr`,
+          gridTemplateRows: `1fr ${marginBottom}px`,
+          marginTop,
+          marginRight,
         }}
         data-tip=""
       >

@@ -3,6 +3,7 @@ import { Color, Points } from 'three';
 import { createStore, useStore } from 'zustand';
 import { ReactNode, createContext, useContext } from 'react';
 import { devtools } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 
 // note: we want to use a separate store for every scatterplot instance
 // so that we can have multiple scatterplots with different configs on the same page
@@ -40,6 +41,13 @@ export type VertexColorEncodingConfig<
   encodings: [CategoryFeatureValue, CSSHexColorString][];
 };
 
+export type PlotMargins = {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
+
 type State<CategoryFeatureValue extends string = string> = {
   xAxisConfig: AxisConfig;
   yAxisConfig: AxisConfig;
@@ -72,21 +80,7 @@ type State<CategoryFeatureValue extends string = string> = {
     width: number;
     height: number;
   };
-  setXAxisConfig: (newConfig: AxisConfig) => void;
-  setYAxisConfig: (newConfig: AxisConfig) => void;
-  setColorConfig: (
-    newConfig:
-      | VertexColorEncodingConfig<CategoryFeatureValue>
-      | SingleVertexColorConfig
-      | undefined
-  ) => void;
-  setOnPointClick: (
-    newCallback: ((pointIndex: number) => void) | undefined
-  ) => void;
-  setOnPointHoverStart: (
-    newCallback: ((pointIndex: number) => void) | undefined
-  ) => void;
-  setOnPointHoverEnd: (newCallback: (() => void) | undefined) => void;
+  plotMargins: PlotMargins;
   setPointRenderConfigs: (newConfigs: PointRenderConfig[]) => void;
   setCurrentPoints: (newPoints: Points) => void;
   setPointSize: (newSize: number) => void;
@@ -121,6 +115,12 @@ const dummyAxisConfig: AxisConfig = {
   featureName: 'No feature provided',
   beginAtZero: true,
 };
+const defaultMargins: PlotMargins = {
+  top: 20,
+  right: 20,
+  bottom: 48,
+  left: 48,
+};
 
 export const createScatterplotStore = <
   CategoryFeatureValue extends string
@@ -128,55 +128,40 @@ export const createScatterplotStore = <
   console.log('creating new scatterplot store');
   return createStore<
     State<CategoryFeatureValue>,
-    [['zustand/devtools', never]]
+    [['zustand/devtools', never], ['zustand/immer', never]]
   >(
-    devtools(set => ({
-      fov,
-      near,
-      far,
-      pointRenderConfigs: [],
-      pointSize: 12,
-      alpha: 0.5,
-      camPos: initialCamPos,
-      xAxisConfig: dummyAxisConfig,
-      yAxisConfig: dummyAxisConfig,
-      setPointRenderConfigs: newConfigs =>
-        set({ pointRenderConfigs: newConfigs }),
-      setCurrentPoints: newPoints => set({ currentPoints: newPoints }),
-      setPointSize: newSize => set({ pointSize: newSize }),
-      setAlpha: newAlpha => set({ alpha: newAlpha }),
-      setXScaleWorldCoordinates: newScale =>
-        set({ xScaleWorldCoordinates: newScale }),
-      setYScaleWorldCoordinates: newScale =>
-        set({ yScaleWorldCoordinates: newScale }),
-      setXScaleDOMPixels: newScale => set({ xScaleDOMPixels: newScale }),
-      setYScaleDOMPixels: newScale => set({ yScaleDOMPixels: newScale }),
-      setXScaleWorldToData: newScale => set({ xScaleWorldToData: newScale }),
-      setYScaleWorldToData: newScale => set({ yScaleWorldToData: newScale }),
-      setCamPos: newCamPos => set({ camPos: newCamPos }),
-      setPlotPlaneDimensionsWorld: newDimensions =>
-        set({ plotPlaneDimensionsWorld: newDimensions }),
-      setPlotCanvasDimensionsDOM: newDimensions =>
-        set({ plotCanvasDimensionsDOM: newDimensions }),
-      setXAxisConfig: (newConfig: AxisConfig) =>
-        set({ xAxisConfig: newConfig }),
-      setYAxisConfig: (newConfig: AxisConfig) =>
-        set({ yAxisConfig: newConfig }),
-      setColorConfig: (
-        newConfig:
-          | VertexColorEncodingConfig<CategoryFeatureValue>
-          | SingleVertexColorConfig
-          | undefined
-      ) => set({ colorConfig: newConfig }),
-      setOnPointClick: (
-        newCallback: ((pointIndex: number) => void) | undefined
-      ) => set({ onPointClick: newCallback }),
-      setOnPointHoverStart: (
-        newCallback: ((pointIndex: number) => void) | undefined
-      ) => set({ onPointHoverStart: newCallback }),
-      setOnPointHoverEnd: (newCallback: (() => void) | undefined) =>
-        set({ onPointHoverEnd: newCallback }),
-    }))
+    devtools(
+      immer(set => ({
+        fov,
+        near,
+        far,
+        pointRenderConfigs: [],
+        pointSize: 12,
+        alpha: 0.5,
+        camPos: initialCamPos,
+        xAxisConfig: dummyAxisConfig,
+        yAxisConfig: dummyAxisConfig,
+        plotMargins: defaultMargins,
+        setPointRenderConfigs: newConfigs =>
+          set({ pointRenderConfigs: newConfigs }),
+        setCurrentPoints: newPoints => set({ currentPoints: newPoints }),
+        setPointSize: newSize => set({ pointSize: newSize }),
+        setAlpha: newAlpha => set({ alpha: newAlpha }),
+        setXScaleWorldCoordinates: newScale =>
+          set({ xScaleWorldCoordinates: newScale }),
+        setYScaleWorldCoordinates: newScale =>
+          set({ yScaleWorldCoordinates: newScale }),
+        setXScaleDOMPixels: newScale => set({ xScaleDOMPixels: newScale }),
+        setYScaleDOMPixels: newScale => set({ yScaleDOMPixels: newScale }),
+        setXScaleWorldToData: newScale => set({ xScaleWorldToData: newScale }),
+        setYScaleWorldToData: newScale => set({ yScaleWorldToData: newScale }),
+        setCamPos: newCamPos => set({ camPos: newCamPos }),
+        setPlotPlaneDimensionsWorld: newDimensions =>
+          set({ plotPlaneDimensionsWorld: newDimensions }),
+        setPlotCanvasDimensionsDOM: newDimensions =>
+          set({ plotCanvasDimensionsDOM: newDimensions }),
+      }))
+    )
   );
 };
 

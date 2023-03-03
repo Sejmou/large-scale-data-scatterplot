@@ -15,13 +15,15 @@ const YAxis = ({ gridArea, tickFormat }: Props) => {
 
   const { width: width = 0, height: height = 0, ref } = useResizeDetector();
   const { yScale } = useAxisScales();
+  const marginTop = useScatterplotStore(state => state.plotMargins.top);
+  const marginBottom = useScatterplotStore(state => state.plotMargins.bottom);
 
   return (
     <div ref={ref} className="relative" style={{ gridArea }}>
       <svg
         className="absolute"
-        viewBox={`0 0 ${width} ${height + 10}`}
-        transform={`translate(1, 0)`}
+        viewBox={`0 0 ${width} ${height + marginTop + marginBottom}`}
+        transform={`translate(1, ${-marginTop})`}
       >
         <text
           textAnchor="middle"
@@ -32,7 +34,7 @@ const YAxis = ({ gridArea, tickFormat }: Props) => {
           {featureName}
         </text>
         {yScale && (
-          <g transform={`translate(${width - 1}, 0)`}>
+          <g transform={`translate(${width - 1}, ${marginTop})`}>
             <Axis scale={yScale} orient={Orient.left} tickFormat={tickFormat} />
           </g>
         )}
