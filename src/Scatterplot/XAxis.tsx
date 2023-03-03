@@ -28,7 +28,9 @@ const XAxis = ({ gridArea, tickFormat }: Props) => {
           textAnchor="middle"
           x="0"
           y="0"
-          transform={`translate(${width / 2}, ${7 * (height / 8)})`}
+          transform={`translate(${marginLeft + width / 2}, ${
+            7 * (height / 8)
+          })`}
         >
           {featureName}
         </text>

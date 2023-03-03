@@ -29,7 +29,9 @@ const YAxis = ({ gridArea, tickFormat }: Props) => {
           textAnchor="middle"
           x="0"
           y="0"
-          transform={`translate(${width / 4}, ${height / 2}) rotate(-90)`}
+          transform={`translate(${width / 4}, ${
+            marginTop + height / 2
+          }) rotate(-90)`}
         >
           {featureName}
         </text>
