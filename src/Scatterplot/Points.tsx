@@ -64,14 +64,12 @@ const Points = ({ beginAtZeroX, beginAtZeroY }: Props) => {
     ) as [number, number];
     const canvasWidth = canvas.clientWidth;
     const canvasHeight = canvas.clientHeight;
-    const {
-      width: scatterplotPlaneWidth,
-      height: scatterPlotPlaneHeight,
-    } = computeViewportFillingPlaneDimensions({
-      distanceFromCamera: far,
-      fov,
-      aspectRatio: canvasWidth / canvasHeight,
-    });
+    const { width: scatterplotPlaneWidth, height: scatterPlotPlaneHeight } =
+      computeViewportFillingPlaneDimensions({
+        distanceFromCamera: far,
+        fov,
+        aspectRatio: canvasWidth / canvasHeight,
+      });
     setPlotPlaneDimensions({
       width: scatterplotPlaneWidth,
       height: scatterPlotPlaneHeight,
@@ -107,7 +105,21 @@ const Points = ({ beginAtZeroX, beginAtZeroY }: Props) => {
     );
 
     setLastGeometryUpdate(Date.now());
-  }, [pointRenderConfigs, canvas, far, fov]);
+  }, [
+    pointRenderConfigs,
+    canvas,
+    far,
+    fov,
+    beginAtZeroX,
+    beginAtZeroY,
+    setPlotPlaneDimensions,
+    setXScaleWorldCoordinates,
+    setYScaleWorldCoordinates,
+    setXScaleDOMPixels,
+    setYScaleDOMPixels,
+    setXScaleWorldToData,
+    setYScaleWorldToData,
+  ]);
 
   const { pointPositions, pointColors } = useMemo(() => {
     if (
@@ -141,7 +153,7 @@ const Points = ({ beginAtZeroX, beginAtZeroY }: Props) => {
     if (pointsRef.current) {
       setCurrentPoints(pointsRef.current);
     }
-  }, [pointsRef]);
+  }, [pointsRef, setCurrentPoints]);
 
   return (
     <points ref={pointsRef}>
