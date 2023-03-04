@@ -49,7 +49,7 @@ const PointClickAndHover = () => {
     } else {
       return null;
     }
-  }, [hoveredPointIndex, scatterPoints, pointRenderConfigs]);
+  }, [hoveredPointIndex, pointRenderConfigs]);
   useEffect(() => {
     if (!canvas || !mouse || !raycaster || !camera || !scatterPoints) return;
     const cam = camera as PerspectiveCamera;
