@@ -21,7 +21,7 @@ import Legend from './Legend';
 import ReactTooltip from 'react-tooltip';
 import GridLines from './GridLines';
 
-const debug = false;
+const debug = true;
 
 export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   xAxis: AxisConfig;
@@ -158,7 +158,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
   const marginLeft = useScatterplotStore(state => state.plotMargins.left);
 
   const fillColorMap = useMemo(() => {
-    if (color?.mode == 'same-for-all')
+    if (color?.mode === 'same-for-all')
       return new MapWithDefault<string, string>(() => color.value);
     if (color?.mode === 'color-encodings') {
       return new MapWithDefault<string, string>(
@@ -183,7 +183,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
     }));
 
     setPointRenderConfigs(renderConfigs);
-  }, [xData, yData, fillColorMap]);
+  }, [xData, yData, fillColorMap, setPointRenderConfigs, color]);
 
   const {
     width: canvasWidth = 0,
@@ -237,12 +237,12 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
               </ul>
             </div>
           )}
-          {color?.mode == 'color-encodings' && (
+          {color?.mode === 'color-encodings' && (
             <div>Currently color-encoding {color.featureName}</div>
           )}
         </div>
       )}
-      {color?.mode == 'color-encodings' && (
+      {color?.mode === 'color-encodings' && (
         <Legend encodings={color.encodings} />
       )}
       <div

@@ -1,6 +1,10 @@
 import './globals.css';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Scatterplot from 'react-large-scale-data-scatterplot'
+import Scatterplot from 'react-large-scale-data-scatterplot';
+import {
+  SingleVertexColorConfig,
+  VertexColorEncodingConfig,
+} from 'react-large-scale-data-scatterplot';
 import {
   CategoricalFeatureName,
   CategoricalFeatures,
@@ -22,8 +26,6 @@ type ColorOption =
   | 'use default'
   | 'set color for all'
   | 'use category encodings';
-
-const debug = true;
 
 function App() {
   const [numericData, setNumericData] = useState<PlotableFeatures[]>([]);
@@ -92,20 +94,27 @@ function App() {
     return getColorEncoding(categoricalFeature);
   }, [categoricalFeature]);
 
-  const colorInput = useMemo(() => {
+  const colorInput:
+    | SingleVertexColorConfig
+    | VertexColorEncodingConfig
+    | undefined = useMemo(() => {
     switch (colorOption) {
       case 'use default':
         return undefined;
       case 'set color for all':
-        return '#ff6961';
+        return {
+          mode: 'same-for-all',
+          value: '#ff0000',
+        };
       case 'use category encodings':
         return {
+          mode: 'color-encodings',
           featureName: categoricalFeature,
           data: categoricalData.map(d => d[categoricalFeature]),
           encodings: colorEncodings,
         };
     }
-  }, [colorOption, categoricalFeature, colorEncodings, numericData]);
+  }, [colorOption, categoricalFeature, categoricalData, colorEncodings]);
 
   const xyFeatureOptions = numericData[0]
     ? (Object.keys(numericData[0]) as PlotableFeatureName[])
@@ -144,7 +153,7 @@ function App() {
       alert('clicked ' + idx);
       alert(JSON.stringify(activeDatapoint));
     },
-    [activeDatapoint, setActiveDatapoint]
+    [activeDatapoint]
   );
   const handlePointHoverEnd = useCallback(() => {
     setActiveDatapoint(undefined);
@@ -206,7 +215,7 @@ function App() {
               ))}
             </select>
           </div>
-          {colorOption == 'use category encodings' && (
+          {colorOption === 'use category encodings' && (
             <div>
               <label htmlFor="categorical">categorical</label>
               <select
@@ -232,19 +241,19 @@ function App() {
         className="flex-1"
         xAxis={{
           data:
-            xFeature == 'durationMs'
+            xFeature === 'durationMs'
               ? xValues.map(d => d / 1000 / 60)
               : xValues,
           featureName:
-            xFeature == 'durationMs' ? 'duration (minutes)' : xFeature,
+            xFeature === 'durationMs' ? 'duration (minutes)' : xFeature,
           beginAtZero: !['tempo', 'durationMs', 'isrcYear'].includes(xFeature),
         }}
         yAxis={{
           data:
-            yFeature == 'durationMs'
+            yFeature === 'durationMs'
               ? yValues.map(d => d / 1000 / 60)
               : yValues,
-          featureName: yFeature == 'durationMs' ? 'duration (s)' : yFeature,
+          featureName: yFeature === 'durationMs' ? 'duration (s)' : yFeature,
           beginAtZero: !['tempo', 'durationMs', 'isrcYear'].includes(yFeature),
         }}
         color={colorInput}
@@ -253,7 +262,7 @@ function App() {
         onPointHoverEnd={handlePointHoverEnd}
       />
       {activeDatapoint && <ReactTooltip>{activeDatapointTooltip}</ReactTooltip>}
-      </div>
+    </div>
   );
 }
 
@@ -261,7 +270,7 @@ export default App;
 
 function getColorEncoding(
   categoricalFeature: CategoricalFeatureName
-): [string, string][] {
+): [string, `#${string}`][] {
   switch (categoricalFeature) {
     case 'explicit':
       return explicitValues.map((v, i) => [v, divergingColors[i]]);

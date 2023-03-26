@@ -13,7 +13,7 @@ const YAxis = ({ gridArea, tickFormat }: Props) => {
     state => state.yAxisConfig.featureName
   );
 
-  const { width: width = 0, height: height = 0, ref } = useResizeDetector();
+  const { width = 0, height = 0, ref } = useResizeDetector();
   const { yScale } = useAxisScales();
   const marginTop = useScatterplotStore(state => state.plotMargins.top);
   const marginBottom = useScatterplotStore(state => state.plotMargins.bottom);
