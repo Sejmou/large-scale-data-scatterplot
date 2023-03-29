@@ -10,8 +10,7 @@
   },
   "dependencies": {
     "react": "file:../node_modules/react",
-    "react-dom": "file:../node_modules/react-dom",
-    "react-large-scale-data-scatterplot": "file:../"
+    "react-dom": "file:../node_modules/react-dom"
   },
   "devDependencies": {
     "@types/react": "file:../node_modules/@types/react",

@@ -18,7 +18,7 @@ This library was created with the help of TSDX, a project whose intention is to 
 
 > NOTE: The following text is mainly copied/adapted from the original README created by TSDX:
 
-## Development Workflow
+## Development
 
 TSDX scaffolds new libraries inside `/src`. I have also set up a Vite App using my library inside `lib-usage-example`.
 
@@ -53,17 +53,23 @@ npm i # or yarn to install dependencies
 npm start # or yarn start
 ```
 
-If you check the `package.json`, you will notice that a certain version of the library is listed as a dependency and the component is also imported and used in the app.
+The `package.json` of the example app is setup to use the React and ReactDOM version from the library's dev dependencies (i.e. the packages stored in it `node_modules` folder).
+I am not sure if yarn detects changes to the packages though, so a reset might be necessary if the React and ReactDOM versions for library development would be upgraded.
 
-TODO: make this work with whatever is currently in `dist` instead to speed up development workflow (this is also kinda what tsdx did by default - but the example app was configured differently, not using Vite among other things).
+To make use of the latest build of `react-large-scale-data-scatterplot` during development automatically, you need to switch to the parent directory and run `yarn link` there.
+
+Then, go back to the example app directory and run `yarn link react-large-scale-data-scatterplot`. yarn should then use a symlink for the library during development, which means that always automatically the most recent version is used without having to run `yarn` on every change to the library package.
+## Building
 
 To do a one-off build, use `npm run build` or `yarn build`.
 
+## Testing
+
 To run tests, use `npm test` or `yarn test`.
 
-### Jest
+Jest tests are theoretically set up by TSDX to run with `npm test` or `yarn test`. I don't use tests though :)
 
-Jest tests are theoretically set up by TSDX to run with `npm test` or `yarn test`. None have been implemented yet though, so no idea whether it would work :)
+## Other stuff that might be good to know
 
 ### Bundle analysis
 
@@ -81,9 +87,9 @@ TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rol
 
 ### GitHub Actions
 
-Two actions are added by default:
+Two actions were added by TSDX by default:
 
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
+- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix (changed that a bit, removing Node 14 as it is close to end of life anyway)
 - `size` which comments cost comparison of your library on every pull request using [size-limit](https://github.com/ai/size-limit)
 
 ## Optimizations
