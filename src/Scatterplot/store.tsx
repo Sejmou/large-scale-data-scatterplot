@@ -81,6 +81,9 @@ type State<CategoryFeatureValue extends string = string> = {
     height: number;
   };
   plotMargins: PlotMargins;
+
+  darkMode: boolean;
+
   tooltipAnchorId: string; // required for react-tooltip
   tooltipPosition?: {
     // position (in absolute screen coordinates) where tooltip should be placed - defined if there is a currently hovered/selected point
@@ -157,6 +160,7 @@ export const createScatterplotStore = <
         xAxisConfig: dummyAxisConfig,
         yAxisConfig: dummyAxisConfig,
         plotMargins: defaultMargins,
+        darkMode: false,
         tooltipAnchorId: createAnchorId(),
         setPointRenderConfigs: newConfigs =>
           set({ pointRenderConfigs: newConfigs }),

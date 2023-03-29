@@ -72,6 +72,14 @@ WithColorEncodings.args = {
   color: customColorEncodings,
 };
 
+const DarkModeTemplate: Story<ScatterplotProps> = args => (
+  <div className="w-[600px] h-[400px] bg-gray-800">
+    <Scatterplot {...args} darkMode />
+  </div>
+);
+
+export const DarkMode = DarkModeTemplate.bind({});
+
 const PointerEventsTemplate: Story<ScatterplotProps> = args => {
   const [tooltipContent, setTooltipContent] = useState<React.ReactNode>(null);
 

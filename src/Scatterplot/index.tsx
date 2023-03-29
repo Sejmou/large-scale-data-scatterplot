@@ -34,6 +34,7 @@ export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   onPointHoverEnd?: () => void;
   tooltipContent?: ReactNode;
   margins?: Partial<PlotMargins>;
+  darkMode?: boolean;
 };
 const defaultColor = '#1DB954';
 
@@ -120,6 +121,15 @@ const Scatterplot = <CategoryFeatureValue extends string>(
       });
     }
   }, [props.margins?.bottom, store]);
+  useEffect(() => {
+    const darkMode = props.darkMode;
+    if (darkMode) {
+      store.setState({ darkMode });
+    }
+    if (darkMode === false) {
+      store.setState({ darkMode: false });
+    }
+  }, [props.darkMode, store]);
 
   return (
     <ScatterplotContext.Provider value={store}>

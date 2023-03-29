@@ -4,10 +4,7 @@ import { useScatterplotStore } from './store';
 import useAxisScales from './use-axis-scales';
 import { useD3 } from './use-d3';
 
-type Props = {
-  color?: string;
-};
-const PlotSVGContent = ({ color = '#e0e0e0' }: Props) => {
+const PlotSVGContent = () => {
   const { xScale, yScale } = useAxisScales();
   const canvasWidth = useScatterplotStore(
     state => state.plotCanvasDimensionsDOM?.width ?? 0
@@ -19,8 +16,16 @@ const PlotSVGContent = ({ color = '#e0e0e0' }: Props) => {
   const marginRight = useScatterplotStore(state => state.plotMargins.right);
   const marginBottom = useScatterplotStore(state => state.plotMargins.bottom);
   const marginLeft = useScatterplotStore(state => state.plotMargins.left);
+  const darkMode = useScatterplotStore(state => state.darkMode);
+
+  const textColor = darkMode ? 'white' : 'black';
+  const gridColor = darkMode
+    ? 'rgba(255, 255, 255, 0.2)'
+    : 'rgba(0, 0, 0, 0.2)';
+  const domainPathColor = darkMode ? 'white' : 'black';
 
   const ref = useRef<SVGSVGElement>(null);
+  console.log(textColor, gridColor);
 
   useD3(
     ref,
@@ -31,11 +36,13 @@ const PlotSVGContent = ({ color = '#e0e0e0' }: Props) => {
 
       const xAxisSvg = svg.select('.x').call(xAxis as any);
       const yAxisSvg = svg.select('.y').call(yAxis as any);
+      svg.selectAll('.domain').attr('stroke', domainPathColor);
+      svg.selectAll('.tick text').attr('fill', textColor);
 
       applyRightPlotWindowBorderWorkaround(xAxisSvg);
       applyBottomPlotWindowBorderWorkaround(yAxisSvg);
 
-      svg.selectAll('.tick line').attr('stroke', color);
+      svg.selectAll('.tick line').attr('stroke', gridColor);
     },
     [xScale, yScale, canvasWidth, canvasHeight]
   );
@@ -44,13 +51,14 @@ const PlotSVGContent = ({ color = '#e0e0e0' }: Props) => {
   const plotAreaHeight = canvasHeight + marginTop + marginBottom;
 
   return (
-    <div className="w-full h-full absolute -z-10">
+    <div className="w-full h-full absolute">
       <svg
         viewBox={`0 0 ${plotAreaWidth} ${plotAreaHeight}`}
         width={plotAreaWidth}
         height={plotAreaHeight}
         ref={ref}
         id="plot-content-svg"
+        fill={textColor}
       >
         <XAxisLabel />
         <YAxisLabel />
