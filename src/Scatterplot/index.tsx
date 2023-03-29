@@ -14,14 +14,10 @@ import {
   VertexColorEncodingConfig,
 } from './store';
 import PointClickAndHover from './PointClickAndHover';
-import YAxis from './YAxis';
-import XAxis from './XAxis';
 import { useResizeDetector } from 'react-resize-detector';
 import Legend from './Legend';
 import ReactTooltip from 'react-tooltip';
-import GridLines from './GridLines';
-
-const debug = true;
+import PlotSVGContent from './PlotSVGContent';
 
 export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   xAxis: AxisConfig;
@@ -29,7 +25,6 @@ export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   color?:
     | VertexColorEncodingConfig<CategoryFeatureValue>
     | SingleVertexColorConfig;
-  className?: string;
   alpha?: number;
   pointSize?: number;
   onPointClick?: (pointIndex: number) => void;
@@ -133,16 +128,13 @@ const Scatterplot = <CategoryFeatureValue extends string>(
 
 const ScatterplotChild = <CategoryFeatureValue extends string>({
   color,
-  className,
   tooltipContent,
 }: Pick<
   ScatterplotProps<CategoryFeatureValue>,
-  'color' | 'className' | 'tooltipContent'
+  'color' | 'tooltipContent'
 >) => {
-  const xAxisConfig = useScatterplotStore(state => state.xAxisConfig);
-  const yAxisConfig = useScatterplotStore(state => state.yAxisConfig);
-  const { data: xData, featureName: xFeature } = xAxisConfig;
-  const { data: yData, featureName: yFeature } = yAxisConfig;
+  const xData = useScatterplotStore(state => state.xAxisConfig.data);
+  const yData = useScatterplotStore(state => state.yAxisConfig.data);
   const setPointRenderConfigs = useScatterplotStore(
     state => state.setPointRenderConfigs
   );
@@ -190,11 +182,12 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
     height: canvasHeight = 0,
     ref: canvasRef,
   } = useResizeDetector();
+
   useEffect(() => {
     setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
   }, [canvasWidth, canvasHeight, setCanvasDimensions]);
 
-  console.log('Scatterplot render');
+  console.log('Scatterplot render function running');
 
   const [pointsKey, setPointsKey] = useState(0);
   useEffect(() => {
@@ -202,77 +195,32 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
   }, [canvasWidth, canvasHeight]);
 
   return (
-    <>
-      {debug && (
-        <div className="overflow-hidden p-2">
-          <p>This is a scatterplot</p>
-          <p>Its input data for the x and y axes is:</p>
-          <p className="text-ellipsis">{JSON.stringify(xData)}</p>
-          <p className="text-ellipsis">{JSON.stringify(yData)}</p>
-          <p>
-            {xFeature} will be plotted on the x-axis, while {yFeature} will be
-            displayed on the y-axis.
-          </p>
-          {!color ? (
-            <div>
-              The default color{' '}
-              <span style={{ color: defaultColor }}>{defaultColor}</span> will
-              be used for coloring the scatterplot points.
-            </div>
-          ) : typeof color === 'string' ? (
-            <div>
-              <span style={{ color }}>{color}</span> will be used as the fill
-              color for the dots on the plot.
-            </div>
-          ) : (
-            <div>
-              The following color encodings will be used:
-              <ul>
-                {fillColorMap &&
-                  [...fillColorMap.entries()].map(([feature, color]) => (
-                    <li key={feature}>
-                      {feature}: <span style={{ color }}>{color}</span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
-          {color?.mode === 'color-encodings' && (
-            <div>Currently color-encoding {color.featureName}</div>
-          )}
-        </div>
-      )}
+    <div className="w-full h-full flex flex-col">
       {color?.mode === 'color-encodings' && (
         <Legend encodings={color.encodings} />
       )}
-      <div
-        className={className}
-        style={{
-          display: 'grid',
-          gridTemplateAreas: "'y-axis canvas' '. x-axis'",
-          gridTemplateColumns: `${marginLeft}px 1fr`,
-          gridTemplateRows: `1fr ${marginBottom}px`,
-          marginTop,
-          marginRight,
-        }}
-        data-tip=""
-      >
-        <Canvas
-          ref={canvasRef}
-          camera={{ fov, near, far }}
-          style={{ gridArea: 'canvas' }}
+      <div className="w-full h-full flex-1 relative">
+        <PlotSVGContent />
+        <div
+          className="relative"
+          style={{
+            width: `calc(100% - ${marginLeft + marginRight}px)`,
+            height: `calc(100% - ${marginTop + marginBottom}px)`,
+            transform: `translate(${marginLeft}px, ${marginTop}px)`,
+          }}
         >
-          <Camera />
-          <PointClickAndHover />
-          {/* Points should rerender on every resize - using the key prop like this is my dirty hack for that lol */}
-          <Points key={pointsKey} />
-        </Canvas>
-        <GridLines gridArea="canvas" />
-        <XAxis gridArea="x-axis" />
-        <YAxis gridArea="y-axis" />
+          <div className="h-full w-full" data-tip="">
+            <Canvas ref={canvasRef} camera={{ fov, near, far }}>
+              <Camera />
+              <PointClickAndHover />
+              {/* Points should rerender on every resize - using the key prop like this is my dirty hack for that lol */}
+              <Points key={pointsKey} />
+            </Canvas>
+          </div>
+          <ReactTooltip>{tooltipContent}</ReactTooltip>
+        </div>
       </div>
-      <ReactTooltip>{tooltipContent}</ReactTooltip>
-    </>
+    </div>
   );
 };
 export default Scatterplot;
