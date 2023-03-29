@@ -1,10 +1,10 @@
 import './globals.css';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Scatterplot from 'react-large-scale-data-scatterplot';
+import Scatterplot from 'react-big-dataset-scatterplot';
 import {
   SingleVertexColorConfig,
   VertexColorEncodingConfig,
-} from 'react-large-scale-data-scatterplot';
+} from 'react-big-dataset-scatterplot';
 import {
   CategoricalFeatureName,
   CategoricalFeatures,

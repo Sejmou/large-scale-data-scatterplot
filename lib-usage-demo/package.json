@@ -1,5 +1,5 @@
 {
-  "name": "threejs-scatterplot",
+  "name": "react-big-dataset-scatterplot-demo-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,8 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "file:../node_modules/react",
-    "react-dom": "file:../node_modules/react-dom"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-big-dataset-scatterplot": "^1.0.0"
   },
   "devDependencies": {
     "@types/react": "file:../node_modules/@types/react",

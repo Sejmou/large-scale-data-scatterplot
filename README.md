@@ -1,22 +1,28 @@
-# Scatterplot for large-scale data
-This is a React component library for scatterplots using large-scale datasets. The `<Scatterplot/>` component can handle 30k datapoints without any problems or significant lag. This is made possible by using WebGL (React Three Fiber) under the hood.
+# React scatterplot component for large datasets
 
-For publishing this component as a library, I made use of TSDX and then made some changes to make things work for my project. Check out [this](https://zach.codes/build-your-own-flexible-component-library-using-tsdx-typescript-tailwind-css-headless-ui/) tutorial for a more structured guide on setting up a React component library yourself.
+This is a customizable React component library for scatterplots. Unlike many other charting libraries out there, the `<Scatterplot/>` component can handle tens of thousands of datapoints without any problems or significant lag. This is made possible by using WebGL (React Three Fiber) under the hood instead of `canvas` or `SVG` elements (like virtually all popular charting libraries do).
+If you happen to know of any (free!) charting library that can handle large datasets (and includes scatterplots) please let me know! I implemented this only because even after a lot of searching I couldn't find anything online.
 
-## Install library as a user
-In your project, run
-`yarn add @sejmou/react-large-scale-data-scatterplot` OR `npm install @sejmou/react-large-scale-data-scatterplot`
+## Install library in your own project
+
+1. run `yarn add @sejmou/react-big-dataset-scatterplot` OR `npm install @sejmou/react-big-dataset-scatterplot` (if you use yarn or npm)
+2. import the CSS styles required for the component to render properly in the entrypoint of your app (usually `main.tsx`) by adding the line `import 'react-big-dataset-scatterplot/dist/styles.css';`
 
 ## Demo
-A demo of how this component could be used in a React application can be found in the `lib-usage-demo` folder. Just navigate to that directory. Then, run
 
-`yarn` followed by `yarn dev` OR `npm install` followed by `npm run dev`
+I have put together an example React (Vite) app that uses this library with a considerably large example dataset of Spotify songs (roughly 30k rows). The code can be found in the `lib-usage-demo` folder.
 
+To install it locally, navigate to the folder and run `yarn` followed by `yarn dev` OR `npm install` followed by `npm run dev`.
 
-## TSDX
-This library was created with the help of TSDX, a project whose intention is to make the setup of the codebase for JavaScript/TypeScript libraries easier (including React component libraries). Unfortunately it is no longer maintained and a bunch of stuff does not work properly anymore, forcing me to find hacks to work around it. Maybe for my next project I should rather create everything from scratch - then I would at least understand more of what's going on under the hood lol
+## Acknowledgements
 
-> NOTE: The following text is mainly copied/adapted from the original README created by TSDX:
+[This](https://observablehq.com/@grantcuster/using-three-js-for-2d-data-visualization) awesome tutorial by Grant Custer on Observable helped me get started with implementation. However, quite a bit of additional work was required to get things working in React.
+
+Creating a proper React library (and downloadable NPM package) was even more time-consuming and quite a bit of a pain 😅
+
+I turned this into a library with the help of TSDX, a project whose intention is to make the setup of the codebase for JavaScript/TypeScript libraries easier (including React component libraries). Unfortunately it is no longer maintained and a bunch of stuff does not work properly anymore (gotta love Web Dev - things get "outdated" soo quickly lol), forcing me to find hacks to work around it. Maybe for my next project I should rather create everything from scratch - then I would at least understand more of what's going on under the hood. Alternatively, I might some day migrate to TurboRepo, which could apparently also be used for projects like this one.
+
+I followed [this](https://zach.codes/build-your-own-flexible-component-library-using-tsdx-typescript-tailwind-css-headless-ui/) tutorial to get Tailwind CSS working inside my project. Maybe it might be useful to you for your own work, too.
 
 ## Development
 
@@ -44,7 +50,7 @@ This loads the stories from `./stories`.
 
 > NOTE: Stories should reference the components as if using the library, similar to the example playground. This means importing from the root project directory. This has been aliased in the tsconfig and the storybook webpack config as a helper.
 
-### Option b): Library usage example app
+### Option b): Using example app
 Run the following inside the terminal:
 
 ```bash
@@ -56,11 +62,11 @@ npm start # or yarn start
 The `package.json` of the example app is setup to use the React and ReactDOM version from the library's dev dependencies (i.e. the packages stored in it `node_modules` folder).
 I am not sure if yarn detects changes to the packages though, so a reset might be necessary if the React and ReactDOM versions for library development would be upgraded.
 
-To make use of the latest build of `react-large-scale-data-scatterplot` during development automatically, you need to switch to the parent directory and run `yarn link` there.
+To make use of the latest build of `react-big-dataset-scatterplot` during development automatically, you need to switch to the parent directory and run `yarn link` there.
 
-Then, go back to the example app directory and run `yarn link react-large-scale-data-scatterplot`. yarn should then use a symlink for the library during development, which means that always automatically the most recent version is used without having to run `yarn` on every change to the library package.
+Then, go back to the example app directory and run `yarn link react-big-dataset-scatterplot`. yarn should then use a symlink for the library during development, which means that always automatically the most recent version is used without having to run `yarn` on every change to the library package.
 
-Additional note: The line `import 'react-large-scale-data-scatterplot/dist/tailwind.css';` inside `main.tsx` is important! If this is not included Tailwind styles used by the library are not applied (or in this case, any Tailwind class that is not already used in the rest of the app does NOT work).
+Additional note: The line `import 'react-big-dataset-scatterplot/dist/tailwind.css';` inside `main.tsx` is important! If this is not included Tailwind styles used by the library are not applied (or in this case, any Tailwind class that is not already used in the rest of the app does NOT work).
 
 ## Building
 
