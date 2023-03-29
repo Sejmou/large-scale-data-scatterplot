@@ -19,7 +19,7 @@
     "size": "size-limit",
     "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
-    "build-tailwind": "NODE_ENV=production npx tailwindcss -o ./dist/tailwind.css --minify",
+    "build-tailwind": "cross-env NODE_ENV=production npx tailwindcss -o ./dist/tailwind.css --minify",
     "build-storybook": "build-storybook"
   },
   "peerDependencies": {
@@ -46,7 +46,6 @@
     "@react-three/fiber": "^8.11.1",
     "classnames": "^2.3.2",
     "d3": "^7.8.2",
-    "d3-axis-for-react": "^1.1.0",
     "immer": "^9.0.19",
     "react-resize-detector": "^8.0.3",
     "react-tooltip": "4",
@@ -70,6 +69,7 @@
     "@types/three": "^0.149.0",
     "autoprefixer": "^10.4.13",
     "babel-loader": "^9.1.2",
+    "cross-env": "^7.0.3",
     "eslint": "^8.35.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-prettier": "^4.2.1",
