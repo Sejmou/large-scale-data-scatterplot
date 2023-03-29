@@ -18,6 +18,7 @@ import { useResizeDetector } from 'react-resize-detector';
 import Legend from './Legend';
 import ReactTooltip from 'react-tooltip';
 import PlotSVGContent from './PlotSVGContent';
+import classNames from 'classnames';
 
 export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   xAxis: AxisConfig;
@@ -27,6 +28,7 @@ export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
     | SingleVertexColorConfig;
   alpha?: number;
   pointSize?: number;
+  className?: string;
   onPointClick?: (pointIndex: number) => void;
   onPointHoverStart?: (pointIndex: number) => void;
   onPointHoverEnd?: () => void;
@@ -129,9 +131,10 @@ const Scatterplot = <CategoryFeatureValue extends string>(
 const ScatterplotChild = <CategoryFeatureValue extends string>({
   color,
   tooltipContent,
+  className,
 }: Pick<
   ScatterplotProps<CategoryFeatureValue>,
-  'color' | 'tooltipContent'
+  'color' | 'tooltipContent' | 'className'
 >) => {
   const xData = useScatterplotStore(state => state.xAxisConfig.data);
   const yData = useScatterplotStore(state => state.yAxisConfig.data);
@@ -195,7 +198,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
   }, [canvasWidth, canvasHeight]);
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className={classNames('w-full h-full flex flex-col', className)}>
       {color?.mode === 'color-encodings' && (
         <Legend encodings={color.encodings} />
       )}

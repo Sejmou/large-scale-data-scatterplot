@@ -11,7 +11,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "start": "tsdx watch",
+    "start": "tsdx watch --onSuccess \"npx tailwindcss -o ./dist/tailwind.css --minify\"",
     "build": "tsdx build && yarn build-tailwind",
     "test": "tsdx test --passWithNoTests",
     "lint": "eslint src/* test/*",

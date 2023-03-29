@@ -44,7 +44,7 @@ This loads the stories from `./stories`.
 
 > NOTE: Stories should reference the components as if using the library, similar to the example playground. This means importing from the root project directory. This has been aliased in the tsconfig and the storybook webpack config as a helper.
 
-### Option b): Library usage example app (buggy!)
+### Option b): Library usage example app
 Run the following inside the terminal:
 
 ```bash
@@ -60,7 +60,8 @@ To make use of the latest build of `react-large-scale-data-scatterplot` during d
 
 Then, go back to the example app directory and run `yarn link react-large-scale-data-scatterplot`. yarn should then use a symlink for the library during development, which means that always automatically the most recent version is used without having to run `yarn` on every change to the library package.
 
-NOTE: this is still a bit buggy, it looks like Tailwind classes are not applied correctly (or rather, only those already used in the example app are applied). I suppose this is due to the fact that Tailwind classes are generally only created on demand and I would need to do some kind of "compilation" of the Tailwind classes in my `start` script (similar to the `build-tailwind` script that runs after `tsdx build` in the `build` script)
+Additional note: The line `import 'react-large-scale-data-scatterplot/dist/tailwind.css';` inside `main.tsx` is important! If this is not included Tailwind styles used by the library are not applied (or in this case, any Tailwind class that is not already used in the rest of the app does NOT work).
+
 ## Building
 
 To do a one-off build, use `npm run build` or `yarn build`.

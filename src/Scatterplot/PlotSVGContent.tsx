@@ -26,14 +26,14 @@ const PlotSVGContent = ({ color = '#e0e0e0' }: Props) => {
     ref,
     svg => {
       if (!xScale || !yScale || !canvasWidth || !canvasHeight) return;
-      console.log(ref.current);
       const xAxis = axisBottom(xScale).tickSize(canvasHeight);
       const yAxis = axisLeft(yScale).tickSize(-canvasWidth);
 
       const xAxisSvg = svg.select('.x').call(xAxis as any);
-      svg.select('.y').call(yAxis as any);
+      const yAxisSvg = svg.select('.y').call(yAxis as any);
 
       applyRightPlotWindowBorderWorkaround(xAxisSvg);
+      applyBottomPlotWindowBorderWorkaround(yAxisSvg);
 
       svg.selectAll('.tick line').attr('stroke', color);
     },
@@ -84,6 +84,31 @@ function applyRightPlotWindowBorderWorkaround(
       lastXGridLine.style.opacity = '0';
     } else {
       lastXGridLine.style.opacity = '1';
+    }
+  }
+}
+
+function applyBottomPlotWindowBorderWorkaround(
+  yAxisSvg: Selection<BaseType, unknown, null, undefined>
+) {
+  // this is only necessary as for some reason outer border of domain path is not rendered when the scatterplot is completely zoomed out
+  const lastYGridLine = yAxisSvg.select('.tick:first-of-type line').node() as
+    | SVGLineElement
+    | undefined;
+  const domainPath = yAxisSvg.select('.domain').node() as
+    | SVGPathElement
+    | undefined;
+  console.log('test');
+
+  if (lastYGridLine && domainPath) {
+    const deltaY = Math.abs(
+      domainPath.getBoundingClientRect().bottom -
+        lastYGridLine.getBoundingClientRect().bottom
+    );
+    if (deltaY < 1) {
+      lastYGridLine.style.opacity = '0';
+    } else {
+      lastYGridLine.style.opacity = '1';
     }
   }
 }
