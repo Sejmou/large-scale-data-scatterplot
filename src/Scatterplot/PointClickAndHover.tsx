@@ -15,6 +15,10 @@ const PointClickAndHover = () => {
     state => state.onPointHoverStart
   );
   const onPointHoverEnd = useScatterplotStore(state => state.onPointHoverEnd);
+  const setActivePoint = useScatterplotStore(state => state.setActivePoint);
+  const removeActivePoint = useScatterplotStore(
+    state => state.removeActivePoint
+  );
 
   const circleTexture = useLoader(TextureLoader, circleTextureDataURI);
   const circleBorderTexture = useLoader(
@@ -80,13 +84,18 @@ const PointClickAndHover = () => {
         const sortedIntersects = [...intersects].sort(
           (a, b) => a.distanceToRay! - b.distanceToRay!
         );
-        const index = sortedIntersects[0].index ?? null;
+        const intersect = sortedIntersects[0];
+        console.log(intersect);
+        const index = intersect.index ?? null;
         if (index !== null) {
           setHoveredPointIndex(index);
+          const { x, y } = intersect.point; // was hoping to get the scatterplot point position (in world coordinates) here, but it seems to rather be the position of the _intersection_ point, which is unfortunate - I wanted to fix tooltip at center of the point :/
+          setActivePoint(index, { x, y });
           onPointHoverStart?.(index);
         }
       } else {
         setHoveredPointIndex(null);
+        removeActivePoint();
         onPointHoverEnd?.();
       }
     };
@@ -101,6 +110,8 @@ const PointClickAndHover = () => {
     onPointHoverStart,
     onPointHoverEnd,
     onPointClick,
+    setActivePoint,
+    removeActivePoint,
   ]);
 
   return (

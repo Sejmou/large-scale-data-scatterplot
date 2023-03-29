@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Color } from 'three';
 import { MapWithDefault } from './utils';
 import Camera from './Camera';
@@ -16,7 +16,7 @@ import {
 import PointClickAndHover from './PointClickAndHover';
 import { useResizeDetector } from 'react-resize-detector';
 import Legend from './Legend';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 import PlotSVGContent from './PlotSVGContent';
 import classNames from 'classnames';
 
@@ -152,6 +152,18 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
   const marginBottom = useScatterplotStore(state => state.plotMargins.bottom);
   const marginLeft = useScatterplotStore(state => state.plotMargins.left);
 
+  const tooltipAnchorId = useScatterplotStore(state => state.tooltipAnchorId);
+  const tooltipPosition = useScatterplotStore(state => state.tooltipPosition);
+  const canvasWrapperRef = useRef<HTMLDivElement>(null);
+  const setCanvasWrapperElement = useScatterplotStore(
+    state => state.setCanvasWrapperElement
+  );
+  useEffect(() => {
+    if (canvasWrapperRef.current) {
+      setCanvasWrapperElement(canvasWrapperRef.current);
+    }
+  }, [canvasWrapperRef, setCanvasWrapperElement]);
+
   const fillColorMap = useMemo(() => {
     if (color?.mode === 'same-for-all')
       return new MapWithDefault<string, string>(() => color.value);
@@ -212,7 +224,11 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
             transform: `translate(${marginLeft}px, ${marginTop}px)`,
           }}
         >
-          <div className="h-full w-full" data-tip="">
+          <div
+            className="h-full w-full"
+            id={tooltipAnchorId}
+            ref={canvasWrapperRef}
+          >
             <Canvas ref={canvasRef} camera={{ fov, near, far }}>
               <Camera />
               <PointClickAndHover />
@@ -220,7 +236,13 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
               <Points key={pointsKey} />
             </Canvas>
           </div>
-          <ReactTooltip>{tooltipContent}</ReactTooltip>
+          <Tooltip
+            anchorSelect={'#' + tooltipAnchorId}
+            position={tooltipPosition}
+            float={false}
+          >
+            {tooltipContent}
+          </Tooltip>
         </div>
       </div>
     </div>

@@ -81,6 +81,16 @@ type State<CategoryFeatureValue extends string = string> = {
     height: number;
   };
   plotMargins: PlotMargins;
+  tooltipAnchorId: string; // required for react-tooltip
+  tooltipPosition?: {
+    // position (in absolute screen coordinates) where tooltip should be placed - defined if there is a currently hovered/selected point
+    x: number;
+    y: number;
+  };
+  activePointIndex?: number; // index of currently hovered (or otherwise selected) point in scatterplot
+  canvasWrapperElement?: HTMLDivElement; // reference to the div element that wraps the canvas element (required for tooltip positioning)
+  setCanvasWrapperElement: (newElement: HTMLDivElement) => void;
+
   setPointRenderConfigs: (newConfigs: PointRenderConfig[]) => void;
   setCurrentPoints: (newPoints: Points) => void;
   setPointSize: (newSize: number) => void;
@@ -104,6 +114,11 @@ type State<CategoryFeatureValue extends string = string> = {
     width: number;
     height: number;
   }) => void;
+  setActivePoint: (
+    idx: number,
+    posWorldCoordinates: { x: number; y: number }
+  ) => void;
+  removeActivePoint: () => void;
 };
 
 const fov = 40;
@@ -131,7 +146,7 @@ export const createScatterplotStore = <
     [['zustand/devtools', never], ['zustand/immer', never]]
   >(
     devtools(
-      immer(set => ({
+      immer((set, get) => ({
         fov,
         near,
         far,
@@ -142,6 +157,7 @@ export const createScatterplotStore = <
         xAxisConfig: dummyAxisConfig,
         yAxisConfig: dummyAxisConfig,
         plotMargins: defaultMargins,
+        tooltipAnchorId: createAnchorId(),
         setPointRenderConfigs: newConfigs =>
           set({ pointRenderConfigs: newConfigs }),
         setCurrentPoints: newPoints => set({ currentPoints: newPoints }),
@@ -160,10 +176,67 @@ export const createScatterplotStore = <
           set({ plotPlaneDimensionsWorld: newDimensions }),
         setPlotCanvasDimensionsDOM: newDimensions =>
           set({ plotCanvasDimensionsDOM: newDimensions }),
+        setActivePoint: (idx, posWorld) => {
+          const canvasWrapper = get().canvasWrapperElement;
+          if (canvasWrapper === undefined) {
+            console.warn(
+              'canvas wrapper element undefined, cannot set tooltip position'
+            );
+            return;
+          }
+
+          const xScaleDOMPixels = get().xScaleDOMPixels;
+          const yScaleDOMPixels = get().yScaleDOMPixels;
+
+          const xScaleWorldToData = get().xScaleWorldToData;
+          const yScaleWorldToData = get().yScaleWorldToData;
+
+          if (
+            !xScaleDOMPixels ||
+            !yScaleDOMPixels ||
+            !xScaleWorldToData ||
+            !yScaleWorldToData
+          ) {
+            console.warn('some scales undefined, cannot set tooltip position');
+            return;
+          }
+
+          const canvasPosX = xScaleDOMPixels(xScaleWorldToData(posWorld.x));
+          const canvasPosY = yScaleDOMPixels(yScaleWorldToData(posWorld.y));
+
+          const { x: canvasWrapperLeft, y: canvasWrapperTop } =
+            canvasWrapper.getBoundingClientRect();
+
+          const tooltipPosition = {
+            x: canvasWrapperLeft + canvasPosX,
+            y: canvasWrapperTop + canvasPosY,
+          };
+
+          console.log(
+            canvasWrapper.offsetLeft,
+            canvasWrapper.offsetTop,
+            tooltipPosition
+          );
+
+          set({
+            activePointIndex: idx,
+            tooltipPosition,
+          });
+        },
+        removeActivePoint: () =>
+          set({ activePointIndex: undefined, tooltipPosition: undefined }),
+        setCanvasWrapperElement: newElement =>
+          set({ canvasWrapperElement: newElement }),
       }))
     )
   );
 };
+
+function createAnchorId() {
+  return `scatterplot-tooltip-anchor-${Math.random()
+    .toString(36)
+    .substr(2, 9)}`;
+}
 
 export const ScatterplotContext = createContext<ReturnType<
   typeof createScatterplotStore

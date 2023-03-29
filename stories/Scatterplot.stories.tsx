@@ -37,7 +37,7 @@ const meta: Meta = {
 export default meta;
 
 const Template: Story<ScatterplotProps> = args => (
-  <div className="w-96 h-128">
+  <div className="w-[600px] h-[400px]">
     <Scatterplot {...args} />
   </div>
 );
@@ -109,7 +109,7 @@ const PointerEventsTemplate: Story<ScatterplotProps> = args => {
   console.log({ args });
 
   return (
-    <div className="w-96 h-128">
+    <div className="w-[600px] h-[400px]">
       <Scatterplot
         {...args}
         onPointHoverStart={handlePointHoverStart}
