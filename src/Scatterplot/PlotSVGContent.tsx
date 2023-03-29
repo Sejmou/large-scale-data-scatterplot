@@ -25,7 +25,6 @@ const PlotSVGContent = () => {
   const domainPathColor = darkMode ? 'white' : 'black';
 
   const ref = useRef<SVGSVGElement>(null);
-  console.log(textColor, gridColor);
 
   useD3(
     ref,
@@ -106,7 +105,6 @@ function applyBottomPlotWindowBorderWorkaround(
   const domainPath = yAxisSvg.select('.domain').node() as
     | SVGPathElement
     | undefined;
-  console.log('test');
 
   if (lastYGridLine && domainPath) {
     const deltaY = Math.abs(

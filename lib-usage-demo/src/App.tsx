@@ -20,7 +20,6 @@ import {
 import { divergingColors } from './utils/color';
 
 import type { PlotableFeatureName } from './utils/data';
-import ReactTooltip from 'react-tooltip';
 
 type ColorOption =
   | 'use default'
@@ -260,8 +259,8 @@ function App() {
         onPointClick={handlePointClick}
         onPointHoverStart={handlePointHoverStart}
         onPointHoverEnd={handlePointHoverEnd}
+        tooltipContent={activeDatapointTooltip}
       />
-      {activeDatapoint && <ReactTooltip>{activeDatapointTooltip}</ReactTooltip>}
     </div>
   );
 }

@@ -250,6 +250,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
             anchorSelect={'#' + tooltipAnchorId}
             position={tooltipPosition}
             float={false}
+            className={classNames({ hidden: !tooltipPosition })}
           >
             {tooltipContent}
           </Tooltip>

@@ -85,7 +85,6 @@ const PointClickAndHover = () => {
           (a, b) => a.distanceToRay! - b.distanceToRay!
         );
         const intersect = sortedIntersects[0];
-        console.log(intersect);
         const index = intersect.index ?? null;
         if (index !== null) {
           setHoveredPointIndex(index);
