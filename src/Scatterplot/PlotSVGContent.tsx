@@ -169,7 +169,9 @@ const YAxisLabel = () => {
     }
 
     const yTickLabels = [...plotContainer.querySelectorAll('.y .tick text')];
-    if (yTickLabels.length === 0) return state.plotMargins.left * 0.5;
+    if (window === undefined || yTickLabels.length === 0)
+      // server side rendering or no y tick labels
+      return state.plotMargins.left * 0.5;
     const minLeftOffset = Math.min(
       ...yTickLabels.map(label => label.getBoundingClientRect().left)
     );
