@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { Meta, Story } from '@storybook/react';
 import Scatterplot, {
-  AxisConfig,
   ScatterplotProps,
   VertexColorEncodingConfig,
   SingleVertexColorConfig,
 } from '../src';
+import { AxisConfig } from '../src';
 import '../tailwind.css'; // TODO: figure out how to prevent having to import this in every story
 
 const defaultXAxisConfig: AxisConfig = {
@@ -70,6 +70,30 @@ const customColorEncodings: VertexColorEncodingConfig = {
 };
 WithColorEncodings.args = {
   color: customColorEncodings,
+};
+
+export const TickFormat = Template.bind({});
+const xAxisWithTickFormat: AxisConfig = {
+  data: [
+    2015, 2016, 2017, 2018, 2019, 2020, 2016, 2018, 2019, 2020, 2015, 2015,
+    2020, 2019, 2019,
+  ],
+  featureName: 'Year',
+  tickFormat: (tickValue: number) =>
+    `${tickValue === Math.round(tickValue) ? tickValue : ''}`,
+};
+
+const yAxisWithTickFormat: AxisConfig = {
+  featureName: 'Cost',
+  data: [
+    900, 1000, 2000, 1300, 1500, 1600, 1700, 1800, 1900, 1000, 1100, 1200, 1300,
+    1400, 1500,
+  ],
+  tickFormat: (tickValue: number) => `$${tickValue}`,
+};
+TickFormat.args = {
+  xAxis: xAxisWithTickFormat,
+  yAxis: yAxisWithTickFormat,
 };
 
 const DarkModeTemplate: Story<ScatterplotProps> = args => (

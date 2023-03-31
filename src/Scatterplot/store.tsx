@@ -1,4 +1,4 @@
-import { ScaleLinear } from 'd3';
+import { NumberValue, ScaleLinear } from 'd3';
 import { Color, Points } from 'three';
 import { createStore, useStore } from 'zustand';
 import { ReactNode, createContext, useContext } from 'react';
@@ -19,10 +19,11 @@ type PointRenderConfig = {
   color: Color;
 };
 
-export type AxisConfig = {
+export type AxisConfigInternal = {
   data: number[];
   featureName: string;
   beginAtZero?: boolean;
+  tickFormat?: (domainValue: NumberValue, index: number) => string;
 };
 
 type CSSHexColorString = `#${string}`;
@@ -49,8 +50,8 @@ export type PlotMargins = {
 };
 
 type State<CategoryFeatureValue extends string = string> = {
-  xAxisConfig: AxisConfig;
-  yAxisConfig: AxisConfig;
+  xAxisConfig: AxisConfigInternal;
+  yAxisConfig: AxisConfigInternal;
   colorConfig?:
     | VertexColorEncodingConfig<CategoryFeatureValue>
     | SingleVertexColorConfig;
@@ -94,6 +95,9 @@ type State<CategoryFeatureValue extends string = string> = {
   canvasWrapperElement?: HTMLDivElement; // reference to the div element that wraps the canvas element (required for tooltip positioning)
   setCanvasWrapperElement: (newElement: HTMLDivElement) => void;
 
+  plotContainerElement?: HTMLDivElement; // reference to the div element that wraps the entire plot area (required for axis label positioning)
+  setPlotContainerElement: (newElement: HTMLDivElement) => void;
+
   setPointRenderConfigs: (newConfigs: PointRenderConfig[]) => void;
   setCurrentPoints: (newPoints: Points) => void;
   setPointSize: (newSize: number) => void;
@@ -128,7 +132,7 @@ const fov = 40;
 const near = 1;
 const far = 101;
 const initialCamPos: [number, number, number] = [0, 0, far];
-const dummyAxisConfig: AxisConfig = {
+const dummyAxisConfig: AxisConfigInternal = {
   data: [],
   featureName: 'No feature provided',
   beginAtZero: true,
@@ -231,6 +235,8 @@ export const createScatterplotStore = <
           set({ activePointIndex: undefined, tooltipPosition: undefined }),
         setCanvasWrapperElement: newElement =>
           set({ canvasWrapperElement: newElement }),
+        setPlotContainerElement: newElement =>
+          set({ plotContainerElement: newElement }),
       }))
     )
   );

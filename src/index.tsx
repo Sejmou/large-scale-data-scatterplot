@@ -1,9 +1,8 @@
 import '../react-tooltip.css';
 
 import Scatterplot from './Scatterplot';
-import type { ScatterplotProps } from './Scatterplot';
+import type { ScatterplotProps, AxisConfig } from './Scatterplot';
 import type {
-  AxisConfig,
   VertexColorEncodingConfig,
   SingleVertexColorConfig,
 } from './Scatterplot/store';

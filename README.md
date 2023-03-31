@@ -26,6 +26,10 @@ I turned this into a library with the help of TSDX, a project whose intention is
 
 I followed [this](https://zach.codes/build-your-own-flexible-component-library-using-tsdx-typescript-tailwind-css-headless-ui/) tutorial to get Tailwind CSS working inside my project. Maybe it might be useful to you for your own work, too.
 
+## Open features / TODOs
+
+ * axis tick rotation (not as simple as expected to implement)
+
 ## Development
 
 TSDX scaffolds new libraries inside `/src`. I have also set up a Vite App using my library inside `lib-usage-example`.

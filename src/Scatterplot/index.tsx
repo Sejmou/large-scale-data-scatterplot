@@ -5,7 +5,7 @@ import { MapWithDefault } from './utils';
 import Camera from './Camera';
 import Points from './Points';
 import {
-  AxisConfig,
+  AxisConfigInternal,
   createScatterplotStore,
   PlotMargins,
   ScatterplotContext,
@@ -19,6 +19,10 @@ import Legend from './Legend';
 import { Tooltip } from 'react-tooltip';
 import PlotSVGContent from './PlotSVGContent';
 import classNames from 'classnames';
+
+export type AxisConfig = Omit<AxisConfigInternal, 'tickFormat'> & {
+  tickFormat?: (value: number, index: number) => string;
+}; // don't want to expose the internal tickFormat type (which would introduce a dependency on d3 for consumers of this library)
 
 export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   xAxis: AxisConfig;
@@ -37,17 +41,26 @@ export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   darkMode?: boolean;
 };
 const defaultColor = '#1DB954';
-
 const Scatterplot = <CategoryFeatureValue extends string>(
   props: ScatterplotProps<CategoryFeatureValue>
 ) => {
   const store = useMemo(() => createScatterplotStore(), []); // store should not be recreated on every rerender of this component
 
   useEffect(() => {
-    store.setState({ xAxisConfig: props.xAxis });
+    store.setState({
+      xAxisConfig: {
+        ...props.xAxis,
+        tickFormat: props.xAxis.tickFormat as AxisConfigInternal['tickFormat'], // TODO: research whether this type assertion can be avoided or even causes issues
+      },
+    });
   }, [props.xAxis, store]);
   useEffect(() => {
-    store.setState({ yAxisConfig: props.yAxis });
+    store.setState({
+      yAxisConfig: {
+        ...props.yAxis,
+        tickFormat: props.yAxis.tickFormat as AxisConfigInternal['tickFormat'],
+      },
+    });
   }, [props.yAxis, store]);
   useEffect(() => {
     const pointSize = props.pointSize;
@@ -219,8 +232,21 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
     setPointsKey(k => k + 1);
   }, [canvasWidth, canvasHeight]);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const setPlotContainer = useScatterplotStore(
+    store => store.setPlotContainerElement
+  );
+  useEffect(() => {
+    if (containerRef.current) {
+      setPlotContainer(containerRef.current);
+    }
+  }, [containerRef, setPlotContainer]);
+
   return (
-    <div className={classNames('w-full h-full flex flex-col', className)}>
+    <div
+      className={classNames('w-full h-full flex flex-col', className)}
+      ref={containerRef}
+    >
       {color?.mode === 'color-encodings' && (
         <Legend encodings={color.encodings} />
       )}

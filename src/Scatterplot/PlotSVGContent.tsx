@@ -1,8 +1,9 @@
 import { axisBottom, axisLeft, BaseType, Selection } from 'd3';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useScatterplotStore } from './store';
 import useAxisScales from './use-axis-scales';
 import { useD3 } from './use-d3';
+import { clamp } from 'three/src/math/MathUtils';
 
 const PlotSVGContent = () => {
   const { xScale, yScale } = useAxisScales();
@@ -17,6 +18,12 @@ const PlotSVGContent = () => {
   const marginBottom = useScatterplotStore(state => state.plotMargins.bottom);
   const marginLeft = useScatterplotStore(state => state.plotMargins.left);
   const darkMode = useScatterplotStore(state => state.darkMode);
+  const xTickFormat = useScatterplotStore(
+    state => state.xAxisConfig.tickFormat
+  );
+  const yTickFormat = useScatterplotStore(
+    state => state.yAxisConfig.tickFormat
+  );
 
   const textColor = darkMode ? 'white' : 'black';
   const gridColor = darkMode
@@ -30,8 +37,12 @@ const PlotSVGContent = () => {
     ref,
     svg => {
       if (!xScale || !yScale || !canvasWidth || !canvasHeight) return;
-      const xAxis = axisBottom(xScale).tickSize(canvasHeight);
-      const yAxis = axisLeft(yScale).tickSize(-canvasWidth);
+      const xAxis = xTickFormat
+        ? axisBottom(xScale).tickSize(canvasHeight).tickFormat(xTickFormat)
+        : axisBottom(xScale).tickSize(canvasHeight);
+      const yAxis = yTickFormat
+        ? axisLeft(yScale).tickSize(-canvasWidth).tickFormat(yTickFormat)
+        : axisLeft(yScale).tickSize(-canvasWidth);
 
       const xAxisSvg = svg.select('.x').call(xAxis as any);
       const yAxisSvg = svg.select('.y').call(yAxis as any);
@@ -56,7 +67,6 @@ const PlotSVGContent = () => {
         width={plotAreaWidth}
         height={plotAreaHeight}
         ref={ref}
-        id="plot-content-svg"
         fill={textColor}
       >
         <XAxisLabel />
@@ -149,7 +159,24 @@ const YAxisLabel = () => {
   const featureName = useScatterplotStore(
     state => state.yAxisConfig.featureName
   );
-  const x = useScatterplotStore(state => state.plotMargins.left * 0.5);
+  const x = useScatterplotStore(state => {
+    const plotContainer = state.plotContainerElement;
+    if (!plotContainer) {
+      console.warn(
+        'plot container element not set, cannot dynamically set y axis label x-position'
+      );
+      return state.plotMargins.left * 0.5;
+    }
+
+    const yTickLabels = [...plotContainer.querySelectorAll('.y .tick text')];
+    console.log(yTickLabels);
+    const minLeftOffset = Math.min(
+      ...yTickLabels.map(label => label.getBoundingClientRect().left)
+    );
+    const labelPosWithMargin = minLeftOffset - 20;
+
+    return clamp(labelPosWithMargin, 10, state.plotMargins.left);
+  });
   const y = useScatterplotStore(
     state =>
       state.plotMargins.top + (state.plotCanvasDimensionsDOM?.height ?? 0) * 0.5
