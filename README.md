@@ -5,14 +5,16 @@ If you happen to know of any (free!) charting library that can handle large data
 
 ## Install library in your own project
 
-1. run `yarn add @sejmou/react-big-dataset-scatterplot` OR `npm install @sejmou/react-big-dataset-scatterplot` (if you use yarn or npm)
+Note: throughout this README I assume that you use `yarn` as your package manager. If you use `npm` or `pnpm` just look up the equivalent commands online.
+
+1. run `yarn add @sejmou/react-big-dataset-scatterplot`
 2. import the CSS styles required for the component to render properly in the entrypoint of your app (usually `main.tsx`) by adding the line `import 'react-big-dataset-scatterplot/dist/styles.css';`
 
 ## Demo
 
 I have put together an example React (Vite) app that uses this library with a considerably large example dataset of Spotify songs (roughly 30k rows). The code can be found in the `lib-usage-demo` folder.
 
-To install it locally, navigate to the folder and run `yarn` followed by `yarn dev` OR `npm install` followed by `npm run dev`.
+To install it locally, navigate to the folder and run `yarn` followed by `yarn dev`.
 
 ## Acknowledgements
 
@@ -31,7 +33,7 @@ TSDX scaffolds new libraries inside `/src`. I have also set up a Vite App using 
 The recommended workflow is to run TSDX in one terminal:
 
 ```bash
-npm start # or yarn start
+yarn start
 ```
 
 This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
@@ -55,34 +57,36 @@ Run the following inside the terminal:
 
 ```bash
 cd lib-usage-demo
-npm i # or yarn to install dependencies
-npm start # or yarn start
+yarn # install dependencies
+yarn start
 ```
 
-The `package.json` of the example app is setup to use the React and ReactDOM version from the library's dev dependencies (i.e. the packages stored in it `node_modules` folder).
-I am not sure if yarn detects changes to the packages though, so a reset might be necessary if the React and ReactDOM versions for library development would be upgraded.
+The example app uses React 18.
 
-To make use of the latest build of `react-big-dataset-scatterplot` during development automatically, you need to switch to the parent directory and run `yarn link` there.
+Out of the box, the app will not work as `react-big-dataset-scatterplot` is not included in the `package.json` (for deployment it would need to be added by running `yarn add react-big-dataset-scatterplot`). Instead it is meant to be used during development with the current version of the package (from the `dist` folder in the root directory). For this to work, we need to link the package like this:
 
-Then, go back to the example app directory and run `yarn link react-big-dataset-scatterplot`. yarn should then use a symlink for the library during development, which means that always automatically the most recent version is used without having to run `yarn` on every change to the library package.
+1. Switch to the parent directory and run `yarn link` there.
+2. Go back to the example app directory and run `yarn link react-big-dataset-scatterplot`. 
+
+yarn should from now on use a symlink for the library during development, which means that always automatically the most recent version is used without having to run `yarn` on every change to the library package.
 
 Additional note: The line `import 'react-big-dataset-scatterplot/dist/tailwind.css';` inside `main.tsx` is important! If this is not included Tailwind styles used by the library are not applied (or in this case, any Tailwind class that is not already used in the rest of the app does NOT work).
 
 ## Building
 
-To do a one-off build, use `npm run build` or `yarn build`.
+`yarn build`
 
 ## Testing
 
-To run tests, use `npm test` or `yarn test`.
+`yarn test`
 
-Jest tests are theoretically set up by TSDX to run with `npm test` or `yarn test`. I don't use tests though :)
+Jest tests are theoretically set up by TSDX to run with `yarn test`. I don't use tests though :)
 
 ## Other stuff that might be good to know
 
 ### Bundle analysis
 
-Calculates the real cost of your library using [size-limit](https://github.com/ai/size-limit) with `npm run size` and visulize it with `npm run analyze`.
+Calculates the real cost of your library using [size-limit](https://github.com/ai/size-limit) with `yarn size` and visualize it with `yarn analyze`.
 
 ### Rollup
 
