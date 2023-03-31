@@ -98,6 +98,8 @@ type State<CategoryFeatureValue extends string = string> = {
   plotContainerElement?: HTMLDivElement; // reference to the div element that wraps the entire plot area (required for axis label positioning)
   setPlotContainerElement: (newElement: HTMLDivElement) => void;
 
+  canvasReady: boolean; // true if the canvas is ready to display the scatterplot (i.e. its size fits the size of its wrapper div)
+
   setPointRenderConfigs: (newConfigs: PointRenderConfig[]) => void;
   setCurrentPoints: (newPoints: Points) => void;
   setPointSize: (newSize: number) => void;
@@ -126,6 +128,8 @@ type State<CategoryFeatureValue extends string = string> = {
     posWorldCoordinates: { x: number; y: number }
   ) => void;
   removeActivePoint: () => void;
+
+  setCanvasReady: (newReadyState: boolean) => void;
 };
 
 const fov = 40;
@@ -166,6 +170,7 @@ export const createScatterplotStore = <
         plotMargins: defaultMargins,
         darkMode: false,
         tooltipAnchorId: createAnchorId(),
+        canvasReady: false,
         setPointRenderConfigs: newConfigs =>
           set({ pointRenderConfigs: newConfigs }),
         setCurrentPoints: newPoints => set({ currentPoints: newPoints }),
@@ -237,6 +242,7 @@ export const createScatterplotStore = <
           set({ canvasWrapperElement: newElement }),
         setPlotContainerElement: newElement =>
           set({ plotContainerElement: newElement }),
+        setCanvasReady: newReadyState => set({ canvasReady: newReadyState }),
       }))
     )
   );

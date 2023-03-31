@@ -177,7 +177,11 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
 
   const tooltipAnchorId = useScatterplotStore(state => state.tooltipAnchorId);
   const tooltipPosition = useScatterplotStore(state => state.tooltipPosition);
-  const canvasWrapperRef = useRef<HTMLDivElement>(null);
+  const {
+    ref: canvasWrapperRef,
+    width: canvasWrapperWidth,
+    height: canvasWrapperHeight,
+  } = useResizeDetector<HTMLDivElement>();
   const setCanvasWrapperElement = useScatterplotStore(
     state => state.setCanvasWrapperElement
   );
@@ -221,6 +225,27 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
     ref: canvasRef,
   } = useResizeDetector();
 
+  const canvasReady = useScatterplotStore(state => state.canvasReady);
+  const setCanvasReady = useScatterplotStore(state => state.setCanvasReady);
+
+  useEffect(() => {
+    let ready = false;
+    if (
+      canvasWidth === canvasWrapperWidth &&
+      canvasHeight === canvasWrapperHeight &&
+      canvasWrapperWidth > 0 &&
+      canvasWrapperHeight > 0
+    )
+      ready = true;
+    setCanvasReady(ready);
+  }, [
+    canvasWidth,
+    canvasHeight,
+    canvasWrapperWidth,
+    canvasWrapperHeight,
+    setCanvasReady,
+  ]);
+
   useEffect(() => {
     setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
   }, [canvasWidth, canvasHeight, setCanvasDimensions]);
@@ -242,9 +267,15 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
     }
   }, [containerRef, setPlotContainer]);
 
+  console.log(canvasReady);
+
   return (
     <div
-      className={classNames('w-full h-full flex flex-col', className)}
+      className={classNames(
+        'w-full h-full flex flex-col',
+        { invisible: !canvasReady },
+        className
+      )}
       ref={containerRef}
     >
       {color?.mode === 'color-encodings' && (
@@ -285,4 +316,5 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
     </div>
   );
 };
+
 export default Scatterplot;
