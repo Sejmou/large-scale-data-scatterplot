@@ -1,5 +1,5 @@
 import { axisBottom, axisLeft, BaseType, Selection } from 'd3';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useScatterplotStore } from './store';
 import useAxisScales from './use-axis-scales';
 import { useD3 } from './use-d3';
@@ -168,14 +168,16 @@ const YAxisLabel = () => {
       return state.plotMargins.left * 0.5;
     }
 
-    const yTickLabels = [...plotContainer.querySelectorAll('.y .tick text')];
-    if (window === undefined || yTickLabels.length === 0)
-      // server side rendering or no y tick labels
-      return state.plotMargins.left * 0.5;
-    const minLeftOffset = Math.min(
-      ...yTickLabels.map(label => label.getBoundingClientRect().left)
+    const yTickLabels = Array.from(
+      plotContainer.querySelectorAll('.y .tick text')
     );
-    const labelPosWithMargin = minLeftOffset - 20;
+    const minLeftOffset =
+      yTickLabels.length === 0
+        ? 0
+        : Math.min(
+            ...yTickLabels.map(label => label.getBoundingClientRect().left)
+          );
+    const labelPosWithMargin = minLeftOffset - 24;
 
     return clamp(labelPosWithMargin, 10, state.plotMargins.left);
   });
