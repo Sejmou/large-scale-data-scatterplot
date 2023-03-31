@@ -169,7 +169,7 @@ const YAxisLabel = () => {
     }
 
     const yTickLabels = [...plotContainer.querySelectorAll('.y .tick text')];
-    console.log(yTickLabels);
+    if (yTickLabels.length === 0) return state.plotMargins.left * 0.5;
     const minLeftOffset = Math.min(
       ...yTickLabels.map(label => label.getBoundingClientRect().left)
     );
