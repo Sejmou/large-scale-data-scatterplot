@@ -104,7 +104,7 @@ const Scatterplot = <CategoryFeatureValue extends string>(
   }, [props.onPointHoverEnd, store]);
   useEffect(() => {
     const marginLeft = props.margins?.left;
-    if (marginLeft) {
+    if (marginLeft !== undefined) {
       store.setState(state => {
         state.plotMargins.left = marginLeft;
       });
@@ -112,7 +112,7 @@ const Scatterplot = <CategoryFeatureValue extends string>(
   }, [props.margins?.left, store]);
   useEffect(() => {
     const marginRight = props.margins?.right;
-    if (marginRight) {
+    if (marginRight !== undefined) {
       store.setState(state => {
         state.plotMargins.right = marginRight;
       });
@@ -120,7 +120,7 @@ const Scatterplot = <CategoryFeatureValue extends string>(
   }, [props.margins?.right, store]);
   useEffect(() => {
     const marginTop = props.margins?.top;
-    if (marginTop) {
+    if (marginTop !== undefined) {
       store.setState(state => {
         state.plotMargins.top = marginTop;
       });
@@ -128,7 +128,7 @@ const Scatterplot = <CategoryFeatureValue extends string>(
   }, [props.margins?.top, store]);
   useEffect(() => {
     const marginBottom = props.margins?.bottom;
-    if (marginBottom) {
+    if (marginBottom !== undefined) {
       store.setState(state => {
         state.plotMargins.bottom = marginBottom;
       });
