@@ -6,7 +6,7 @@ import Scatterplot, {
   VertexColorEncodingConfig,
   SingleVertexColorConfig,
 } from '../src';
-import '../tailwind.css';
+import '../tailwind.css'; // TODO: figure out how to prevent having to import this in every story
 
 const defaultXAxisConfig: AxisConfig = {
   data: [3, 1, 2, 4, 5, 8, 9, 10],
