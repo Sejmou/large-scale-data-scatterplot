@@ -76,7 +76,11 @@ const PointClickAndHover = () => {
         );
         const intersect = sortedIntersects[0];
         const index = intersect.index ?? null;
-        if (index !== null && hoveredPointIndex.current === null) {
+        if (
+          index !== null &&
+          (hoveredPointIndex.current === null ||
+            hoveredPointIndex.current !== index)
+        ) {
           setHoveredPointRenderConfig(pointRenderConfigs[index]!);
           hoveredPointIndex.current = index;
           onPointHoverStart?.(index);
