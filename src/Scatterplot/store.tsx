@@ -5,7 +5,7 @@ import { createContext, useContext } from 'react';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-type PointRenderConfig = {
+export type PointRenderConfig = {
   x: number;
   y: number;
   color: Color;

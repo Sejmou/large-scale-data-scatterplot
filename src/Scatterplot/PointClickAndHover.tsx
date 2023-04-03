@@ -1,13 +1,14 @@
 import { useLoader, useThree } from '@react-three/fiber';
 import { scaleLog } from 'd3';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PerspectiveCamera, TextureLoader } from 'three';
-import { useScatterplotStore } from './store';
+import { PointRenderConfig, useScatterplotStore } from './store';
 import { getScale } from './utils';
 import {
   circleTextureDataURI,
   circleBorderTextureDataURI,
 } from './texture-data-uris';
+import { useRef } from 'react';
 
 const PointClickAndHover = () => {
   const onPointClick = useScatterplotStore(state => state.onPointClick);
@@ -38,22 +39,15 @@ const PointClickAndHover = () => {
     state => state.yScaleWorldCoordinates
   );
 
-  const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(
-    null
-  );
-  const hoveredPointData = useMemo(() => {
-    if (hoveredPointIndex !== null) {
-      const config = pointRenderConfigs[hoveredPointIndex];
-      if (!config) return null;
-      return { x: config.x, y: config.y, color: config.color };
-    } else {
-      return null;
-    }
-  }, [hoveredPointIndex, pointRenderConfigs]);
+  const [hoveredPointRenderConfig, setHoveredPointRenderConfig] =
+    useState<PointRenderConfig | null>(null);
+
+  const hoveredPointIndex = useRef<number | null>(null);
+
   useEffect(() => {
     if (!canvas || !mouse || !raycaster || !camera || !scatterPoints) return;
     const cam = camera as PerspectiveCamera;
-    const hoverListener = (e: MouseEvent) => {
+    const canvasMoveListener = (e: MouseEvent) => {
       const canvasRect = (
         e.target as HTMLCanvasElement
       ).getBoundingClientRect();
@@ -82,17 +76,21 @@ const PointClickAndHover = () => {
         );
         const intersect = sortedIntersects[0];
         const index = intersect.index ?? null;
-        if (index !== null) {
-          setHoveredPointIndex(index);
+        if (index !== null && hoveredPointIndex.current === null) {
+          setHoveredPointRenderConfig(pointRenderConfigs[index]!);
+          hoveredPointIndex.current = index;
           onPointHoverStart?.(index);
         }
       } else {
-        setHoveredPointIndex(null);
-        onPointHoverEnd?.();
+        if (hoveredPointIndex.current !== null) {
+          setHoveredPointRenderConfig(null);
+          hoveredPointIndex.current = null;
+          onPointHoverEnd?.();
+        }
       }
     };
-    canvas.addEventListener('mousemove', hoverListener);
-    return () => canvas.removeEventListener('mousemove', hoverListener);
+    canvas.addEventListener('mousemove', canvasMoveListener);
+    return () => canvas.removeEventListener('mousemove', canvasMoveListener);
   }, [
     canvas,
     mouse,
@@ -101,20 +99,19 @@ const PointClickAndHover = () => {
     scatterPoints,
     onPointHoverStart,
     onPointHoverEnd,
-    onPointClick,
+    pointRenderConfigs,
   ]);
+
+  const clickHandler = () => {
+    const pointIndex = hoveredPointIndex.current;
+    if (pointIndex != null) onPointClick?.(pointIndex);
+  };
 
   return (
     <>
-      {hoveredPointData !== null && (
+      {hoveredPointRenderConfig !== null && (
         <>
-          <points
-            key={hoveredPointIndex ?? ''}
-            onClick={() => {
-              if (hoveredPointIndex != null) onPointClick?.(hoveredPointIndex);
-            }}
-            onPointerLeave={onPointHoverEnd}
-          >
+          <points onClick={clickHandler}>
             {/* without the key prop, the rendered "highlighted" point would not update if another point is hovered */}
             <pointsMaterial
               size={pointSize * 1.25}
@@ -130,8 +127,8 @@ const PointClickAndHover = () => {
                 attach="attributes-position"
                 array={
                   new Float32Array([
-                    xScaleWorldCoordinates!(hoveredPointData.x),
-                    yScaleWorldCoordinates!(hoveredPointData.y),
+                    xScaleWorldCoordinates!(hoveredPointRenderConfig.x),
+                    yScaleWorldCoordinates!(hoveredPointRenderConfig.y),
                     0,
                   ])
                 }
@@ -140,14 +137,13 @@ const PointClickAndHover = () => {
               />
               <bufferAttribute
                 attach="attributes-color"
-                array={new Float32Array(hoveredPointData.color)}
+                array={new Float32Array(hoveredPointRenderConfig.color)}
                 itemSize={3}
                 count={1}
               />
             </bufferGeometry>
           </points>
-          <points key={hoveredPointIndex + 'a' ?? 'a'}>
-            {/* without the key prop, the rendered "highlighted" point would not update if another point is hovered */}
+          <points>
             <pointsMaterial
               size={pointSize * 1.25}
               opacity={1}
@@ -162,8 +158,8 @@ const PointClickAndHover = () => {
                 attach="attributes-position"
                 array={
                   new Float32Array([
-                    xScaleWorldCoordinates!(hoveredPointData.x),
-                    yScaleWorldCoordinates!(hoveredPointData.y),
+                    xScaleWorldCoordinates!(hoveredPointRenderConfig.x),
+                    yScaleWorldCoordinates!(hoveredPointRenderConfig.y),
                     0,
                   ])
                 }
