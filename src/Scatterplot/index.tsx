@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Color } from 'three';
 import { MapWithDefault } from './utils';
 import Camera from './Camera';
@@ -16,7 +16,6 @@ import {
 import PointClickAndHover from './PointClickAndHover';
 import { useResizeDetector } from 'react-resize-detector';
 import Legend from './Legend';
-import { Tooltip } from 'react-tooltip';
 import PlotSVGContent from './PlotSVGContent';
 import classNames from 'classnames';
 
@@ -36,7 +35,7 @@ export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   onPointClick?: (pointIndex: number) => void;
   onPointHoverStart?: (pointIndex: number) => void;
   onPointHoverEnd?: () => void;
-  tooltipContent?: ReactNode;
+  canvasId?: string;
   margins?: Partial<PlotMargins>;
   darkMode?: boolean;
 };
@@ -153,11 +152,11 @@ const Scatterplot = <CategoryFeatureValue extends string>(
 
 const ScatterplotChild = <CategoryFeatureValue extends string>({
   color,
-  tooltipContent,
+  canvasId,
   className,
 }: Pick<
   ScatterplotProps<CategoryFeatureValue>,
-  'color' | 'tooltipContent' | 'className'
+  'color' | 'canvasId' | 'className'
 >) => {
   const xData = useScatterplotStore(state => state.xAxisConfig.data);
   const yData = useScatterplotStore(state => state.yAxisConfig.data);
@@ -175,8 +174,6 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
   const marginBottom = useScatterplotStore(state => state.plotMargins.bottom);
   const marginLeft = useScatterplotStore(state => state.plotMargins.left);
 
-  const tooltipAnchorId = useScatterplotStore(state => state.tooltipAnchorId);
-  const tooltipPosition = useScatterplotStore(state => state.tooltipPosition);
   const {
     ref: canvasWrapperRef,
     width: canvasWrapperWidth,
@@ -291,26 +288,14 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
             transform: `translate(${marginLeft}px, ${marginTop}px)`,
           }}
         >
-          <div
-            className="h-full w-full"
-            id={tooltipAnchorId}
-            ref={canvasWrapperRef}
-          >
-            <Canvas ref={canvasRef} camera={{ fov, near, far }}>
+          <div className="h-full w-full" ref={canvasWrapperRef}>
+            <Canvas ref={canvasRef} camera={{ fov, near, far }} id={canvasId}>
               <Camera />
               <PointClickAndHover />
               {/* Points should rerender on every resize - using the key prop like this is my dirty hack for that lol */}
               <Points key={pointsKey} />
             </Canvas>
           </div>
-          <Tooltip
-            anchorSelect={'#' + tooltipAnchorId}
-            position={tooltipPosition}
-            float={false}
-            className={classNames({ hidden: !tooltipPosition })}
-          >
-            {tooltipContent}
-          </Tooltip>
         </div>
       </div>
     </div>

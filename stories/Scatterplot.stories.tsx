@@ -6,6 +6,9 @@ import Scatterplot, {
   SingleVertexColorConfig,
 } from '../src';
 import { AxisConfig } from '../src';
+import { Tooltip } from 'react-tooltip';
+
+import 'react-tooltip/dist/react-tooltip.css'; // required for tooltip story (need to import as otherwise no tooltip is shown)
 import '../tailwind.css'; // TODO: figure out how to prevent having to import this in every story
 
 const defaultXAxisConfig: AxisConfig = {
@@ -136,18 +139,17 @@ const PointerEventsTemplate: Story<ScatterplotProps> = args => {
     setTooltipContent(null);
   }, []);
 
-  console.log(tooltipContent);
-
-  console.log({ args });
-
   return (
     <div className="w-[600px] h-[400px]">
       <Scatterplot
         {...args}
         onPointHoverStart={handlePointHoverStart}
         onPointHoverEnd={handlePointHoverEnd}
-        tooltipContent={tooltipContent ?? undefined}
+        canvasId={'scatterplot-canvas'}
       />
+      <Tooltip float anchorSelect="#scatterplot-canvas">
+        {tooltipContent}
+      </Tooltip>
     </div>
   );
 };

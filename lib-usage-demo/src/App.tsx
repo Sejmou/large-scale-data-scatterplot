@@ -5,6 +5,8 @@ import {
   SingleVertexColorConfig,
   VertexColorEncodingConfig,
 } from 'react-big-dataset-scatterplot';
+import { Tooltip } from 'react-tooltip';
+
 import {
   CategoricalFeatureName,
   CategoricalFeatures,
@@ -25,6 +27,8 @@ type ColorOption =
   | 'use default'
   | 'set color for all'
   | 'use category encodings';
+
+const plotCanvasId = 'scatterplot-canvas'; // required for tooltip
 
 function App() {
   const [numericData, setNumericData] = useState<PlotableFeatures[]>([]);
@@ -129,7 +133,7 @@ function App() {
 
   const [activeDatapoint, setActiveDatapoint] = useState<TrackData>();
   const activeDatapointTooltip = useMemo(() => {
-    if (!activeDatapoint) return <div></div>;
+    if (!activeDatapoint) return null;
     return (
       <div>
         <div>Track: {activeDatapoint.name}</div>
@@ -259,8 +263,11 @@ function App() {
         onPointClick={handlePointClick}
         onPointHoverStart={handlePointHoverStart}
         onPointHoverEnd={handlePointHoverEnd}
-        tooltipContent={activeDatapointTooltip}
+        canvasId={plotCanvasId}
       />
+      <Tooltip float anchorSelect={`#${plotCanvasId}`}>
+        {activeDatapointTooltip}
+      </Tooltip>
     </div>
   );
 }

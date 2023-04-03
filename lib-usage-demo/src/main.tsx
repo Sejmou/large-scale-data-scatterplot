@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import 'react-big-dataset-scatterplot/dist/styles.css';
+import 'react-tooltip/dist/react-tooltip.css'; // required for tooltip to be displayed properly
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

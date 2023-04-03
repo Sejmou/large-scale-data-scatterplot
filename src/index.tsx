@@ -1,5 +1,3 @@
-import '../react-tooltip.css';
-
 import Scatterplot from './Scatterplot';
 import type { ScatterplotProps, AxisConfig } from './Scatterplot';
 import type {

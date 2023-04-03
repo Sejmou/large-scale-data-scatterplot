@@ -1,17 +1,9 @@
 import { NumberValue, ScaleLinear } from 'd3';
 import { Color, Points } from 'three';
 import { createStore, useStore } from 'zustand';
-import { ReactNode, createContext, useContext } from 'react';
+import { createContext, useContext } from 'react';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-
-// note: we want to use a separate store for every scatterplot instance
-// so that we can have multiple scatterplots with different configs on the same page
-// to achieve this, we need to use a context provider for the store and wrap it around each created scatterplot
-// therefore we don't just use zustand's create() function here, but instead do other stuff
-// too lazy to explain in detail, but the following GitHub discussion talks about a similar problem and the solution:
-// see also: https://github.com/pmndrs/zustand/blob/main/docs/previous-versions/zustand-v3-create-context.md#migration
-// and a live demo of using separate store instances per component (which is exactly what I needed for my scatterplot as well): https://codesandbox.io/s/polished-pond-4jn1e2?file=/src/App.tsx:499-572
 
 type PointRenderConfig = {
   x: number;
@@ -58,7 +50,6 @@ type State<CategoryFeatureValue extends string = string> = {
   onPointClick?: (pointIndex: number) => void;
   onPointHoverStart?: (pointIndex: number) => void;
   onPointHoverEnd?: () => void;
-  tooltipContent?: ReactNode;
   fov: number;
   near: number;
   far: number;
@@ -85,14 +76,7 @@ type State<CategoryFeatureValue extends string = string> = {
 
   darkMode: boolean;
 
-  tooltipAnchorId: string; // required for react-tooltip
-  tooltipPosition?: {
-    // position (in absolute screen coordinates) where tooltip should be placed - defined if there is a currently hovered/selected point
-    x: number;
-    y: number;
-  };
-  activePointIndex?: number; // index of currently hovered (or otherwise selected) point in scatterplot
-  canvasWrapperElement?: HTMLDivElement; // reference to the div element that wraps the canvas element (required for tooltip positioning)
+  canvasWrapperElement?: HTMLDivElement; // reference to the div element that wraps the canvas element (required for detecting whether canvas is fully ready (especially after resize))
   setCanvasWrapperElement: (newElement: HTMLDivElement) => void;
 
   plotContainerElement?: HTMLDivElement; // reference to the div element that wraps the entire plot area (required for axis label positioning)
@@ -123,11 +107,6 @@ type State<CategoryFeatureValue extends string = string> = {
     width: number;
     height: number;
   }) => void;
-  setActivePoint: (
-    idx: number,
-    posWorldCoordinates: { x: number; y: number }
-  ) => void;
-  removeActivePoint: () => void;
 
   setCanvasReady: (newReadyState: boolean) => void;
 };
@@ -148,6 +127,13 @@ const defaultMargins: PlotMargins = {
   left: 48,
 };
 
+// note: we want to use a separate store for every scatterplot instance
+// so that we can have multiple scatterplots with different configs on the same page
+// to achieve this, we need to use a context provider for the store and wrap it around each created scatterplot
+// therefore we don't just use zustand's create() function here, but instead do other stuff
+// too lazy to explain in detail, but the following GitHub discussion talks about a similar problem and the solution:
+// see also: https://github.com/pmndrs/zustand/blob/main/docs/previous-versions/zustand-v3-create-context.md#migration
+// and a live demo of using separate store instances per component (which is exactly what I needed for my scatterplot as well): https://codesandbox.io/s/polished-pond-4jn1e2?file=/src/App.tsx:499-572
 export const createScatterplotStore = <
   CategoryFeatureValue extends string
 >() => {
@@ -169,7 +155,6 @@ export const createScatterplotStore = <
         yAxisConfig: dummyAxisConfig,
         plotMargins: defaultMargins,
         darkMode: false,
-        tooltipAnchorId: createAnchorId(),
         canvasReady: false,
         setPointRenderConfigs: newConfigs =>
           set({ pointRenderConfigs: newConfigs }),
@@ -189,55 +174,6 @@ export const createScatterplotStore = <
           set({ plotPlaneDimensionsWorld: newDimensions }),
         setPlotCanvasDimensionsDOM: newDimensions =>
           set({ plotCanvasDimensionsDOM: newDimensions }),
-        setActivePoint: (idx, posWorld) => {
-          const canvasWrapper = get().canvasWrapperElement;
-          if (canvasWrapper === undefined) {
-            console.warn(
-              'canvas wrapper element undefined, cannot set tooltip position'
-            );
-            return;
-          }
-
-          const xScaleDOMPixels = get().xScaleDOMPixels;
-          const yScaleDOMPixels = get().yScaleDOMPixels;
-
-          const xScaleWorldToData = get().xScaleWorldToData;
-          const yScaleWorldToData = get().yScaleWorldToData;
-
-          if (
-            !xScaleDOMPixels ||
-            !yScaleDOMPixels ||
-            !xScaleWorldToData ||
-            !yScaleWorldToData
-          ) {
-            console.warn('some scales undefined, cannot set tooltip position');
-            return;
-          }
-
-          const canvasPosX = xScaleDOMPixels(xScaleWorldToData(posWorld.x));
-          const canvasPosY = yScaleDOMPixels(yScaleWorldToData(posWorld.y));
-
-          const { x: canvasWrapperLeft, y: canvasWrapperTop } =
-            canvasWrapper.getBoundingClientRect();
-
-          const tooltipPosition = {
-            x: canvasWrapperLeft + canvasPosX,
-            y: canvasWrapperTop + canvasPosY,
-          };
-
-          console.log(
-            canvasWrapper.offsetLeft,
-            canvasWrapper.offsetTop,
-            tooltipPosition
-          );
-
-          set({
-            activePointIndex: idx,
-            tooltipPosition,
-          });
-        },
-        removeActivePoint: () =>
-          set({ activePointIndex: undefined, tooltipPosition: undefined }),
         setCanvasWrapperElement: newElement =>
           set({ canvasWrapperElement: newElement }),
         setPlotContainerElement: newElement =>
@@ -247,12 +183,6 @@ export const createScatterplotStore = <
     )
   );
 };
-
-function createAnchorId() {
-  return `scatterplot-tooltip-anchor-${Math.random()
-    .toString(36)
-    .substr(2, 9)}`;
-}
 
 export const ScatterplotContext = createContext<ReturnType<
   typeof createScatterplotStore
