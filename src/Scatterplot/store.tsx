@@ -137,7 +137,6 @@ const defaultMargins: PlotMargins = {
 export const createScatterplotStore = <
   CategoryFeatureValue extends string
 >() => {
-  console.log('creating new scatterplot store');
   return createStore<
     State<CategoryFeatureValue>,
     [['zustand/devtools', never], ['zustand/immer', never]]

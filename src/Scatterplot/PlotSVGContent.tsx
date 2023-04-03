@@ -167,6 +167,9 @@ const YAxisLabel = () => {
     state => state.yAxisConfig.featureName
   );
   const x = useScatterplotStore(state => {
+    const canvasReady = state.canvasReady;
+    if (!canvasReady) return 0;
+
     const plotContainer = state.plotContainerElement;
     if (!plotContainer) {
       console.warn(

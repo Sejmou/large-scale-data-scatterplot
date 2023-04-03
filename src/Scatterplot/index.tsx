@@ -247,8 +247,6 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
     setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
   }, [canvasWidth, canvasHeight, setCanvasDimensions]);
 
-  console.log('Scatterplot render function running');
-
   const [pointsKey, setPointsKey] = useState(0);
   useEffect(() => {
     setPointsKey(k => k + 1);
@@ -263,8 +261,6 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
       setPlotContainer(containerRef.current);
     }
   }, [containerRef, setPlotContainer]);
-
-  console.log(canvasReady);
 
   return (
     <div
