@@ -1,8 +1,7 @@
-import { axisBottom, axisLeft, BaseType, Selection } from 'd3';
-import { useRef } from 'react';
+import { axisBottom, axisLeft, BaseType, select, Selection } from 'd3';
+import { useEffect, useRef } from 'react';
 import { useScatterplotStore } from './store';
 import useAxisScales from './use-axis-scales';
-import { useD3 } from './use-d3';
 import { clamp } from 'three/src/math/MathUtils';
 
 const PlotSVGContent = () => {
@@ -33,29 +32,37 @@ const PlotSVGContent = () => {
 
   const ref = useRef<SVGSVGElement>(null);
 
-  useD3(
-    ref,
-    svg => {
-      if (!xScale || !yScale || !canvasWidth || !canvasHeight) return;
-      const xAxis = xTickFormat
-        ? axisBottom(xScale).tickSize(canvasHeight).tickFormat(xTickFormat)
-        : axisBottom(xScale).tickSize(canvasHeight);
-      const yAxis = yTickFormat
-        ? axisLeft(yScale).tickSize(-canvasWidth).tickFormat(yTickFormat)
-        : axisLeft(yScale).tickSize(-canvasWidth);
+  useEffect(() => {
+    if (!ref.current) return;
+    const svg = select(ref.current);
+    if (!xScale || !yScale || !canvasWidth || !canvasHeight) return;
+    const xAxis = xTickFormat
+      ? axisBottom(xScale).tickSize(canvasHeight).tickFormat(xTickFormat)
+      : axisBottom(xScale).tickSize(canvasHeight);
+    const yAxis = yTickFormat
+      ? axisLeft(yScale).tickSize(-canvasWidth).tickFormat(yTickFormat)
+      : axisLeft(yScale).tickSize(-canvasWidth);
 
-      const xAxisSvg = svg.select('.x').call(xAxis as any);
-      const yAxisSvg = svg.select('.y').call(yAxis as any);
-      svg.selectAll('.domain').attr('stroke', domainPathColor);
-      svg.selectAll('.tick text').attr('fill', textColor);
+    const xAxisSvg = svg.select('.x').call(xAxis as any);
+    const yAxisSvg = svg.select('.y').call(yAxis as any);
+    svg.selectAll('.domain').attr('stroke', domainPathColor);
+    svg.selectAll('.tick text').attr('fill', textColor);
 
-      applyRightPlotWindowBorderWorkaround(xAxisSvg);
-      applyBottomPlotWindowBorderWorkaround(yAxisSvg);
+    applyRightPlotWindowBorderWorkaround(xAxisSvg);
+    applyBottomPlotWindowBorderWorkaround(yAxisSvg);
 
-      svg.selectAll('.tick line').attr('stroke', gridColor);
-    },
-    [xScale, yScale, canvasWidth, canvasHeight]
-  );
+    svg.selectAll('.tick line').attr('stroke', gridColor);
+  }, [
+    xScale,
+    yScale,
+    canvasWidth,
+    canvasHeight,
+    xTickFormat,
+    yTickFormat,
+    domainPathColor,
+    textColor,
+    gridColor,
+  ]);
 
   const plotAreaWidth = canvasWidth + marginLeft + marginRight;
   const plotAreaHeight = canvasHeight + marginTop + marginBottom;

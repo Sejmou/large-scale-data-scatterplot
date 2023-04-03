@@ -38,7 +38,7 @@ const Camera = () => {
         .scale(initialScale);
       zoomHandler.transform(chart, initialTransform);
     }
-  }, [camera, canvas]);
+  }, [camera, canvas, far, fov, setCamPos]);
 
   return <></>; // TODO: there must be a cleaner way to access state from Three.js than this hack with using a nested element inside the Canvas that doesn't return any JSX element lol
 };
