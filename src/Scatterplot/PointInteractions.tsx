@@ -10,12 +10,13 @@ import {
 } from './texture-data-uris';
 import { useRef } from 'react';
 
-const PointClickAndHover = () => {
+const PointInteractions = () => {
   const onPointClick = useScatterplotStore(state => state.onPointClick);
   const onPointHoverStart = useScatterplotStore(
     state => state.onPointHoverStart
   );
   const onPointHoverEnd = useScatterplotStore(state => state.onPointHoverEnd);
+  const onPointTap = useScatterplotStore(state => state.onPointTap);
 
   const circleTexture = useLoader(TextureLoader, circleTextureDataURI);
   const circleBorderTexture = useLoader(
@@ -93,8 +94,78 @@ const PointClickAndHover = () => {
         }
       }
     };
+
+    let startTouch: Touch | null = null;
+
+    const touchStartListener = (e: TouchEvent) => {
+      const touches = e.touches;
+      if (touches.length === 1) {
+        startTouch = touches[0];
+      }
+    };
+
+    const touchEndListener = (e: TouchEvent) => {
+      const touches = e.touches;
+      const changedTouches = e.changedTouches;
+      if (startTouch && touches.length === 0 && changedTouches.length === 1) {
+        const touchEnd = e.changedTouches[0];
+        const startX = startTouch.clientX;
+        const startY = startTouch.clientY;
+
+        const endX = touchEnd.clientX;
+        const endY = touchEnd.clientY;
+
+        const distance = Math.sqrt(
+          Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
+        );
+
+        if (distance <= 5) {
+          // TODO: possibly refactor, this is copy pasta from the mouse move listener above with some adaptations
+          const canvasRect = (
+            e.target as HTMLCanvasElement
+          ).getBoundingClientRect();
+          const x = startX - canvasRect.left;
+          const y = startY - canvasRect.top;
+          const width = canvasRect.width;
+          const height = canvasRect.height;
+          const mouseVector = mouseToThree(x, y, width, height);
+
+          const zoomedInScale = getScale(cam.near, cam.fov, height);
+          const zoomedOutScale = getScale(cam.far, cam.fov, height);
+          const raycasterPointsThresholdScale = scaleLog()
+            .domain([zoomedOutScale, zoomedInScale])
+            .range([1, 0.05]);
+          const scale = getScale(camera.position.z, cam.fov, height);
+          // more generous threshold than in the mouse move listener
+          raycaster.params!.Points!.threshold =
+            raycasterPointsThresholdScale(scale) * 4;
+          raycaster.setFromCamera(mouseVector, camera);
+
+          const intersects = raycaster.intersectObject(scatterPoints);
+          if (intersects.length > 0) {
+            const sortedIntersects = [...intersects].sort(
+              (a, b) => a.distanceToRay! - b.distanceToRay!
+            );
+            const intersect = sortedIntersects[0];
+            const index = intersect.index ?? null;
+            if (index !== null) {
+              onPointTap?.(index);
+              e.preventDefault();
+            }
+          }
+        }
+      }
+      startTouch = null;
+    };
+
     canvas.addEventListener('mousemove', canvasMoveListener);
-    return () => canvas.removeEventListener('mousemove', canvasMoveListener);
+    canvas.addEventListener('touchstart', touchStartListener, true);
+    canvas.addEventListener('touchend', touchEndListener, true);
+    return () => {
+      canvas.removeEventListener('mousemove', canvasMoveListener);
+      canvas.removeEventListener('touchstart', touchStartListener, true);
+      canvas.removeEventListener('touchend', touchEndListener, true);
+    };
   }, [
     canvas,
     mouse,
@@ -103,6 +174,7 @@ const PointClickAndHover = () => {
     scatterPoints,
     onPointHoverStart,
     onPointHoverEnd,
+    onPointTap,
     pointRenderConfigs,
   ]);
 
@@ -183,7 +255,7 @@ const PointClickAndHover = () => {
     </>
   );
 };
-export default PointClickAndHover;
+export default PointInteractions;
 
 function mouseToThree(
   mouseX: number,

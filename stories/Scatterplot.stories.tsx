@@ -107,7 +107,7 @@ const DarkModeTemplate: Story<ScatterplotProps> = args => (
 
 export const DarkMode = DarkModeTemplate.bind({});
 
-const PointerEventsTemplate: Story<ScatterplotProps> = args => {
+const PointInteractionTemplate: Story<ScatterplotProps> = args => {
   const [tooltipContent, setTooltipContent] = useState<React.ReactNode>(null);
 
   const handlePointHoverStart = useCallback((pointIndex: number) => {
@@ -154,7 +154,7 @@ const PointerEventsTemplate: Story<ScatterplotProps> = args => {
   );
 };
 
-const pointerEventExampleProps: ScatterplotProps = {
+const pointInteractionProps: ScatterplotProps = {
   xAxis: defaultXAxisConfig,
   yAxis: defaultYAxisConfig,
   color: customColorEncodings,
@@ -171,7 +171,20 @@ const pointerEventExampleProps: ScatterplotProps = {
       `Clicked point at index ${pointIndex}\n${xFeatureName}: ${pointMetadata.x}\n${yFeatureName}: ${pointMetadata.y}\n${categoryFeatureName}: ${pointMetadata.category}`
     );
   },
+  onPointTap: pointIndex => {
+    const pointMetadata = {
+      x: defaultXAxisConfig.data[pointIndex],
+      y: defaultYAxisConfig.data[pointIndex],
+      category: customColorEncodings.data[pointIndex],
+    };
+    const xFeatureName = defaultXAxisConfig.featureName;
+    const yFeatureName = defaultYAxisConfig.featureName;
+    const categoryFeatureName = customColorEncodings.featureName;
+    alert(
+      `Tapped point at index ${pointIndex}\n${xFeatureName}: ${pointMetadata.x}\n${yFeatureName}: ${pointMetadata.y}\n${categoryFeatureName}: ${pointMetadata.category}`
+    );
+  },
 };
 
-export const PointerEventsAndTooltip = PointerEventsTemplate.bind({});
-PointerEventsAndTooltip.args = pointerEventExampleProps;
+export const PointInteractionAndTooltip = PointInteractionTemplate.bind({});
+PointInteractionAndTooltip.args = pointInteractionProps;

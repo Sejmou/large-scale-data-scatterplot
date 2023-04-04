@@ -13,7 +13,7 @@ import {
   useScatterplotStore,
   VertexColorEncodingConfig,
 } from './store';
-import PointClickAndHover from './PointClickAndHover';
+import PointInteractions from './PointInteractions';
 import { useResizeDetector } from 'react-resize-detector';
 import Legend from './Legend';
 import PlotSVGContent from './PlotSVGContent';
@@ -35,6 +35,7 @@ export type ScatterplotProps<CategoryFeatureValue extends string = string> = {
   onPointClick?: (pointIndex: number) => void;
   onPointHoverStart?: (pointIndex: number) => void;
   onPointHoverEnd?: () => void;
+  onPointTap?: (pointIndex: number) => void;
   canvasId?: string;
   margins?: Partial<PlotMargins>;
   darkMode?: boolean;
@@ -101,6 +102,12 @@ const Scatterplot = <CategoryFeatureValue extends string>(
       store.setState({ onPointHoverEnd });
     }
   }, [props.onPointHoverEnd, store]);
+  useEffect(() => {
+    const onPointTap = props.onPointTap;
+    if (onPointTap) {
+      store.setState({ onPointTap });
+    }
+  }, [props.onPointTap, store]);
   useEffect(() => {
     const marginLeft = props.margins?.left;
     if (marginLeft !== undefined) {
@@ -284,10 +291,10 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
             transform: `translate(${marginLeft}px, ${marginTop}px)`,
           }}
         >
-          <div className="h-full w-full" ref={canvasWrapperRef}>
+          <div className="h-full w-full select-none" ref={canvasWrapperRef}>
             <Canvas ref={canvasRef} camera={{ fov, near, far }} id={canvasId}>
               <Camera />
-              <PointClickAndHover />
+              <PointInteractions />
               {/* Points should rerender on every resize - using the key prop like this is my dirty hack for that lol */}
               <Points key={pointsKey} />
             </Canvas>

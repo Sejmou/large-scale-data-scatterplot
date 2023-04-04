@@ -50,6 +50,7 @@ type State<CategoryFeatureValue extends string = string> = {
   onPointClick?: (pointIndex: number) => void;
   onPointHoverStart?: (pointIndex: number) => void;
   onPointHoverEnd?: () => void;
+  onPointTap?: (pointIndex: number) => void;
   fov: number;
   near: number;
   far: number;
