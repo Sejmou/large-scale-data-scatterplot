@@ -112,7 +112,7 @@ function App() {
       case 'use category encodings':
         return {
           mode: 'color-encodings',
-          featureName: categoricalFeature,
+          featureNameHeading: categoricalFeature,
           data: categoricalData.map(d => d[categoricalFeature]),
           encodings: colorEncodings,
         };
