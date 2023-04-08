@@ -29,7 +29,7 @@ export type VertexColorEncodingConfig<
   CategoryFeatureValue extends string = string
 > = {
   mode: 'color-encodings';
-  featureName: string;
+  featureNameHeading?: string;
   data: string[];
   encodings: [CategoryFeatureValue, CSSHexColorString][];
 };

@@ -279,7 +279,10 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
       ref={containerRef}
     >
       {color?.mode === 'color-encodings' && (
-        <Legend encodings={color.encodings} />
+        <Legend
+          encodings={color.encodings}
+          featureNameHeading={color.featureNameHeading}
+        />
       )}
       <div className="w-full h-full flex-1 relative">
         <PlotSVGContent />
@@ -287,7 +290,7 @@ const ScatterplotChild = <CategoryFeatureValue extends string>({
           className="relative"
           style={{
             width: `calc(100% - ${marginLeft + marginRight}px)`,
-            height: `calc(100% - ${marginTop + marginBottom}px)`,
+            height: `calc(100% - ${marginBottom}px)`,
             transform: `translate(${marginLeft}px, ${marginTop}px)`,
           }}
         >

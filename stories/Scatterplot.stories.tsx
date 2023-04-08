@@ -60,7 +60,21 @@ WithCustomColor.args = {
 
 Default.args = {};
 
-export const WithColorEncodings = Template.bind({});
+export const WithColorEncodingsNoHeading = Template.bind({});
+const customColorEncodingsNoHeading: VertexColorEncodingConfig = {
+  mode: 'color-encodings',
+  encodings: [
+    ['A', '#00ffff'],
+    ['B', '#ff00ff'],
+    ['C', '#0000ff'],
+  ],
+  data: ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B'],
+};
+WithColorEncodingsNoHeading.args = {
+  color: customColorEncodingsNoHeading,
+};
+
+export const WithColorEncodingsAndHeading = Template.bind({});
 const customColorEncodings: VertexColorEncodingConfig = {
   mode: 'color-encodings',
   encodings: [
@@ -68,10 +82,10 @@ const customColorEncodings: VertexColorEncodingConfig = {
     ['B', '#ff00ff'],
     ['C', '#0000ff'],
   ],
-  featureName: 'Some categorical feature',
+  featureNameHeading: 'Some categorical feature',
   data: ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B'],
 };
-WithColorEncodings.args = {
+WithColorEncodingsAndHeading.args = {
   color: customColorEncodings,
 };
 
@@ -118,7 +132,7 @@ const PointInteractionTemplate: Story<ScatterplotProps> = args => {
     };
     const xFeatureName = defaultXAxisConfig.featureName;
     const yFeatureName = defaultYAxisConfig.featureName;
-    const categoryFeatureName = customColorEncodings.featureName;
+    const categoryFeatureName = customColorEncodings.featureNameHeading;
     setTooltipContent(
       <div>
         <div className="font-bold">Point at index {pointIndex}</div>
@@ -166,7 +180,7 @@ const pointInteractionProps: ScatterplotProps = {
     };
     const xFeatureName = defaultXAxisConfig.featureName;
     const yFeatureName = defaultYAxisConfig.featureName;
-    const categoryFeatureName = customColorEncodings.featureName;
+    const categoryFeatureName = customColorEncodings.featureNameHeading;
     alert(
       `Clicked point at index ${pointIndex}\n${xFeatureName}: ${pointMetadata.x}\n${yFeatureName}: ${pointMetadata.y}\n${categoryFeatureName}: ${pointMetadata.category}`
     );
@@ -179,7 +193,7 @@ const pointInteractionProps: ScatterplotProps = {
     };
     const xFeatureName = defaultXAxisConfig.featureName;
     const yFeatureName = defaultYAxisConfig.featureName;
-    const categoryFeatureName = customColorEncodings.featureName;
+    const categoryFeatureName = customColorEncodings.featureNameHeading;
     alert(
       `Tapped point at index ${pointIndex}\n${xFeatureName}: ${pointMetadata.x}\n${yFeatureName}: ${pointMetadata.y}\n${categoryFeatureName}: ${pointMetadata.category}`
     );

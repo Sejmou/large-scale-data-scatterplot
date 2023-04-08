@@ -29,6 +29,8 @@ I followed [this](https://zach.codes/build-your-own-flexible-component-library-u
 ## Open features
 
  * axis tick rotation (not as simple as expected to implement)
+ * legend positioning
+ * smarter plot margin config
 
 ## Known bugs
 
